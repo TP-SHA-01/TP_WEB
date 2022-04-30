@@ -38,7 +38,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                  && r.Field<DateTime>("LastVslETD") <= DateTime.Now.AddDays(4)
                                  //TODO Debug
                                  // && r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(-1)
-                                 && r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(-4)
+                                 && r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(-5)
                                  select r);
                     if (query.Count() > 0)
                     {

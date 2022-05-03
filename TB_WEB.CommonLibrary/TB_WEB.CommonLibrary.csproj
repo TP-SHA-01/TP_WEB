@@ -62,6 +62,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -71,15 +72,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonFun\CommonFun.cs" />
+    <Compile Include="CommonFun\StringExtensions.cs" />
+    <Compile Include="Date\DateFormatHelper.cs" />
     <Compile Include="Encrypt\Decryption.cs" />
+    <Compile Include="Encrypt\Encryption.cs" />
+    <Compile Include="File\FileTransfer.cs" />
+    <Compile Include="File\FileTransfer_Mail.cs" />
+    <Compile Include="File\FileTransfer_Mail_Attach.cs" />
     <Compile Include="Helpers\DBHelper.cs" />
     <Compile Include="Helpers\DBHelperBase.cs" />
+    <Compile Include="Helpers\DBMSSQLHelper.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
     <Compile Include="Helpers\NPOIHelper.cs" />
     <Compile Include="Log\LogHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Mail\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <Content Include="NLog.config">

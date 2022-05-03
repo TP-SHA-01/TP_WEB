@@ -57,6 +57,10 @@
       <Project>{806d05e5-0197-4410-99d0-aa087f140547}</Project>
       <Name>TB_WEB.CommonLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WebApi\WebApi.csproj">
+      <Project>{7a4dd17e-1262-4981-a795-d31c7abd329a}</Project>
+      <Name>WebApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

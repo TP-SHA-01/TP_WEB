@@ -7,16 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using TB_WEB.CommonLibrary.CommonFun;
 using TB_WEB.CommonLibrary.Helpers;
+using WebApi.Services;
 
 namespace TP_Console
 {
     class Program
     {
-        DBHelper dBHelper = new DBHelper();
-
         static void Main(string[] args)
         {
-            DataTable dt = CommonFun.GetAMSFilingData();
+            DataTable dt = AMSFilingRpt_Service.GetAMSFilingData();
 
             string ret = JsonConvert.SerializeObject(dt);
 

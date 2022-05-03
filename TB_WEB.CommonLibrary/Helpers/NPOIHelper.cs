@@ -15,8 +15,106 @@ namespace TB_WEB.CommonLibrary.Helpers
     /// <summary>
     /// office 导入导出
     /// </summary>
-    public class NPOIHelper
+    public static class NPOIHelper
     {
+        public static MemoryStream RenderToExcel(DataTable table)
+        {
+            MemoryStream ms = new MemoryStream();
+
+            using (table)
+            {
+                IWorkbook workbook = new HSSFWorkbook();
+                ISheet sheet = workbook.CreateSheet();
+                IDataFormat format = workbook.CreateDataFormat();
+                ICellStyle dateStyle = workbook.CreateCellStyle();
+                dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
+                IRow headerRow = sheet.CreateRow(0);
+
+                // handling header.
+                foreach (DataColumn column in table.Columns)
+                    headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+                    
+
+                int[] arrColWidth = new int[table.Columns.Count];
+                foreach (DataColumn item in table.Columns)
+                {
+                    arrColWidth[item.Ordinal] = Encoding.GetEncoding("UTF-8").GetBytes(item.ColumnName.ToString()).Length;
+                }
+                for (int i = 0; i < table.Rows.Count; i++)
+                {
+                    for (int j = 0; j < table.Columns.Count; j++)
+                    {
+                        int intTemp = Encoding.GetEncoding("UTF-8").GetBytes(table.Rows[i][j].ToString()).Length;
+                        if (intTemp > arrColWidth[j])
+                        {
+                            arrColWidth[j] = intTemp;
+                        }
+                    }
+                }
+
+                // handling value.
+                int rowIndex = 1;
+
+                foreach (DataRow row in table.Rows)
+                {
+                    IRow dataRow = sheet.CreateRow(rowIndex);
+                    
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        ICell newCell = dataRow.CreateCell(column.Ordinal);
+                        string drValue = row[column].ToString();
+                        switch (column.DataType.ToString())
+                        {
+                            case "System.String"://字符串类型
+                                newCell.SetCellValue(drValue);
+                                break;
+                            case "System.DateTime"://日期类型
+                                DateTime dateV;
+                                DateTime.TryParse(drValue, out dateV);
+                                newCell.SetCellValue(dateV);
+                                newCell.CellStyle = dateStyle;//格式化显示
+                                break;
+                            case "System.Boolean"://布尔型
+                                bool boolV = false;
+                                bool.TryParse(drValue, out boolV);
+                                newCell.SetCellValue(boolV);
+                                break;
+                            case "System.Int16":
+                            case "System.Int32":
+                            case "System.Int64":
+                            case "System.Byte":
+                                int intV = 0;
+                                int.TryParse(drValue, out intV);
+                                newCell.SetCellValue(intV);
+                                break;
+                            case "System.Decimal":
+                            case "System.Double":
+                                double doubV = 0;
+                                double.TryParse(drValue, out doubV);
+                                newCell.SetCellValue(doubV);
+                                break;
+                            case "System.DBNull"://空值处理
+                                newCell.SetCellValue("");
+                                break;
+                            default:
+                                newCell.SetCellValue("");
+                                break;
+                        }
+
+                        sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
+                    }
+
+                    rowIndex++;
+                }
+
+                workbook.Write(ms);
+                ms.Flush();
+                ms.Position = 0;
+
+            }
+            return ms;
+        }
+
         /// <summary>
         /// DataTable 导出到 Excel 的 MemoryStream
         /// </summary>

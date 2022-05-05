@@ -34,6 +34,8 @@ namespace WebApi.Edi.Topocean.EdiModels.Common
         public static string ApiUrl = ConfigurationManager.AppSettings["API_END_POINT"] ?? "";
         public static string WBISRV_APP_CODE = ConfigurationManager.AppSettings["WBISRV_APP_CODE"] ?? "";
         public static string Bucket = ConfigurationManager.AppSettings["AWSBucketToLabel"] ?? "";
+        public static string ENVIRONMENT = ConfigurationManager.AppSettings["ASPNET_ENVIRONMENT"] ?? "";
+        public static string OFFICE_LIST = ConfigurationManager.AppSettings["OFFICE_LIST"] ?? "";
 
         public static int ExpiresTime = 30;
         public static int pageSize_Terminal_POST = Convert.ToInt32(ConfigurationManager.AppSettings["pageSize_Terminal_POST"] ?? "20") ;

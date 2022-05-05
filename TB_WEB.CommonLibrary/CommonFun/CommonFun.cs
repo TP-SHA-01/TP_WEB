@@ -584,6 +584,10 @@ namespace TB_WEB.CommonLibrary.CommonFun
             sb.Append("<style type=text/css>");
             sb.Append("td{font-size: 9pt;border:solid 1 #000000;width:200px;}");
             sb.Append("table{padding:3 0 3 0;border:solid 1 #000000;margin:0 0 0 0;BORDER-COLLAPSE: collapse;}");
+            sb.Append(".button { width: 200px;  padding:8px;  background-color: #428bca;  border-color: #357ebd;  " +
+                "color: #fff;  -moz-border-radius: 10px;  -webkit-border-radius: 10px;  border-radius: 10px; " +
+                "-khtml-border-radius: 10px;text-align: center;   vertical-align: middle;   border: 1px solid transparent;  " +
+                "font-weight: 900;  font-size:125% }   ");
             sb.Append("</style>");
             sb.Append("</head>");
             sb.Append("<body>");
@@ -620,6 +624,10 @@ namespace TB_WEB.CommonLibrary.CommonFun
                 sb.Append("</tr>");
             }
             sb.Append("</table>");
+            sb.Append("</br>");
+            sb.Append("<div> <i>If you want to input the remark, pls click this Link: </i>  </div>");
+            //sb.Append("<div> <input value='AMS Filing Check' type=button οnclick='window.location.href('https://www.topocean.com/WebBooking/toTBS.asp?targetPage=AMSFilingCheck.aspx')'> </div>");
+            sb.Append("<div> <p><a href='https://www.topocean.com/WebBooking/toTBS.asp?targetPage=AMSFilingCheck.aspx'>AMS Filing Check</a></p> </div>");
 
             //点击单元格 输出 行和列
             sb.Append("<script src='https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js'></script>");

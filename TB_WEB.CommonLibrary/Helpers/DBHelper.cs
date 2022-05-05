@@ -122,7 +122,18 @@ namespace TB_WEB.CommonLibrary.Helpers
         public DBHelper()
         {
             Decryption de = new Decryption();
-            string connStr = ConfigurationManager.AppSettings["DBCONNSTRING"];
+            string connStr = String.Empty;
+            string env = ConfigurationManager.AppSettings["ASPNET_ENVIRONMENT"];
+
+            if (env == "DEV")
+            {
+                connStr = ConfigurationManager.AppSettings["DBCONNSTRING_DEV"];
+            }
+            else if (env == "PRO")
+            {
+                connStr = ConfigurationManager.AppSettings["DBCONNSTRING_PRO"];
+            }
+            
             _ConnectionString = de.DecryptDBConnectionString(connStr);
             //_ConnectionString = "Provider=SQLOLEDB;server=LINDAMA-PC;database=TopoceanPOTracing;uid=TopUser1;pwd=TopUser1";
             //UserInfo.DBConnString = _ConnectionString;

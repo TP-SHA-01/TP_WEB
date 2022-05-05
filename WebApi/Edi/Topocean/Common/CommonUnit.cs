@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using TB_WEB.CommonLibrary.Helpers;
 using TB_WEB.CommonLibrary.Log;
+using WebApi.Edi.Topocean.Edi_Impl;
 using WebApi.Edi.Topocean.EdiModels.Common;
 
 namespace WebApi.Edi.Common
@@ -170,6 +171,49 @@ namespace WebApi.Edi.Common
                 LogHelper.Error(ex.Message);
             }
 
+        }
+
+        public static void InsertEDIMap(EDIMapModel model)
+        {
+
+
+            string insSQL = String.Empty;
+            try
+            {
+                if (model != null)
+                {
+                    insSQL = String.Format(" INSERT INTO EDIMap (EDIType,Identifier,Identifier2,Identifier3,ICN,GeneratedDate,AlertSentDate,Active) " +
+                                           "                 VALUES ({0},{1},{2},{3},{4},getDate(),getDate(),'Y') ",
+                          CommonUnit.retDBStr(CommonUnit.CheckEmpty(model.EDIType))
+                        , CommonUnit.retDBStr(CommonUnit.CheckEmpty(model.Identifier))
+                        , CommonUnit.retDBStr(String2Json(CommonUnit.CheckEmpty(model.Identifier2)))
+                        , CommonUnit.retDBStr(String2Json(CommonUnit.CheckEmpty(model.Identifier3)))
+                        , CommonUnit.retDBStr(String2Json(CommonUnit.CheckEmpty(model.ICN)))
+                    );
+
+                    DBHelper dbHelper = new DBHelper();
+                    dbHelper.ExecuteQuery(CommandType.Text, insSQL);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error(ex.Message);
+            }
+
+        }
+
+        public static void InsertAMSEDIRecord(EDIArchiveModel model, EDIMapModel edi_map_model) {
+
+            Base_EDI_Impl base_EDI = new Base_EDI_Impl();
+
+            base_EDI.init(new ParameterEntity() { icn_type = edi_map_model.icn_type });
+
+            string ICN = base_EDI.GetICN();
+            model.ICN = ICN;
+            edi_map_model.ICN = ICN;
+
+            InsertEDIArchive(model);
+            InsertEDIMap(edi_map_model);
         }
 
         public static void InsertReportDataQueue(ReportDataQueueModel model)

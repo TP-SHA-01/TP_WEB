@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
@@ -10,23 +11,27 @@ using TB_WEB.CommonLibrary.Date;
 using TB_WEB.CommonLibrary.Helpers;
 using TB_WEB.CommonLibrary.Log;
 using WebApi.Edi.Common;
+using WebApi.Edi.Topocean.EdiModels.Common;
+using WebApi.Models;
 
 namespace WebApi.Services
 {
     public class AMSFilingRpt_Service : IAMSFilingRpt
     {
         static DBHelper dbHelper = new DBHelper();
+        static string env = BaseCont.ENVIRONMENT;
 
         public IEnumerable<string> GetValue()
         {
-            return new List<string>() { "hi","PO" };
+            return new List<string>() { "hi", "PO" };
         }
 
-        public static DataTable GetAMSFilingData()
+        public static AMS_ResponseMode GetAMSFilingData(string originOffice)
         {
             EmailHelper emailHelper = new EmailHelper();
             DataTable retDB = new DataTable();
             MemoryStream stream = new MemoryStream();
+            AMS_ResponseMode responseMode = new AMS_ResponseMode();
 
             try
             {
@@ -36,26 +41,37 @@ namespace WebApi.Services
 
                 ps.Add(new OleDbParameter() { ParameterName = "@DateFrom", OleDbType = DBHelper.DBTypeMapping("DATETIME"), Value = DateTime.Now.AddDays(14).AddMonths(-3) });
                 ps.Add(new OleDbParameter() { ParameterName = "@DateTo", OleDbType = DBHelper.DBTypeMapping("DATETIME"), Value = DateTime.Today.AddDays(14) });
-                ps.Add(new OleDbParameter() { ParameterName = "@OriginOffice", OleDbType = DBHelper.DBTypeMapping("VARCHAR"), Size = 20, Value = "SHA" });
+                ps.Add(new OleDbParameter() { ParameterName = "@OriginOffice", OleDbType = DBHelper.DBTypeMapping("VARCHAR"), Size = 20, Value = originOffice });
                 dt = dbHelper.ExecDataTable(CommandType.StoredProcedure, sql, ps.ToArray());
-
+                if (dt == null)
+                {
+                    LogHelper.Error("GetAMSFilingData => No Record return");
+                    responseMode.result = "Error";
+                    return responseMode;
+                }
                 if (dt.Rows.Count > 0)
                 {
                     int week = (int)DateTime.Now.DayOfWeek;
                     int lastVslETD_From = 0;
                     int lastVslETD_To = 0;
 
-                    if (week >=1 && week <= 4)
+                    if (week >= 1 && week <= 4)
                     {
                         // Mon - Th
                         lastVslETD_From = 4;
                         lastVslETD_To = -1;
                     }
-                    else if (week == 5) 
+                    else if (week == 5)
                     {
                         // Fr
                         lastVslETD_From = 6;
                         lastVslETD_To = -1;
+                    }
+
+                    // TODO When DEV change ETD 
+                    if (env == "DEV")
+                    {
+                        lastVslETD_To = -15;
                     }
 
                     stream = NPOIHelper.RenderToExcel(dt);
@@ -63,9 +79,7 @@ namespace WebApi.Services
                                  where (r.Field<string>("Late1Y_30Hr").Trim() != "N")
                                  && r.Field<int>("CBPVsLstVslETD") < 24
                                  && r.Field<DateTime>("LastVslETD") <= DateTime.Now.AddDays(lastVslETD_From)
-                                 //TODO Debug
-                                 // && r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(lastVslETD_To)
-                                 && r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(-15)
+                                 && r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(lastVslETD_To)
                                  select r);
                     if (query.Count() > 0)
                     {
@@ -82,19 +96,37 @@ namespace WebApi.Services
                     }
                     string mailBody = CommonFun.GetHtmlString(retDB);
                     string fileName = "AMSFilingCheckRpt_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-                    string title = "[Test] AMS Filing Checking Alert - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                    string title = String.Empty;
+
+                    if (env == "DEV")
+                    {
+                        title = "[Test] AMS Filing Checking Alert - " + originOffice + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                    }
+                    else
+                    {
+                        title = "AMS Filing Checking Alert - " + originOffice + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                    }
+
+
                     Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
                     keyValues.Add(fileName, stream);
+                    string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"];
+                    
+                    emailHelper.SendMailViaAPI(title, mailBody, mailList, keyValues);
 
-                    emailHelper.SendMailViaAPI(title, mailBody, "ethanshen@topocean.com.cn;lindama@topocean.com.cn", keyValues);
+                    responseMode.table = retDB;
+                    responseMode.temptable = dt;
+                    responseMode.mailTo = mailList;
+                    responseMode.result = "Success";
                 }
             }
             catch (Exception ex)
             {
                 LogHelper.Error(ex.Message);
+                responseMode.result = "Error";
             }
 
-            return retDB;
+            return responseMode;
         }
     }
 }

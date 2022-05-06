@@ -17,7 +17,7 @@ namespace TB_WEB.CommonLibrary.Helpers
     /// </summary>
     public static class NPOIHelper
     {
-        public static MemoryStream RenderToExcel(DataTable table)
+        public static MemoryStream RenderToExcel(DataTable table,string sheetName = null)
         {
             MemoryStream ms = new MemoryStream();
 
@@ -29,7 +29,10 @@ namespace TB_WEB.CommonLibrary.Helpers
                 ICellStyle dateStyle = workbook.CreateCellStyle();
                 dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
                 IRow headerRow = sheet.CreateRow(0);
-
+                if (!String.IsNullOrEmpty(sheetName))
+                {
+                    workbook.SetSheetName(0, sheetName);
+                }
                 // handling header.
                 foreach (DataColumn column in table.Columns)
                     headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value

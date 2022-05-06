@@ -591,6 +591,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
             sb.Append("</style>");
             sb.Append("</head>");
             sb.Append("<body>");
+            sb.Append("<div> <i>To whom may concern: </i>  </div>");
             sb.Append("<table cellSpacing='0' cellPadding='0' width ='800px' border='1'>");
             sb.Append("<tr style='background:#03a9f4;display:table-cell; vertical-align:middle;'>");
             sb.Append("<td><b></b></td>");
@@ -625,7 +626,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
             }
             sb.Append("</table>");
             sb.Append("</br>");
-            sb.Append("<div> <i>If you want to input the remark, pls click this Link: </i>  </div>");
+            sb.Append("<div> <i>Authorized AMS monitor can  synchronize remarks in TBS page via below link </i>  </div>");
             //sb.Append("<div> <input value='AMS Filing Check' type=button οnclick='window.location.href('https://www.topocean.com/WebBooking/toTBS.asp?targetPage=AMSFilingCheck.aspx')'> </div>");
             sb.Append("<div> <p><a href='https://www.topocean.com/WebBooking/toTBS.asp?targetPage=AMSFilingCheck.aspx'>AMS Filing Check</a></p> </div>");
 

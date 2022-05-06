@@ -74,7 +74,8 @@ namespace WebApi.Services
                         lastVslETD_To = -15;
                     }
 
-                    stream = NPOIHelper.RenderToExcel(dt);
+                    string sheetName = DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd") + "=>" + DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
+                    stream = NPOIHelper.RenderToExcel(dt, sheetName);
                     var query = (from r in dt.AsEnumerable()
                                  where (r.Field<string>("Late1Y_30Hr").Trim() != "N")
                                  && r.Field<int>("CBPVsLstVslETD") < 24
@@ -94,8 +95,9 @@ namespace WebApi.Services
                         retDB.Columns["LastUsr"].ColumnName = "CREATE/LAST UPDATE USER";
                         retDB.Columns["Remark"].ColumnName = "CS/OP FOLLOW";
                     }
+                    
                     string mailBody = CommonFun.GetHtmlString(retDB);
-                    string fileName = "AMSFilingCheckRpt_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                    string fileName = "AMSFilingCheckRpt_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
                     string title = String.Empty;
 
                     if (env == "DEV")

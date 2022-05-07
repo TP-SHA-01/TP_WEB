@@ -58,19 +58,19 @@ namespace WebApi.Services
                     if (week >= 1 && week <= 4)
                     {
                         // Mon - Th {1,2,3,4}
-                        lastVslETD_From = 4;
+                        lastVslETD_From = 3;
                         lastVslETD_To = -1;
                     }
                     else if (week == 0 || week == 6)
                     {
                         // Sun:{0} Sat:{6}
-                        lastVslETD_From = 5;
+                        lastVslETD_From = 4;
                         lastVslETD_To = -1;
                     }
                     else if (week == 5)
                     {
                         // Fr {5}
-                        lastVslETD_From = 6;
+                        lastVslETD_From = 5;
                         lastVslETD_To = -1;
                     }
 

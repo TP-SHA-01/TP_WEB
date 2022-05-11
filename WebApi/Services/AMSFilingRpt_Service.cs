@@ -49,6 +49,7 @@ namespace WebApi.Services
                     responseMode.result = "Error";
                     return responseMode;
                 }
+
                 if (dt.Rows.Count > 0)
                 {
                     int week = (int)DateTime.Now.DayOfWeek;
@@ -77,7 +78,7 @@ namespace WebApi.Services
                     // When DEV change ETD 
                     if (env == "DEV")
                     {
-                        lastVslETD_To = -15;
+                        lastVslETD_To = -30;
                     }
 
                     string sheetName = DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd") + "=>" + DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
@@ -101,31 +102,38 @@ namespace WebApi.Services
                         retDB.Columns["LastUsr"].ColumnName = "CREATE/LAST UPDATE USER";
                         retDB.Columns["Remark"].ColumnName = "CS/OP FOLLOW";
                     }
-                    
-                    string mailBody = CommonFun.GetHtmlString(retDB);
-                    string fileName = "AMSFilingCheckRpt_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
-                    string title = String.Empty;
 
-                    if (env == "DEV")
+                    if (retDB.Rows.Count > 0)
                     {
-                        title = "[Test] AMS Filing Checking Alert - " + originOffice + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                        string mailBody = CommonFun.GetHtmlString(retDB);
+                        string fileName = "AMSFilingCheckRpt_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
+                        string title = String.Empty;
+
+                        if (env == "DEV")
+                        {
+                            title = "[Test] AMS Filing Checking Alert - " + originOffice + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                        }
+                        else
+                        {
+                            title = "AMS Filing Checking Alert - " + originOffice + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                        }
+
+                        Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
+                        keyValues.Add(fileName, stream);
+                        string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"];
+
+                        emailHelper.SendMailViaAPI(title, mailBody, mailList, keyValues);
+
+                        responseMode.table = retDB;
+                        responseMode.temptable = dt;
+                        responseMode.mailTo = mailList;
+                        responseMode.result = "Success";
                     }
                     else
                     {
-                        title = "AMS Filing Checking Alert - " + originOffice + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                        responseMode.result = "No Data ";
                     }
-
-
-                    Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
-                    keyValues.Add(fileName, stream);
-                    string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"];
                     
-                    emailHelper.SendMailViaAPI(title, mailBody, mailList, keyValues);
-
-                    responseMode.table = retDB;
-                    responseMode.temptable = dt;
-                    responseMode.mailTo = mailList;
-                    responseMode.result = "Success";
                 }
             }
             catch (Exception ex)

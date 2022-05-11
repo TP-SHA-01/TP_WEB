@@ -689,5 +689,32 @@ namespace TB_WEB.CommonLibrary.CommonFun
             return Htmltext;
 
         }
+
+        public static bool IsEmpty(Object str)
+        {
+            return str != null && !"".Equals(str) && !Convert.IsDBNull(str);
+        }
+
+        public static bool IsNotEmpty(string str)
+        {
+            return str != null && !String.IsNullOrEmpty(str);
+        }
+
+        public static string ReplaceWrap(Object str)
+        {
+            return CheckEmpty(str).Replace("\x0A", "<br/>").Replace("\x0D", "<br/>").Replace(" ", "&nbsp;");
+        }
+
+        public static string CheckEmpty(Object str)
+        {
+            string ret = String.Empty;
+
+            if (IsEmpty(str))
+            {
+                ret = str.ToString().Trim();
+            }
+
+            return ret;
+        }
     }
 }

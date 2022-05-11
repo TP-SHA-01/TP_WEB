@@ -185,6 +185,8 @@
     <Compile Include="HandleAttribute\AppLog.cs" />
     <Compile Include="HandleAttribute\LogFilterAttribute.cs" />
     <Compile Include="Models\AMS_ResponseMode.cs" />
+    <Compile Include="Models\ReportTemplate\ReportTempModel.cs" />
+    <Compile Include="Models\Result\CommonResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AMSFilingRpt_Service.cs" />
   </ItemGroup>

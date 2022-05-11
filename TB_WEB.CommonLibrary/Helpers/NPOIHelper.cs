@@ -3,8 +3,10 @@ using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,104 +19,137 @@ namespace TB_WEB.CommonLibrary.Helpers
     /// </summary>
     public static class NPOIHelper
     {
-        public static MemoryStream RenderToExcel(DataTable table,string sheetName = null)
+        public static MemoryStream RenderToExcel(DataTable table, string sheetName = null)
         {
             MemoryStream ms = new MemoryStream();
 
-            using (table)
+            try
             {
-                IWorkbook workbook = new HSSFWorkbook();
-                ISheet sheet = workbook.CreateSheet();
-                IDataFormat format = workbook.CreateDataFormat();
-                ICellStyle dateStyle = workbook.CreateCellStyle();
-                dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
-                IRow headerRow = sheet.CreateRow(0);
-                if (!String.IsNullOrEmpty(sheetName))
+                using (table)
                 {
-                    workbook.SetSheetName(0, sheetName);
-                }
-                // handling header.
-                foreach (DataColumn column in table.Columns)
-                    headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
-                    
-
-                int[] arrColWidth = new int[table.Columns.Count];
-                foreach (DataColumn item in table.Columns)
-                {
-                    arrColWidth[item.Ordinal] = Encoding.GetEncoding("UTF-8").GetBytes(item.ColumnName.ToString()).Length;
-                }
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    for (int j = 0; j < table.Columns.Count; j++)
+                    IWorkbook workbook = new HSSFWorkbook();
+                    //IWorkbook workbook = new XSSFWorkbook();
+                    ISheet sheet = workbook.CreateSheet();
+                    IDataFormat format = workbook.CreateDataFormat();
+                    ICellStyle dateStyle = workbook.CreateCellStyle();
+                    dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
+                    IRow headerRow = sheet.CreateRow(0);
+                    if (!String.IsNullOrEmpty(sheetName))
                     {
-                        int intTemp = Encoding.GetEncoding("UTF-8").GetBytes(table.Rows[i][j].ToString()).Length;
-                        if (intTemp > arrColWidth[j])
-                        {
-                            arrColWidth[j] = intTemp;
-                        }
+                        workbook.SetSheetName(0, sheetName);
                     }
-                }
-
-                // handling value.
-                int rowIndex = 1;
-
-                foreach (DataRow row in table.Rows)
-                {
-                    IRow dataRow = sheet.CreateRow(rowIndex);
-                    
+                    // handling header.
                     foreach (DataColumn column in table.Columns)
-                    {
-                        ICell newCell = dataRow.CreateCell(column.Ordinal);
-                        string drValue = row[column].ToString();
-                        switch (column.DataType.ToString())
-                        {
-                            case "System.String"://字符串类型
-                                newCell.SetCellValue(drValue);
-                                break;
-                            case "System.DateTime"://日期类型
-                                DateTime dateV;
-                                DateTime.TryParse(drValue, out dateV);
-                                newCell.SetCellValue(dateV);
-                                newCell.CellStyle = dateStyle;//格式化显示
-                                break;
-                            case "System.Boolean"://布尔型
-                                bool boolV = false;
-                                bool.TryParse(drValue, out boolV);
-                                newCell.SetCellValue(boolV);
-                                break;
-                            case "System.Int16":
-                            case "System.Int32":
-                            case "System.Int64":
-                            case "System.Byte":
-                                int intV = 0;
-                                int.TryParse(drValue, out intV);
-                                newCell.SetCellValue(intV);
-                                break;
-                            case "System.Decimal":
-                            case "System.Double":
-                                double doubV = 0;
-                                double.TryParse(drValue, out doubV);
-                                newCell.SetCellValue(doubV);
-                                break;
-                            case "System.DBNull"://空值处理
-                                newCell.SetCellValue("");
-                                break;
-                            default:
-                                newCell.SetCellValue("");
-                                break;
-                        }
+                        headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
 
-                        sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
+
+                    int[] arrColWidth = new int[table.Columns.Count];
+                    foreach (DataColumn item in table.Columns)
+                    {
+                        if (arrColWidth[item.Ordinal] >= 255)
+                        {
+                            arrColWidth[item.Ordinal] = 254;
+                        }
+                        else
+                        {
+                            arrColWidth[item.Ordinal] = Encoding.GetEncoding("UTF-8").GetBytes(item.ColumnName.ToString()).Length;
+                        }
+                    }
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        for (int j = 0; j < table.Columns.Count; j++)
+                        {
+                            int intTemp = Encoding.GetEncoding("UTF-8").GetBytes(table.Rows[i][j].ToString()).Length;
+                            if (intTemp > arrColWidth[j])
+                            {
+                                if (arrColWidth[j] >= 255)
+                                {
+                                    arrColWidth[j] = 254;
+                                }
+                                else
+                                {
+                                    arrColWidth[j] = intTemp;
+                                }
+
+                            }
+                        }
                     }
 
-                    rowIndex++;
+                    // handling value.
+                    int rowIndex = 1;
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        IRow dataRow = sheet.CreateRow(rowIndex);
+
+                        foreach (DataColumn column in table.Columns)
+                        {
+                            ICell newCell = dataRow.CreateCell(column.Ordinal);
+                            string drValue = row[column].ToString();
+                            switch (column.DataType.ToString())
+                            {
+                                case "System.String"://字符串类型
+                                    newCell.SetCellValue(drValue);
+                                    break;
+                                case "System.DateTime"://日期类型
+                                    DateTime dateV;
+                                    DateTime.TryParse(drValue, out dateV);
+                                    newCell.SetCellValue(dateV);
+                                    newCell.CellStyle = dateStyle;//格式化显示
+                                    break;
+                                case "System.Boolean"://布尔型
+                                    bool boolV = false;
+                                    bool.TryParse(drValue, out boolV);
+                                    newCell.SetCellValue(boolV);
+                                    break;
+                                case "System.Int16":
+                                case "System.Int32":
+                                case "System.Int64":
+                                case "System.Byte":
+                                    int intV = 0;
+                                    int.TryParse(drValue, out intV);
+                                    newCell.SetCellValue(intV);
+                                    break;
+                                case "System.Decimal":
+                                case "System.Double":
+                                    double doubV = 0;
+                                    double.TryParse(drValue, out doubV);
+                                    newCell.SetCellValue(doubV);
+                                    break;
+                                case "System.DBNull"://空值处理
+                                    newCell.SetCellValue("");
+                                    break;
+                                default:
+                                    newCell.SetCellValue("");
+                                    break;
+                            }
+
+                            if (arrColWidth[column.Ordinal] >= 255)
+                            {
+                                sheet.SetColumnWidth(column.Ordinal, 254);
+                            }
+                            else
+                            {
+                                sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
+                            }
+
+                        }
+
+                        rowIndex++;
+                    }
+
+                    workbook.Write(ms);
+                    ms.Flush();
+                    ms.Position = 0;
+
                 }
-
-                workbook.Write(ms);
-                ms.Flush();
-                ms.Position = 0;
-
             }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
             return ms;
         }
 
@@ -279,7 +314,7 @@ namespace TB_WEB.CommonLibrary.Helpers
         /// <param name="strFileName">保存位置(文件名及路径)</param>
         public static void ExportExcel(DataTable dtSource, string strHeaderText, string strFileName)
         {
-            using (MemoryStream ms = ExportExcel(dtSource, strHeaderText))
+            using (MemoryStream ms = RenderToExcel(dtSource, strHeaderText))
             {
                 using (FileStream fs = new FileStream(strFileName, FileMode.Create, FileAccess.Write))
                 {
@@ -296,7 +331,7 @@ namespace TB_WEB.CommonLibrary.Helpers
         /// </summary>
         /// <param name="strFileName">excel 文档路径</param>
         /// <returns></returns>
-        public static DataTable ImportExcel(string strFileName)
+        public static DataTable ImportExcel(string strFileName, int startLine, int lastLine)
         {
             int ii = strFileName.LastIndexOf(".");
             string filetype = strFileName.Substring(ii + 1, strFileName.Length - ii - 1);
@@ -321,14 +356,14 @@ namespace TB_WEB.CommonLibrary.Helpers
                 sheet = hssfworkbook.GetSheetAt(0);
             }
             System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
-            IRow headerRow = sheet.GetRow(0);
+            IRow headerRow = sheet.GetRow(startLine);
             int cellCount = headerRow.LastCellNum;
             for (int j = 0; j < cellCount; j++)
             {
                 ICell cell = headerRow.GetCell(j);
                 dt.Columns.Add(cell.ToString());
             }
-            for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++)
+            for (int i = (sheet.FirstRowNum + startLine); i <= sheet.LastRowNum - lastLine; i++)
             {
                 IRow row = sheet.GetRow(i);
                 if (row.GetCell(row.FirstCellNum) != null && row.GetCell(row.FirstCellNum).ToString().Length > 0)
@@ -693,5 +728,278 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
+        public static Dictionary<string, DataTable> ImportExcelByFileList(Dictionary<string, FileInfo> dict)
+        {
+            DataSet ds = new DataSet();
+            DataTable tempDt = InitTemplateTable();
+            Dictionary<string, DataTable> dicList = new Dictionary<string, DataTable>();
+            string filePath = String.Empty;
+            foreach (KeyValuePair<string, FileInfo> kvp in dict)
+            {
+                filePath = kvp.Value.DirectoryName;
+                DataTable dt = new DataTable();
+                ISheet sheet;
+                string strFileName = kvp.Value.FullName;
+                int ii = strFileName.LastIndexOf(".");
+                string filetype = strFileName.Substring(ii + 1, strFileName.Length - ii - 1);
+
+                if ("xlsx" == filetype)
+                {
+                    XSSFWorkbook xssfworkbook;
+                    using (FileStream file = new FileStream(strFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
+                        xssfworkbook = new XSSFWorkbook(file);
+                    }
+                    sheet = xssfworkbook.GetSheetAt(0);
+                }
+                else
+                {
+                    HSSFWorkbook hssfworkbook;
+                    using (FileStream file = new FileStream(strFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
+                        hssfworkbook = new HSSFWorkbook(file);
+                    }
+                    sheet = hssfworkbook.GetSheetAt(0);
+                }
+
+                IEnumerator rows = sheet.GetRowEnumerator();
+                int sheetRowCount = sheet.LastRowNum;
+                int headStartNum = 0;
+
+                for (int i = 0; i < sheetRowCount; i++)
+                {
+                    IRow _headerRow = sheet.GetRow(i);
+
+                    if (_headerRow != null)
+                    {
+                        ICell _cell = _headerRow.GetCell(1);
+
+                        if (!String.IsNullOrEmpty(_cell.ToString()))
+                        {
+                            if (_cell.ToString().ToUpper().Trim() == "WEEK")
+                            {
+                                headStartNum = i;
+                                break;
+                            }
+                        }
+                    }
+
+
+                }
+
+                IRow headerRow = sheet.GetRow(headStartNum);
+                int cellCount = headerRow.LastCellNum;
+
+                for (int j = 0; j < cellCount; j++)
+                {
+                    ICell cell = headerRow.GetCell(j);
+                    dt.Columns.Add(cell.ToString().ToUpper().Trim().Replace(" ", ""));
+                }
+
+                try
+                {
+                    for (int i = (sheet.FirstRowNum + 1 + headStartNum); i <= sheet.LastRowNum; i++)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row != null && row.FirstCellNum >= 0)
+                        {
+                            if (row.GetCell(row.FirstCellNum) != null && row.GetCell(row.FirstCellNum).ToString().Length > 0)
+                            {
+                                DataRow dataRow = dt.NewRow();
+                                if (row.GetCell(1) != null)
+                                {
+                                    if (!String.IsNullOrEmpty(row.GetCell(1).ToString()) && row.GetCell(1).ToString().ToUpper() != "WEEK")
+                                    {
+                                        for (int j = row.FirstCellNum; j < cellCount; j++)
+                                        {
+                                            if (row.GetCell(j) != null)
+                                            {
+
+                                                dataRow[j] = row.GetCell(j).ToString();
+
+                                            }
+                                        }
+                                        dt.Rows.Add(dataRow);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                    //throw ex;
+                }
+
+                string strOffice = kvp.Key.Split('.')[0].ToUpper();
+                if (strOffice == "MAL")
+                {
+                    dt.Columns["CONTRACTNO"].ColumnName = "CONTRACT#";
+                }
+                else if (strOffice == "SIN")
+                {
+                    dt.Columns.Add("MONTH");
+                    dt.Columns.Add("SONO");
+                    dt.Columns.Add("BY");
+                    dt.Columns.Add("SHIPPER");
+                    dt.Columns.Add("CONSOL");
+                    dt.Columns.Add("CBM");
+                    dt.Columns.Add("TYPE");
+                    dt.Columns.Add("MBLBOOKTO");
+
+                    dt.Columns["BOOKINGID"].ColumnName = "TRAFFIC";
+                    dt.Columns["BOOKINGSTATUS"].ColumnName = "AGENT";
+                    dt.Columns["DestOffice"].ColumnName = "NOMINATION";
+                    dt.Columns["Booked20"].ColumnName = "20";
+                    dt.Columns["Booked40"].ColumnName = "40";
+                    dt.Columns["Booked45"].ColumnName = "45";
+                    dt.Columns["BookedHQ"].ColumnName = "HQ";
+                    dt.Columns["Booked53"].ColumnName = "53";
+                    dt.Columns["BookedFEU"].ColumnName = "FEUS";
+                    dt.Columns["ContractNo"].ColumnName = "CONTRACT#";
+                    dt.Columns["CurrentETD"].ColumnName = "ETD";
+                    dt.Columns["CurrentETA"].ColumnName = "ETA";
+                    dt.Columns["FinalDest"].ColumnName = "DEST";
+                    dt.Columns["HBL"].ColumnName = "HOUSEBL#";
+                    dt.Columns["MBL"].ColumnName = "MASTERBL#";
+                    dt.Columns["ContainerList"].ColumnName = "CONTAINER#";
+
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        dr["MONTH"] = Convert.ToDateTime(dr["BookingDate"]).ToString("MMM", CultureInfo.CreateSpecificCulture("en-GB")).ToUpper();
+                        dr["TRAFFIC"] = "USA";
+                        dr["AGENT"] = "641";
+                        dr["BRANCH"] = "SINGAPORE";
+                    }
+                }
+
+
+                DataTable datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice));
+
+                ds.Tables.Add(datNew);
+                if (!dicList.ContainsKey(kvp.Value.Name))
+                {
+                    //DataTable d = UniteDataTable(tempDt, dataTable);
+                    //tempDt.Merge(dt, false);
+                    dicList.Add(kvp.Value.Name, datNew);
+                }
+            }
+
+            DataTable dataTable = GetAllDataTable(ds);
+            tempDt.Merge(dataTable, true);
+
+            ExportExcel(tempDt, "", filePath + "\\" + "LoadingReport_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls");
+            return dicList;
+        }
+
+        private static string[] ReturnOriginTemplateColumn(string strOffice)
+        {
+            // TTL, 53
+            string[] list = null;
+            strOffice = strOffice.ToUpper();
+
+            if (strOffice == "INDIA" || strOffice == "KOREA" || strOffice == "PHI")
+            {
+                list = new string[] {"MONTH","WEEK","BRANCH"
+                                    ,"TRAFFIC","BY","AGENT","SHIPPER"
+                                    ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ" ,"FEUS","CONSOL","CBM","TYPE","CARRIER" ,"SERVICESTRING"
+                                    ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#"};
+            }
+            else
+            {
+                list = new string[] {"MONTH","WEEK","BRANCH"
+                                    ,"TRAFFIC","BY","AGENT","SHIPPER"
+                                    ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ" ,"FEUS","CONSOL","CBM","TYPE","CARRIER"  ,"CONTRACT#" ,"SERVICESTRING"
+                                    ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#"};
+            }
+
+            return list;
+        }
+
+        private static string[] ReturnTemplateColumn()
+        {
+            string[] list = new string[] {"MONTH","WEEK","BRANCH"
+            ,"TRAFFIC","BY","AGENT","SHIPPER"
+            ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ","53" ,"FEUS","CONSOL","TTL","CBM","TYPE","CARRIER"  ,"CONTRACT#" ,"SERVICESTRING"
+            ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#","TRADE","ACCOUNT TYPE","LENTHOFHBL","SHIPMENTCOUNT","TOTALFEU"};
+            return list;
+        }
+
+        private static DataTable InitTemplateTable()
+        {
+            DataTable dt = new DataTable();
+
+            string[] list = ReturnTemplateColumn();
+            for (int i = 0; i < list.Length; i++)
+            {
+                dt.Columns.Add(list[i]);
+            }
+
+            return dt;
+        }
+
+        private static DataTable GetAllDataTable(DataSet ds)
+        {
+            DataTable newDataTable = ds.Tables[0].Clone();                //创建新表 克隆以有表的架构。
+            object[] objArray = new object[newDataTable.Columns.Count];   //定义与表列数相同的对象数组 存放表的一行的值。
+
+            try
+            {
+                for (int i = 0; i < ds.Tables.Count; i++)
+                {
+                    for (int j = 0; j < ds.Tables[i].Rows.Count; j++)
+                    {
+                        ds.Tables[i].Rows[j].ItemArray.CopyTo(objArray, 0);    //将表的一行的值存放数组中。
+                        newDataTable.Rows.Add(objArray);                       //将数组的值添加到新表中。
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            return newDataTable;                                           //返回新表。
+        }
+
+        private static DataTable UniteDataTable(DataTable dt1, DataTable dt2, string DTName = "Template")
+        {
+            DataTable dt3 = dt1.Clone();
+            for (int i = 0; i < dt2.Columns.Count; i++)
+                dt3.Columns.Add(dt2.Columns[i].ColumnName);
+            object[] obj = new object[dt3.Columns.Count];
+            for (int i = 0; i < dt1.Rows.Count; i++)
+            {
+                dt1.Rows[i].ItemArray.CopyTo(obj, 0);
+                dt3.Rows.Add(obj);
+            }
+            if (dt1.Rows.Count >= dt2.Rows.Count)
+            {
+                for (int i = 0; i < dt2.Rows.Count; i++)
+                {
+                    for (int j = 0; j < dt2.Columns.Count; j++)
+                        dt3.Rows[i][j + dt1.Columns.Count] = dt2.Rows[i][j].ToString();
+                }
+            }
+            else
+            {
+                DataRow dr3;
+                for (int i = 0; i < dt2.Rows.Count - dt1.Rows.Count; i++)
+                {
+                    dr3 = dt3.NewRow();
+                    dt3.Rows.Add(dr3);
+                }
+                for (int i = 0; i < dt2.Rows.Count; i++)
+                {
+                    for (int j = 0; j < dt2.Columns.Count; j++)
+                        dt3.Rows[i][j + dt1.Columns.Count] = dt2.Rows[i][j].ToString();
+                }
+            }
+            dt3.TableName = DTName; //设置DT的名字
+            return dt3;
+        }
     }
 }

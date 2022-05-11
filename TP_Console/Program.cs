@@ -19,10 +19,11 @@ namespace TP_Console
 {
     class Program
     {
-        private static int resend_count = 3;
+        private static int resend_count = 2;
         static void Main(string[] args)
         {
-            
+
+            Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Start Program"));
 
             if (!DoGetAMSFiling())
             {
@@ -37,13 +38,16 @@ namespace TP_Console
             else
             {
                 LogHelper.Debug("Sent Success");
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
             }
-            
+
+            Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
         }
 
         private static bool DoGetAMSFiling() {
             bool ret = true;
             DataTable dt = new DataTable();
+
             try
             {
                 string officeList = ConfigurationManager.AppSettings["OFFICE_LIST"];
@@ -57,9 +61,8 @@ namespace TP_Console
 
                 for (int i = 0; i < list.Length; i++)
                 {
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Office-" + list[i] + " Strat"));
                     AMS_ResponseMode responseMode = AMSFilingRpt_Service.GetAMSFilingData(list[i]);
-
-                   
                     EDIMapModel model = new EDIMapModel();
                     model.EDIType = "AMS_ALERT";
                     model.Identifier = list[i];
@@ -71,11 +74,11 @@ namespace TP_Console
                     archive_model.DataContent = JsonConvert.SerializeObject(responseMode.table);
                     archive_model.EDIContent = JsonConvert.SerializeObject(responseMode.temptable);
 
-
                     CommonUnit.InsertAMSEDIRecord(archive_model,model);
 
                     if (responseMode.result != "Success")
                     {
+                        Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), responseMode.result));
                         for (int x = 1; x < resend_count; x++)
                         {
                             if (DoGetAMSFiling())
@@ -84,13 +87,19 @@ namespace TP_Console
                             }
                         }
                     }
+
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Office-" + list[i] + " End"));
+
                     Thread.Sleep(180000);
                 }
+
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Sent Sucess"));
             }
             catch (Exception ex)
             {
                 ret = false;
                 LogHelper.Error("Message: " +  ex.Message + ",StackTrace: " + ex.StackTrace);
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
             
             return ret;

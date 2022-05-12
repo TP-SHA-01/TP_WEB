@@ -32,6 +32,11 @@ namespace TB_WEB.CommonLibrary.Helpers
                     ISheet sheet = workbook.CreateSheet();
                     IDataFormat format = workbook.CreateDataFormat();
                     ICellStyle dateStyle = workbook.CreateCellStyle();
+                    dateStyle.Alignment = HorizontalAlignment.Center;
+                    IFont font = workbook.CreateFont();
+                    font.Boldweight = 700;
+                    dateStyle.SetFont(font);
+
                     dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
                     IRow headerRow = sheet.CreateRow(0);
                     if (!String.IsNullOrEmpty(sheetName))
@@ -42,13 +47,14 @@ namespace TB_WEB.CommonLibrary.Helpers
                     foreach (DataColumn column in table.Columns)
                         headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
 
+                    sheet.ForceFormulaRecalculation = true;
 
                     int[] arrColWidth = new int[table.Columns.Count];
                     foreach (DataColumn item in table.Columns)
                     {
                         if (arrColWidth[item.Ordinal] >= 255)
                         {
-                            arrColWidth[item.Ordinal] = 254;
+                            arrColWidth[item.Ordinal] = 99;
                         }
                         else
                         {
@@ -64,7 +70,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                             {
                                 if (arrColWidth[j] >= 255)
                                 {
-                                    arrColWidth[j] = 254;
+                                    arrColWidth[j] = 99;
                                 }
                                 else
                                 {
@@ -126,11 +132,11 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                             if (arrColWidth[column.Ordinal] >= 255)
                             {
-                                sheet.SetColumnWidth(column.Ordinal, 254);
+                                sheet.SetColumnWidth(column.Ordinal, 99);
                             }
                             else
                             {
-                                sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
+                                sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 199);
                             }
 
                         }
@@ -833,6 +839,8 @@ namespace TB_WEB.CommonLibrary.Helpers
                     //throw ex;
                 }
 
+                sheet.ForceFormulaRecalculation = true;
+
                 string strOffice = kvp.Key.Split('.')[0].ToUpper();
                 if (strOffice == "MAL")
                 {
@@ -889,6 +897,55 @@ namespace TB_WEB.CommonLibrary.Helpers
 
             DataTable dataTable = GetAllDataTable(ds);
             tempDt.Merge(dataTable, true);
+
+            try
+            {
+                foreach (DataRow dr in tempDt.Rows)
+                {
+                    double _40 = CheckNumber(dr["40"]);
+                    double _45 = CheckNumber(dr["45"]);
+                    double _HQ = CheckNumber(dr["HQ"]);
+                    double _20 = CheckNumber(dr["20"]);
+                    double _CONSOL = CheckNumber(dr["CONSOL"]);
+
+                    double _feus = (_40 + _45 + _HQ) + (_20 / 2) + (_CONSOL * -1);
+                    double _ttl = _feus + _CONSOL;
+
+                    dr["FEUS"] = String.Empty;
+                    if (_feus > 0)
+                    {
+                        dr["FEUS"] = _feus;
+                    }
+
+                    dr["TTL"] = String.Empty;
+                    if (_ttl > 0)
+                    {
+                        dr["TTL"] = _ttl;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            
+
+            tempDt.Columns["PRINCIPAL"].ColumnName = "Principal";
+            tempDt.Columns["NOMINATIONSALES"].ColumnName = "NOMINATION SALES";
+            tempDt.Columns["CONTRACT#"].ColumnName = "CONTRACT #";
+            tempDt.Columns["SERVICESTRING"].ColumnName = "SERVICE STRING";
+            tempDt.Columns["SONO"].ColumnName = "SO NO";
+            tempDt.Columns["MBLBOOKTO"].ColumnName = "MBL BOOK TO";
+            tempDt.Columns["HOUSEBL#"].ColumnName = "HOUSEBL #";
+            tempDt.Columns["MASTERBL#"].ColumnName = "MASTERBL #";
+            tempDt.Columns["CONTAINER#"].ColumnName = "CONTAINER #";
+            tempDt.Columns["TRADE"].ColumnName = "Trade";
+            tempDt.Columns["ACCOUNT TYPE"].ColumnName = "Account Type";
+            tempDt.Columns["LENTHOFHBL"].ColumnName = "LENTH OF HBL";
+            tempDt.Columns["SHIPMENTCOUNT"].ColumnName = "SHIPMENT COUNT";
+            tempDt.Columns["TOTALFEU"].ColumnName = "TOTAL FEU";
 
             ExportExcel(tempDt, "", filePath + "\\" + "LoadingReport_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls");
             return dicList;
@@ -1000,6 +1057,52 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
             dt3.TableName = DTName; //设置DT的名字
             return dt3;
+        }
+
+        private static bool IsEmpty(Object str)
+        {
+            return str != null && !"".Equals(str) && !Convert.IsDBNull(str);
+        }
+
+        private static bool IsNotEmpty(string str)
+        {
+            return str != null && !String.IsNullOrEmpty(str);
+        }
+
+        private static string ReplaceWrap(Object str)
+        {
+            return CheckEmpty(str).Replace("\x0A", "<br/>").Replace("\x0D", "<br/>").Replace(" ", "&nbsp;");
+        }
+
+        private static double CheckNumber(Object str) {
+            double ret = 0;
+            //try
+            //{
+            //    ret = double.Parse(CheckEmpty(str));
+            //}
+            //catch (Exception)
+            //{
+            //    ret = 0;
+            //}
+
+            if (double.TryParse(CheckEmpty(str),out ret))
+            {
+                return ret;
+            }
+
+            return ret;
+        }
+
+        private static string CheckEmpty(Object str)
+        {
+            string ret = String.Empty;
+
+            if (IsEmpty(str))
+            {
+                ret = str.ToString().Trim();
+            }
+
+            return ret;
         }
     }
 }

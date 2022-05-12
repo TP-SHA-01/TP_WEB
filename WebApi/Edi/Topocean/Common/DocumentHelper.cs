@@ -222,7 +222,7 @@ namespace WebApi.Edi.Common
                 tmpDT.Columns.Add(new DataColumn() { ColumnName = "destination", DataType = Type.GetType("System.String") });
                 tmpDT.Columns.Add(new DataColumn() { ColumnName = "destination_content", DataType = Type.GetType("System.String") });
                 tmpDT.Columns.Add(new DataColumn() { ColumnName = "sync", DataType = Type.GetType("System.Int32") });
-                tmpDT.Rows.Add(new Object[] { "base64", base64EncodeStr, "s3_topol", string.Format("GTtest/{0}", DOCFilename), 1 });
+                tmpDT.Rows.Add(new Object[] { "base64", base64EncodeStr, BaseCont.AWSS3DocBucket, string.Format(BaseCont.AWSS3ReportSubFolder+"/{0}", DOCFilename), 1 });
 
                 FileTransfer_Imp fileTransfer_Imp = new FileTransfer_Imp();
                 fileTransfer_Imp.init(tmpDT);

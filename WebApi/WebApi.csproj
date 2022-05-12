@@ -119,7 +119,6 @@
     <Compile Include="App_Start\AutofacConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="AutofacDI\AutofacWebApiConfig.cs" />
-    <Compile Include="bin\Program.cs" />
     <Compile Include="Controllers\AMSFilingController.cs" />
     <Compile Include="Edi\Topocean\Common\CallEDIServer.cs" />
     <Compile Include="Edi\Topocean\Common\CommonUnit.cs" />

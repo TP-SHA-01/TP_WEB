@@ -30,14 +30,15 @@ namespace Rpt_WebForm
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.btn_SelectMultiExcel = new System.Windows.Forms.Button();
             this.txt_MultiExcel = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.combReportType = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.btn_Combined = new System.Windows.Forms.Button();
             this.btn_ShowInfo = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
+            this.btn_Combined = new System.Windows.Forms.Button();
+            this.hidExcelPath = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -51,14 +52,23 @@ namespace Rpt_WebForm
             this.groupBox1.Controls.Add(this.combReportType);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(553, 114);
+            this.groupBox1.Size = new System.Drawing.Size(625, 114);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Setting";
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(65, 29);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(92, 20);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Report Type:";
+            // 
             // btn_SelectMultiExcel
             // 
-            this.btn_SelectMultiExcel.Location = new System.Drawing.Point(392, 65);
+            this.btn_SelectMultiExcel.Location = new System.Drawing.Point(524, 65);
             this.btn_SelectMultiExcel.Name = "btn_SelectMultiExcel";
             this.btn_SelectMultiExcel.Size = new System.Drawing.Size(94, 29);
             this.btn_SelectMultiExcel.TabIndex = 3;
@@ -70,7 +80,7 @@ namespace Rpt_WebForm
             // 
             this.txt_MultiExcel.Location = new System.Drawing.Point(164, 67);
             this.txt_MultiExcel.Name = "txt_MultiExcel";
-            this.txt_MultiExcel.Size = new System.Drawing.Size(222, 27);
+            this.txt_MultiExcel.Size = new System.Drawing.Size(354, 27);
             this.txt_MultiExcel.TabIndex = 2;
             // 
             // label1
@@ -100,50 +110,58 @@ namespace Rpt_WebForm
             this.groupBox2.Controls.Add(this.btn_Combined);
             this.groupBox2.Location = new System.Drawing.Point(12, 132);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(553, 69);
+            this.groupBox2.Size = new System.Drawing.Size(625, 69);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             // 
-            // btn_Combined
-            // 
-            this.btn_Combined.Location = new System.Drawing.Point(353, 17);
-            this.btn_Combined.Name = "btn_Combined";
-            this.btn_Combined.Size = new System.Drawing.Size(95, 46);
-            this.btn_Combined.TabIndex = 0;
-            this.btn_Combined.Text = "Combined";
-            this.btn_Combined.UseVisualStyleBackColor = true;
-            // 
             // btn_ShowInfo
             // 
-            this.btn_ShowInfo.Location = new System.Drawing.Point(453, 16);
+            this.btn_ShowInfo.Location = new System.Drawing.Point(422, 16);
             this.btn_ShowInfo.Name = "btn_ShowInfo";
             this.btn_ShowInfo.Size = new System.Drawing.Size(95, 46);
             this.btn_ShowInfo.TabIndex = 1;
             this.btn_ShowInfo.Text = "View File";
             this.btn_ShowInfo.UseVisualStyleBackColor = true;
+            this.btn_ShowInfo.Visible = false;
+            this.btn_ShowInfo.Click += new System.EventHandler(this.btn_ShowInfo_Click);
             // 
-            // label2
+            // btn_Combined
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(65, 29);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(92, 20);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Report Type:";
+            this.btn_Combined.Location = new System.Drawing.Point(523, 17);
+            this.btn_Combined.Name = "btn_Combined";
+            this.btn_Combined.Size = new System.Drawing.Size(95, 46);
+            this.btn_Combined.TabIndex = 0;
+            this.btn_Combined.Text = "Combined";
+            this.btn_Combined.UseVisualStyleBackColor = true;
+            this.btn_Combined.Click += new System.EventHandler(this.btn_Combined_Click);
+            // 
+            // hidExcelPath
+            // 
+            this.hidExcelPath.BackColor = System.Drawing.SystemColors.Window;
+            this.hidExcelPath.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.hidExcelPath.Location = new System.Drawing.Point(626, 276);
+            this.hidExcelPath.Name = "hidExcelPath";
+            this.hidExcelPath.Size = new System.Drawing.Size(11, 20);
+            this.hidExcelPath.TabIndex = 5;
+            this.hidExcelPath.TabStop = false;
+            this.hidExcelPath.Visible = false;
             // 
             // Frm_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(577, 212);
+            this.ClientSize = new System.Drawing.Size(649, 214);
+            this.Controls.Add(this.hidExcelPath);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "Frm_Main";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Combine Tools";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -158,6 +176,7 @@ namespace Rpt_WebForm
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btn_ShowInfo;
         private System.Windows.Forms.Button btn_Combined;
+        private System.Windows.Forms.TextBox hidExcelPath;
     }
 }
 

@@ -35,6 +35,8 @@ namespace WebApi.Edi.Topocean.EdiModels.Common
         public static string WBISRV_APP_CODE = ConfigurationManager.AppSettings["WBISRV_APP_CODE"] ?? "";
         public static string Bucket = ConfigurationManager.AppSettings["AWSBucketToLabel"] ?? "";
         public static string ENVIRONMENT = ConfigurationManager.AppSettings["ASPNET_ENVIRONMENT"] ?? "";
+        public static string AWSS3DocBucket = ConfigurationManager.AppSettings["AWSS3DocBucket"] ?? "";
+        public static string AWSS3ReportSubFolder = ConfigurationManager.AppSettings["AWSS3ReportSubFolder"] ?? "";
         public static string OFFICE_LIST = ConfigurationManager.AppSettings["OFFICE_LIST"] ?? "";
 
         public static int ExpiresTime = 30;

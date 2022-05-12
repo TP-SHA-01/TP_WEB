@@ -717,7 +717,7 @@ namespace TB_WEB.CommonLibrary.Helpers
         /// <param name="len"></param>
         /// <param name="cellstyle"></param>
         /// <returns></returns>
-        public static bool CreateCellsWithLength(XSSFRow hssfrow, int len, XSSFCellStyle cellstyle)
+        public static void CreateCellsWithLength(XSSFRow hssfrow, int len, XSSFCellStyle cellstyle)
         {
             try
             {
@@ -726,7 +726,6 @@ namespace TB_WEB.CommonLibrary.Helpers
                     hssfrow.CreateCell(i);
                     hssfrow.Cells[i].CellStyle = cellstyle;
                 }
-                return true;
             }
             catch (Exception ce)
             {
@@ -734,7 +733,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
-        public static Dictionary<string, DataTable> ImportExcelByFileList(Dictionary<string, FileInfo> dict)
+        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict,string reportType,out string exportfilePath)
         {
             DataSet ds = new DataSet();
             DataTable tempDt = InitTemplateTable();
@@ -947,8 +946,10 @@ namespace TB_WEB.CommonLibrary.Helpers
             tempDt.Columns["SHIPMENTCOUNT"].ColumnName = "SHIPMENT COUNT";
             tempDt.Columns["TOTALFEU"].ColumnName = "TOTAL FEU";
 
-            ExportExcel(tempDt, "", filePath + "\\" + "LoadingReport_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls");
-            return dicList;
+            string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
+            ExportExcel(tempDt, "", originPath);
+
+            exportfilePath = originPath;
         }
 
         private static string[] ReturnOriginTemplateColumn(string strOffice)

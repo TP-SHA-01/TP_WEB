@@ -21,6 +21,9 @@ namespace Rpt_WebForm
         {
             InitializeComponent();
             combReportType.Items.AddRange(new object[] { "LoadingReport" });
+            combReportType.Items.AddRange(new object[] { "NONTP" });
+            combReportType.Items.AddRange(new object[] { "IMPORT" });
+            combReportType.Items.AddRange(new object[] { "CMT" });
             combReportType.SelectedIndex = 0;
             txt_MultiExcel.Enabled = false;
             //combReportType.Enabled = false;

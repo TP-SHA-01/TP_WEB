@@ -733,7 +733,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
-        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict,string reportType,out string exportfilePath)
+        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict, string reportType, out string exportfilePath)
         {
             DataSet ds = new DataSet();
             DataTable tempDt = InitTemplateTable();
@@ -788,8 +788,6 @@ namespace TB_WEB.CommonLibrary.Helpers
                             }
                         }
                     }
-
-
                 }
 
                 IRow headerRow = sheet.GetRow(headStartNum);
@@ -801,135 +799,149 @@ namespace TB_WEB.CommonLibrary.Helpers
                     dt.Columns.Add(cell.ToString().ToUpper().Trim().Replace(" ", ""));
                 }
 
-                try
+
+                for (int i = (sheet.FirstRowNum + 1 + headStartNum); i <= sheet.LastRowNum; i++)
                 {
-                    for (int i = (sheet.FirstRowNum + 1 + headStartNum); i <= sheet.LastRowNum; i++)
+                    IRow row = sheet.GetRow(i);
+                    if (row != null && row.FirstCellNum >= 0)
                     {
-                        IRow row = sheet.GetRow(i);
-                        if (row != null && row.FirstCellNum >= 0)
+                        if (row.GetCell(row.FirstCellNum) != null && row.GetCell(row.FirstCellNum).ToString().Length > 0)
                         {
-                            if (row.GetCell(row.FirstCellNum) != null && row.GetCell(row.FirstCellNum).ToString().Length > 0)
+                            DataRow dataRow = dt.NewRow();
+                            if (row.GetCell(1) != null)
                             {
-                                DataRow dataRow = dt.NewRow();
-                                if (row.GetCell(1) != null)
+                                if (!String.IsNullOrEmpty(row.GetCell(1).ToString()) && row.GetCell(1).ToString().ToUpper() != "WEEK")
                                 {
-                                    if (!String.IsNullOrEmpty(row.GetCell(1).ToString()) && row.GetCell(1).ToString().ToUpper() != "WEEK")
+                                    for (int j = row.FirstCellNum; j < cellCount; j++)
                                     {
-                                        for (int j = row.FirstCellNum; j < cellCount; j++)
+                                        if (row.GetCell(j) != null)
                                         {
-                                            if (row.GetCell(j) != null)
-                                            {
 
-                                                dataRow[j] = row.GetCell(j).ToString();
+                                            dataRow[j] = row.GetCell(j).ToString();
 
-                                            }
                                         }
-                                        dt.Rows.Add(dataRow);
                                     }
+                                    dt.Rows.Add(dataRow);
                                 }
                             }
                         }
-
                     }
+
                 }
-                catch (Exception ex)
-                {
-                    continue;
-                    //throw ex;
-                }
+
 
                 sheet.ForceFormulaRecalculation = true;
 
                 string strOffice = kvp.Key.Split('.')[0].ToUpper();
-                if (strOffice == "MAL")
+                DataTable datNew = new DataTable();
+
+                switch (reportType)
                 {
-                    dt.Columns["CONTRACTNO"].ColumnName = "CONTRACT#";
+                    case "LoadingReport":
+                        datNew = RenderLoadingReport(dt, strOffice);
+                        break;
+                    case "NONTP":
+                        break;
                 }
-                else if (strOffice == "SIN")
-                {
-                    dt.Columns.Add("MONTH");
-                    dt.Columns.Add("SONO");
-                    dt.Columns.Add("BY");
-                    dt.Columns.Add("SHIPPER");
-                    dt.Columns.Add("CONSOL");
-                    dt.Columns.Add("CBM");
-                    dt.Columns.Add("TYPE");
-                    dt.Columns.Add("MBLBOOKTO");
-
-                    dt.Columns["BOOKINGID"].ColumnName = "TRAFFIC";
-                    dt.Columns["BOOKINGSTATUS"].ColumnName = "AGENT";
-                    dt.Columns["DestOffice"].ColumnName = "NOMINATION";
-                    dt.Columns["Booked20"].ColumnName = "20";
-                    dt.Columns["Booked40"].ColumnName = "40";
-                    dt.Columns["Booked45"].ColumnName = "45";
-                    dt.Columns["BookedHQ"].ColumnName = "HQ";
-                    dt.Columns["Booked53"].ColumnName = "53";
-                    dt.Columns["BookedFEU"].ColumnName = "FEUS";
-                    dt.Columns["ContractNo"].ColumnName = "CONTRACT#";
-                    dt.Columns["CurrentETD"].ColumnName = "ETD";
-                    dt.Columns["CurrentETA"].ColumnName = "ETA";
-                    dt.Columns["FinalDest"].ColumnName = "DEST";
-                    dt.Columns["HBL"].ColumnName = "HOUSEBL#";
-                    dt.Columns["MBL"].ColumnName = "MASTERBL#";
-                    dt.Columns["ContainerList"].ColumnName = "CONTAINER#";
-
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        dr["MONTH"] = Convert.ToDateTime(dr["BookingDate"]).ToString("MMM", CultureInfo.CreateSpecificCulture("en-GB")).ToUpper();
-                        dr["TRAFFIC"] = "USA";
-                        dr["AGENT"] = "641";
-                        dr["BRANCH"] = "SINGAPORE";
-                    }
-                }
-
-
-                DataTable datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice));
 
                 ds.Tables.Add(datNew);
-                if (!dicList.ContainsKey(kvp.Value.Name))
-                {
-                    //DataTable d = UniteDataTable(tempDt, dataTable);
-                    //tempDt.Merge(dt, false);
-                    dicList.Add(kvp.Value.Name, datNew);
-                }
             }
 
             DataTable dataTable = GetAllDataTable(ds);
             tempDt.Merge(dataTable, true);
 
-            try
+
+            switch (reportType)
             {
-                foreach (DataRow dr in tempDt.Rows)
+                case "LoadingReport":
+                    ReturnTempDataTable(tempDt);
+                    break;
+                case "NONTP":
+                    break;
+
+            }
+
+
+            string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
+            ExportExcel(tempDt, "", originPath);
+
+            exportfilePath = originPath;
+        }
+
+        private static DataTable RenderLoadingReport(DataTable dt , string strOffice) {
+
+            if (strOffice == "MAL")
+            {
+                dt.Columns["CONTRACTNO"].ColumnName = "CONTRACT#";
+            }
+            else if (strOffice == "SIN")
+            {
+                dt.Columns.Add("MONTH");
+                dt.Columns.Add("SONO");
+                dt.Columns.Add("BY");
+                dt.Columns.Add("SHIPPER");
+                dt.Columns.Add("CONSOL");
+                dt.Columns.Add("CBM");
+                dt.Columns.Add("TYPE");
+                dt.Columns.Add("MBLBOOKTO");
+
+                dt.Columns["BOOKINGID"].ColumnName = "TRAFFIC";
+                dt.Columns["BOOKINGSTATUS"].ColumnName = "AGENT";
+                dt.Columns["DestOffice"].ColumnName = "NOMINATION";
+                dt.Columns["Booked20"].ColumnName = "20";
+                dt.Columns["Booked40"].ColumnName = "40";
+                dt.Columns["Booked45"].ColumnName = "45";
+                dt.Columns["BookedHQ"].ColumnName = "HQ";
+                dt.Columns["Booked53"].ColumnName = "53";
+                dt.Columns["BookedFEU"].ColumnName = "FEUS";
+                dt.Columns["ContractNo"].ColumnName = "CONTRACT#";
+                dt.Columns["CurrentETD"].ColumnName = "ETD";
+                dt.Columns["CurrentETA"].ColumnName = "ETA";
+                dt.Columns["FinalDest"].ColumnName = "DEST";
+                dt.Columns["HBL"].ColumnName = "HOUSEBL#";
+                dt.Columns["MBL"].ColumnName = "MASTERBL#";
+                dt.Columns["ContainerList"].ColumnName = "CONTAINER#";
+
+                foreach (DataRow dr in dt.Rows)
                 {
-                    double _40 = CheckNumber(dr["40"]);
-                    double _45 = CheckNumber(dr["45"]);
-                    double _HQ = CheckNumber(dr["HQ"]);
-                    double _20 = CheckNumber(dr["20"]);
-                    double _CONSOL = CheckNumber(dr["CONSOL"]);
-
-                    double _feus = (_40 + _45 + _HQ) + (_20 / 2) + (_CONSOL * -1);
-                    double _ttl = _feus + _CONSOL;
-
-                    dr["FEUS"] = String.Empty;
-                    if (_feus > 0)
-                    {
-                        dr["FEUS"] = _feus;
-                    }
-
-                    dr["TTL"] = String.Empty;
-                    if (_ttl > 0)
-                    {
-                        dr["TTL"] = _ttl;
-                    }
-
+                    dr["MONTH"] = Convert.ToDateTime(dr["BookingDate"]).ToString("MMM", CultureInfo.CreateSpecificCulture("en-GB")).ToUpper();
+                    dr["TRAFFIC"] = "USA";
+                    dr["AGENT"] = "641";
+                    dr["BRANCH"] = "SINGAPORE";
                 }
             }
-            catch (Exception ex)
-            {
 
-                throw ex;
+
+            DataTable datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice));
+
+            return datNew;
+        }
+        private static DataTable ReturnTempDataTable(DataTable tempDt) {
+
+            foreach (DataRow dr in tempDt.Rows)
+            {
+                double _40 = CheckNumber(dr["40"]);
+                double _45 = CheckNumber(dr["45"]);
+                double _HQ = CheckNumber(dr["HQ"]);
+                double _20 = CheckNumber(dr["20"]);
+                double _CONSOL = CheckNumber(dr["CONSOL"]);
+
+                double _feus = (_40 + _45 + _HQ) + (_20 / 2) + (_CONSOL * -1);
+                double _ttl = _feus + _CONSOL;
+
+                dr["FEUS"] = String.Empty;
+                if (_feus > 0)
+                {
+                    dr["FEUS"] = _feus;
+                }
+
+                dr["TTL"] = String.Empty;
+                if (_ttl > 0)
+                {
+                    dr["TTL"] = _ttl;
+                }
+
             }
-            
 
             tempDt.Columns["PRINCIPAL"].ColumnName = "Principal";
             tempDt.Columns["NOMINATIONSALES"].ColumnName = "NOMINATION SALES";
@@ -946,10 +958,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             tempDt.Columns["SHIPMENTCOUNT"].ColumnName = "SHIPMENT COUNT";
             tempDt.Columns["TOTALFEU"].ColumnName = "TOTAL FEU";
 
-            string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
-            ExportExcel(tempDt, "", originPath);
-
-            exportfilePath = originPath;
+            return tempDt;
         }
 
         private static string[] ReturnOriginTemplateColumn(string strOffice)
@@ -1075,7 +1084,8 @@ namespace TB_WEB.CommonLibrary.Helpers
             return CheckEmpty(str).Replace("\x0A", "<br/>").Replace("\x0D", "<br/>").Replace(" ", "&nbsp;");
         }
 
-        private static double CheckNumber(Object str) {
+        private static double CheckNumber(Object str)
+        {
             double ret = 0;
             //try
             //{
@@ -1086,7 +1096,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             //    ret = 0;
             //}
 
-            if (double.TryParse(CheckEmpty(str),out ret))
+            if (double.TryParse(CheckEmpty(str), out ret))
             {
                 return ret;
             }

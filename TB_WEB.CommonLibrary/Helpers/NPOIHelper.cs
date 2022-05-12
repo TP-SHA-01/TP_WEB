@@ -747,6 +747,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                 string strFileName = kvp.Value.FullName;
                 int ii = strFileName.LastIndexOf(".");
                 string filetype = strFileName.Substring(ii + 1, strFileName.Length - ii - 1);
+                string strOffice = kvp.Key.Split('.')[0].ToUpper();
 
                 if ("xlsx" == filetype)
                 {
@@ -755,7 +756,20 @@ namespace TB_WEB.CommonLibrary.Helpers
                     {
                         xssfworkbook = new XSSFWorkbook(file);
                     }
+
                     sheet = xssfworkbook.GetSheetAt(0);
+
+                    if (xssfworkbook.Count > 3)
+                    {
+                        if (strOffice == "INDONESIA" && reportType == "NONTP")
+                        {
+                            sheet = xssfworkbook.GetSheet("COMPILATION");
+                        }
+                        else
+                        {
+                            sheet = xssfworkbook.GetSheet("Sheet1");
+                        }
+                    }
                 }
                 else
                 {
@@ -764,7 +778,20 @@ namespace TB_WEB.CommonLibrary.Helpers
                     {
                         hssfworkbook = new HSSFWorkbook(file);
                     }
+
                     sheet = hssfworkbook.GetSheetAt(0);
+
+                    if (hssfworkbook.Count > 3)
+                    {
+                        if (strOffice == "INDONESIA" && reportType == "NONTP")
+                        {
+                            sheet = hssfworkbook.GetSheet("COMPILATION");
+                        }
+                        else
+                        {
+                            sheet = hssfworkbook.GetSheet("Sheet1");
+                        }
+                    }
                 }
 
                 IEnumerator rows = sheet.GetRowEnumerator();
@@ -832,15 +859,21 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                 sheet.ForceFormulaRecalculation = true;
 
-                string strOffice = kvp.Key.Split('.')[0].ToUpper();
+                
                 DataTable datNew = new DataTable();
 
                 switch (reportType)
                 {
                     case "LoadingReport":
-                        datNew = RenderLoadingReport(dt, strOffice);
+                        RenderLoadingReport(dt, strOffice);
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
                         break;
                     case "NONTP":
+                        RenderNONTPReport(dt, strOffice);
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        break;
+                    default:
+                        dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
                         break;
                 }
 
@@ -850,25 +883,23 @@ namespace TB_WEB.CommonLibrary.Helpers
             DataTable dataTable = GetAllDataTable(ds);
             tempDt.Merge(dataTable, true);
 
-
-            switch (reportType)
-            {
-                case "LoadingReport":
-                    ReturnTempDataTable(tempDt);
-                    break;
-                case "NONTP":
-                    break;
-
-            }
-
+            ReturnTempDataTable(tempDt);
 
             string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
             ExportExcel(tempDt, "", originPath);
 
             exportfilePath = originPath;
         }
+        private static void RenderNONTPReport(DataTable dt, string strOffice)
+        {
+            if (strOffice == "KOREA")
+            {
+                dt.Columns.Add("CONTRACT#");
+            }
+        }
 
-        private static DataTable RenderLoadingReport(DataTable dt , string strOffice) {
+        private static void RenderLoadingReport(DataTable dt, string strOffice)
+        {
 
             if (strOffice == "MAL")
             {
@@ -912,11 +943,10 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
 
 
-            DataTable datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice));
-
-            return datNew;
+            //DataTable datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice,));
         }
-        private static DataTable ReturnTempDataTable(DataTable tempDt) {
+        private static DataTable ReturnTempDataTable(DataTable tempDt)
+        {
 
             foreach (DataRow dr in tempDt.Rows)
             {
@@ -961,13 +991,13 @@ namespace TB_WEB.CommonLibrary.Helpers
             return tempDt;
         }
 
-        private static string[] ReturnOriginTemplateColumn(string strOffice)
+        private static string[] ReturnOriginTemplateColumn(string strOffice, string reportType)
         {
             // TTL, 53
             string[] list = null;
             strOffice = strOffice.ToUpper();
 
-            if (strOffice == "INDIA" || strOffice == "KOREA" || strOffice == "PHI")
+            if ((strOffice == "INDIA" || strOffice == "KOREA" || strOffice == "PHI") && reportType == "LoadingReport")
             {
                 list = new string[] {"MONTH","WEEK","BRANCH"
                                     ,"TRAFFIC","BY","AGENT","SHIPPER"

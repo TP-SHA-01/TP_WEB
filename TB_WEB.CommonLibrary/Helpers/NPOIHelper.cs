@@ -733,12 +733,13 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
-        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict, string reportType, out string exportfilePath)
+        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict, string tempReportType, out string exportfilePath)
         {
             DataSet ds = new DataSet();
             DataTable tempDt = InitTemplateTable();
             Dictionary<string, DataTable> dicList = new Dictionary<string, DataTable>();
             string filePath = String.Empty;
+            string reportType = String.Empty;
             foreach (KeyValuePair<string, FileInfo> kvp in dict)
             {
                 filePath = kvp.Value.DirectoryName;
@@ -748,6 +749,8 @@ namespace TB_WEB.CommonLibrary.Helpers
                 int ii = strFileName.LastIndexOf(".");
                 string filetype = strFileName.Substring(ii + 1, strFileName.Length - ii - 1);
                 string strOffice = kvp.Key.Split('.')[0].ToUpper();
+
+                reportType = kvp.Key.Split('.')[2].ToUpper();
 
                 if ("xlsx" == filetype)
                 {
@@ -761,7 +764,7 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                     if (xssfworkbook.Count > 3)
                     {
-                        if (strOffice == "INDONESIA" && reportType == "NONTP")
+                        if (strOffice == "INDONESIA" && (reportType == "NONTP" || reportType == "NONUSA"))
                         {
                             sheet = xssfworkbook.GetSheet("COMPILATION");
                         }
@@ -783,7 +786,7 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                     if (hssfworkbook.Count > 3)
                     {
-                        if (strOffice == "INDONESIA" && reportType == "NONTP")
+                        if (strOffice == "INDONESIA" && (reportType == "NONTP" || reportType == "NONUSA"))
                         {
                             sheet = hssfworkbook.GetSheet("COMPILATION");
                         }
@@ -856,32 +859,35 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                 }
 
-
                 sheet.ForceFormulaRecalculation = true;
-
 
                 DataTable datNew = new DataTable();
 
-                switch (reportType)
+                switch (reportType.ToUpper())
                 {
-                    case "LoadingReport":
+                    case "LOADINGREPORT":
                         RenderLoadingReport(dt, strOffice);
-                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn());
                         break;
                     case "NONTP":
                         RenderReport(dt);
-                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn());
+                        break;
+                    case "NONUSA":
+                        RenderReport(dt);
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn());
                         break;
                     case "IMPORT":
                         RenderReport(dt);
-                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn());
                         break;
                     case "CMT":
                         RenderReport(dt);
-                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn());
                         break;
                     default:
-                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        RenderReport(dt);
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn());
                         break;
                 }
 
@@ -892,6 +898,11 @@ namespace TB_WEB.CommonLibrary.Helpers
             tempDt.Merge(dataTable, true);
 
             ReturnTempDataTable(tempDt);
+
+            if (tempReportType == "KPI")
+            {
+                reportType = "KPI";
+            }
 
             string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
             ExportExcel(tempDt, "", originPath);
@@ -914,26 +925,48 @@ namespace TB_WEB.CommonLibrary.Helpers
             {
                 dt.Columns.Add("53");
             }
+
+            if (!dt.Columns.Contains("MONTH"))
+            {
+                dt.Columns.Add("MONTH");
+            }
+
+            if (!dt.Columns.Contains("SONO"))
+            {
+                dt.Columns.Add("SONO");
+            }
+            if (!dt.Columns.Contains("BY"))
+            {
+                dt.Columns.Add("BY");
+            }
+            if (!dt.Columns.Contains("SHIPPER"))
+            {
+                dt.Columns.Add("SHIPPER");
+            }
+            if (!dt.Columns.Contains("CONSOL"))
+            {
+                dt.Columns.Add("CONSOL");
+            }
+            if (!dt.Columns.Contains("CBM"))
+            {
+                dt.Columns.Add("CBM");
+            }
+            if (!dt.Columns.Contains("TYPE"))
+            {
+                dt.Columns.Add("TYPE");
+            }
+            if (!dt.Columns.Contains("MBLBOOKTO"))
+            {
+                dt.Columns.Add("MBLBOOKTO");
+            }
         }
 
         private static void RenderLoadingReport(DataTable dt, string strOffice)
         {
 
-            if (strOffice == "MAL")
-            {
-                dt.Columns["CONTRACTNO"].ColumnName = "CONTRACT#";
-            }
-            else if (strOffice == "SIN")
+            if (strOffice == "SIN")
             {
                 dt.Columns.Add("MONTH");
-                dt.Columns.Add("SONO");
-                dt.Columns.Add("BY");
-                dt.Columns.Add("SHIPPER");
-                dt.Columns.Add("CONSOL");
-                dt.Columns.Add("CBM");
-                dt.Columns.Add("TYPE");
-                dt.Columns.Add("MBLBOOKTO");
-
                 dt.Columns["BOOKINGID"].ColumnName = "TRAFFIC";
                 dt.Columns["BOOKINGSTATUS"].ColumnName = "AGENT";
                 dt.Columns["DestOffice"].ColumnName = "NOMINATION";
@@ -958,15 +991,9 @@ namespace TB_WEB.CommonLibrary.Helpers
                     dr["AGENT"] = "641";
                     dr["BRANCH"] = "SINGAPORE";
                 }
-
-                if (!dt.Columns.Contains("53"))
-                {
-                    dt.Columns.Add("53");
-                }
             }
 
-
-            //DataTable datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice,));
+            RenderReport(dt);
         }
         private static DataTable ReturnTempDataTable(DataTable tempDt)
         {
@@ -1014,27 +1041,43 @@ namespace TB_WEB.CommonLibrary.Helpers
             return tempDt;
         }
 
-        private static string[] ReturnOriginTemplateColumn(string strOffice, string reportType)
+        private static string[] ReturnOriginTemplateColumn()
         {
             // TTL, 53
-            string[] list = null;
-            strOffice = strOffice.ToUpper();
-
-            if ((strOffice == "INDIA" || strOffice == "KOREA" || strOffice == "PHI") && reportType == "LoadingReport")
-            {
-                list = new string[] {"MONTH","WEEK","BRANCH"
-                                    ,"TRAFFIC","BY","AGENT","SHIPPER"
-                                    ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ" ,"FEUS","CONSOL","CBM","TYPE","CARRIER" ,"SERVICESTRING"
-                                    ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#"};
-            }
-            else
-            {
-                list = new string[] {"MONTH","WEEK","BRANCH"
-                                    ,"TRAFFIC","BY","AGENT","SHIPPER"
-                                    ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ","53" ,"FEUS","CONSOL","CBM","TYPE","CARRIER"  ,"CONTRACT#" ,"SERVICESTRING"
-                                    ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#"};
-            }
-
+            string[] list = new string[] {"MONTH"
+                                    ,"WEEK"
+                                    ,"BRANCH"
+                                    ,"TRAFFIC"
+                                    ,"BY"
+                                    ,"AGENT"
+                                    ,"SHIPPER"
+                                    ,"PRINCIPAL"
+                                    ,"CONSIGNEE"
+                                    ,"NOMINATION"
+                                    ,"NOMINATIONSALES"
+                                    ,"20"
+                                    ,"40"
+                                    ,"45"
+                                    ,"HQ"
+                                    ,"53"
+                                    ,"FEUS"
+                                    ,"CONSOL"
+                                    ,"CBM"
+                                    ,"TYPE"
+                                    ,"CARRIER"
+                                    ,"CONTRACT#"
+                                    ,"SERVICESTRING"
+                                    ,"SONO"
+                                    ,"VESSEL"
+                                    ,"VOYAGE"
+                                    ,"ETD"
+                                    ,"ETA"
+                                    ,"POL"
+                                    ,"DEST"
+                                    ,"MBLBOOKTO"
+                                    ,"HOUSEBL#"
+                                    ,"MASTERBL#"
+                                    ,"CONTAINER#"};
             return list;
         }
 

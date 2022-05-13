@@ -24,6 +24,7 @@ namespace Rpt_WebForm
             combReportType.Items.AddRange(new object[] { "NONTP" });
             combReportType.Items.AddRange(new object[] { "IMPORT" });
             combReportType.Items.AddRange(new object[] { "CMT" });
+            combReportType.Items.AddRange(new object[] { "KPI" });
             combReportType.SelectedIndex = 0;
             txt_MultiExcel.Enabled = false;
             //combReportType.Enabled = false;
@@ -56,16 +57,59 @@ namespace Rpt_WebForm
 
         private void btn_Combined_Click(object sender, EventArgs e)
         {
-            DirectoryInfo _folder = new DirectoryInfo(txt_MultiExcel.Text);
+            string reportType = combReportType.Text;
+            DirectoryInfo _folders = new DirectoryInfo(txt_MultiExcel.Text);
+            DirectoryInfo[] _folder = _folders.GetDirectories();
+            string exportPath = string.Empty;
 
-            if (_folder.GetFiles().Length <= 0)
+            if (_folders.GetFiles().Length <= 0 && reportType != "KPI")
             {
                 MessageBox.Show("Folder has no files, Please check again");
             }
 
-            string reportType = combReportType.Text;
-            ArrayList list = new ArrayList();
-            Hashtable hasList = new Hashtable();
+            Dictionary<string, FileInfo> dict = new Dictionary<string, FileInfo>();
+            if (reportType == "KPI")
+            {
+                if (_folder.Count() > 0)
+                {
+                    foreach (var _fi in _folder)
+                    {
+                        FileInfo[] _files = _fi.GetFiles();
+                        foreach (var fi in _files)
+                        {
+                            if (fi.Extension.ToUpper() == ".XLSX" || fi.Extension.ToUpper() == ".XLS")
+                            {
+                                //FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read);
+                                if (!fi.Name.Contains(_fi.Name) && !fi.Name.Contains("MAR") && !fi.Name.Contains("NONTP"))
+                                {
+                                    if (!dict.ContainsKey(fi.Name + "." + _fi.Name))
+                                    {
+                                        dict.Add(fi.Name + "." + _fi.Name, fi);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                NPOIHelper.ImportExcelByFileList(dict, reportType, out exportPath);
+                hidExcelPath.Text = exportPath;
+            }
+            else
+            {
+                dict = returnDictList(_folders, reportType);
+                NPOIHelper.ImportExcelByFileList(dict, "", out exportPath);
+                hidExcelPath.Text = exportPath;
+            }
+
+
+            Clipboard.SetDataObject(hidExcelPath.Text);
+            MessageBox.Show("Combine Success ! The file Path has been copied to the clipboard");
+        }
+
+        private Dictionary<string, FileInfo> returnDictList(DirectoryInfo _folder, string reportType)
+        {
             Dictionary<string, FileInfo> dict = new Dictionary<string, FileInfo>();
             foreach (FileSystemInfo fsi in _folder.GetFileSystemInfos())
             {
@@ -79,19 +123,14 @@ namespace Rpt_WebForm
                         {
                             if (!dict.ContainsKey(fi.Name))
                             {
-                                dict.Add(fi.Name, fi);
+                                dict.Add(fi.Name+"."+ reportType, fi);
                             }
                         }
                     }
                 }
             }
 
-            string exportPath = string.Empty;
-            NPOIHelper.ImportExcelByFileList(dict, reportType, out exportPath);
-
-            hidExcelPath.Text = exportPath;
-            Clipboard.SetDataObject(exportPath);
-            MessageBox.Show("Combine Success ! The file Path has been copied to the clipboard");
+            return dict;
         }
 
         private void btn_ShowInfo_Click(object sender, EventArgs e)

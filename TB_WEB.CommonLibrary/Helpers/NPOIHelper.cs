@@ -865,7 +865,7 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                 switch (reportType.ToUpper())
                 {
-                    case "LOADINGREPORT":
+                    case "USA":
                         RenderLoadingReport(dt, strOffice);
                         datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn());
                         break;

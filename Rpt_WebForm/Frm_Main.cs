@@ -92,14 +92,13 @@ namespace Rpt_WebForm
                     }
 
                 }
-
-                NPOIHelper.ImportExcelByFileList(dict, reportType, out exportPath);
+                NPOIHelper.ImportExcelByFileList(dict, reportType, _folders.FullName, out exportPath);
                 hidExcelPath.Text = exportPath;
             }
             else
             {
                 dict = returnDictList(_folders, reportType);
-                NPOIHelper.ImportExcelByFileList(dict, "", out exportPath);
+                NPOIHelper.ImportExcelByFileList(dict, "", "", out exportPath);
                 hidExcelPath.Text = exportPath;
             }
 

@@ -733,7 +733,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
-        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict, string tempReportType, out string exportfilePath)
+        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict, string tempReportType,string savePath, out string exportfilePath)
         {
             DataSet ds = new DataSet();
             DataTable tempDt = InitTemplateTable();
@@ -902,6 +902,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             if (tempReportType == "KPI")
             {
                 reportType = "KPI";
+                filePath = savePath;
             }
 
             string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";

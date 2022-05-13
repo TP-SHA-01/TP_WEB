@@ -899,9 +899,9 @@ namespace TB_WEB.CommonLibrary.Helpers
 
             ReturnTempDataTable(tempDt);
 
-            if (tempReportType == "KPI")
+            if (tempReportType == "LOADREPORT")
             {
-                reportType = "KPI";
+                reportType = "LOADREPORT";
                 filePath = savePath;
             }
 

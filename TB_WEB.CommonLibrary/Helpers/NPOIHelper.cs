@@ -859,7 +859,7 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                 sheet.ForceFormulaRecalculation = true;
 
-                
+
                 DataTable datNew = new DataTable();
 
                 switch (reportType)
@@ -869,11 +869,19 @@ namespace TB_WEB.CommonLibrary.Helpers
                         datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
                         break;
                     case "NONTP":
-                        RenderNONTPReport(dt, strOffice);
+                        RenderReport(dt);
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        break;
+                    case "IMPORT":
+                        RenderReport(dt);
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        break;
+                    case "CMT":
+                        RenderReport(dt);
                         datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
                         break;
                     default:
-                        dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
+                        datNew = dt.DefaultView.ToTable(false, ReturnOriginTemplateColumn(strOffice, reportType));
                         break;
                 }
 
@@ -890,11 +898,21 @@ namespace TB_WEB.CommonLibrary.Helpers
 
             exportfilePath = originPath;
         }
-        private static void RenderNONTPReport(DataTable dt, string strOffice)
+        private static void RenderReport(DataTable dt)
         {
-            if (strOffice == "KOREA")
+            if (!dt.Columns.Contains("CONTRACT#"))
             {
                 dt.Columns.Add("CONTRACT#");
+            }
+
+            if (!dt.Columns.Contains("PRINCIPAL"))
+            {
+                dt.Columns.Add("PRINCIPAL");
+            }
+
+            if (!dt.Columns.Contains("53"))
+            {
+                dt.Columns.Add("53");
             }
         }
 
@@ -939,6 +957,11 @@ namespace TB_WEB.CommonLibrary.Helpers
                     dr["TRAFFIC"] = "USA";
                     dr["AGENT"] = "641";
                     dr["BRANCH"] = "SINGAPORE";
+                }
+
+                if (!dt.Columns.Contains("53"))
+                {
+                    dt.Columns.Add("53");
                 }
             }
 
@@ -1008,7 +1031,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             {
                 list = new string[] {"MONTH","WEEK","BRANCH"
                                     ,"TRAFFIC","BY","AGENT","SHIPPER"
-                                    ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ" ,"FEUS","CONSOL","CBM","TYPE","CARRIER"  ,"CONTRACT#" ,"SERVICESTRING"
+                                    ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ","53" ,"FEUS","CONSOL","CBM","TYPE","CARRIER"  ,"CONTRACT#" ,"SERVICESTRING"
                                     ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#"};
             }
 

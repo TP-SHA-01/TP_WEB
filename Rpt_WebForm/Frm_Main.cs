@@ -20,8 +20,8 @@ namespace Rpt_WebForm
         public Frm_Main()
         {
             InitializeComponent();
-            combReportType.Items.AddRange(new object[] { "LoadingReport" });
-            combReportType.Items.AddRange(new object[] { "NONTP" });
+            combReportType.Items.AddRange(new object[] { "USA" });
+            combReportType.Items.AddRange(new object[] { "NONUSA" });
             combReportType.Items.AddRange(new object[] { "IMPORT" });
             combReportType.Items.AddRange(new object[] { "CMT" });
             combReportType.Items.AddRange(new object[] { "KPI" });

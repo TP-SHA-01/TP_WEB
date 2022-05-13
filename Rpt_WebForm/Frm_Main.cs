@@ -24,7 +24,7 @@ namespace Rpt_WebForm
             combReportType.Items.AddRange(new object[] { "NONUSA" });
             combReportType.Items.AddRange(new object[] { "IMPORT" });
             combReportType.Items.AddRange(new object[] { "CMT" });
-            combReportType.Items.AddRange(new object[] { "KPI" });
+            combReportType.Items.AddRange(new object[] { "LOADREPORT" });
             combReportType.SelectedIndex = 0;
             txt_MultiExcel.Enabled = false;
             //combReportType.Enabled = false;
@@ -62,13 +62,13 @@ namespace Rpt_WebForm
             DirectoryInfo[] _folder = _folders.GetDirectories();
             string exportPath = string.Empty;
 
-            if (_folders.GetFiles().Length <= 0 && reportType != "KPI")
+            if (_folders.GetFiles().Length <= 0 && reportType != "LOADREPORT")
             {
                 MessageBox.Show("Folder has no files, Please check again");
             }
 
             Dictionary<string, FileInfo> dict = new Dictionary<string, FileInfo>();
-            if (reportType == "KPI")
+            if (reportType == "LOADREPORT")
             {
                 if (_folder.Count() > 0)
                 {

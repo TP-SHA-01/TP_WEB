@@ -44,6 +44,8 @@ namespace Rpt_WebForm
             catch (Exception ex)
             {
                 LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
+                MessageBox.Show("Error Msg:" + ex.Message + " , StackTrace:" + ex.StackTrace, "Error");
+                return;
             }
         }
 
@@ -57,54 +59,70 @@ namespace Rpt_WebForm
 
         private void btn_Combined_Click(object sender, EventArgs e)
         {
-            string reportType = combReportType.Text;
-            DirectoryInfo _folders = new DirectoryInfo(txt_MultiExcel.Text);
-            DirectoryInfo[] _folder = _folders.GetDirectories();
-            string exportPath = string.Empty;
-
-            if (_folders.GetFiles().Length <= 0 && reportType != "LOADREPORT")
+            try
             {
-                MessageBox.Show("Folder has no files, Please check again");
-            }
+                string reportType = combReportType.Text;
+                DirectoryInfo _folders = new DirectoryInfo(txt_MultiExcel.Text);
+                DirectoryInfo[] _folder = _folders.GetDirectories();
+                string exportPath = string.Empty;
 
-            Dictionary<string, FileInfo> dict = new Dictionary<string, FileInfo>();
-            if (reportType == "LOADREPORT")
-            {
-                if (_folder.Count() > 0)
+                if (_folders.GetFiles().Length <= 0 && reportType != "LOADREPORT")
                 {
-                    foreach (var _fi in _folder)
+                    MessageBox.Show("Folder has no files, Please check again");
+                    return;
+                }
+
+                Dictionary<string, FileInfo> dict = new Dictionary<string, FileInfo>();
+                if (reportType == "LOADREPORT")
+                {
+                    if (_folder.Count() > 0)
                     {
-                        FileInfo[] _files = _fi.GetFiles();
-                        foreach (var fi in _files)
+                        foreach (var _fi in _folder)
                         {
-                            if (fi.Extension.ToUpper() == ".XLSX" || fi.Extension.ToUpper() == ".XLS")
+                            FileInfo[] _files = _fi.GetFiles();
+                            foreach (var fi in _files)
                             {
-                                //FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read);
-                                if (!fi.Name.Contains(_fi.Name) && !fi.Name.Contains("MAR") && !fi.Name.Contains("NONTP"))
+                                if (fi.Extension.ToUpper() == ".XLSX" || fi.Extension.ToUpper() == ".XLS")
                                 {
-                                    if (!dict.ContainsKey(fi.Name + "." + _fi.Name))
+                                    //FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read);
+                                    if (!fi.Name.Contains(_fi.Name) && !fi.Name.Contains("MAR") && !fi.Name.Contains("NONTP"))
                                     {
-                                        dict.Add(fi.Name + "." + _fi.Name, fi);
+                                        if (!dict.ContainsKey(fi.Name + "." + _fi.Name))
+                                        {
+                                            dict.Add(fi.Name + "." + _fi.Name, fi);
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        NPOIHelper.ImportExcelByFileList(dict, reportType, _folders.FullName, out exportPath);
+                        hidExcelPath.Text = exportPath;
                     }
-
+                    else
+                    {
+                        MessageBox.Show("Folder has no files, Please check again");
+                        return;
+                    }
+                    
                 }
-                NPOIHelper.ImportExcelByFileList(dict, reportType, _folders.FullName, out exportPath);
-                hidExcelPath.Text = exportPath;
+                else
+                {
+                    dict = returnDictList(_folders, reportType);
+                    NPOIHelper.ImportExcelByFileList(dict, "", "", out exportPath);
+                    hidExcelPath.Text = exportPath;
+                }
+
+
+                Clipboard.SetDataObject(hidExcelPath.Text);
+                MessageBox.Show("Combine Success ! The file Path has been copied to the clipboard");
             }
-            else
+            catch (Exception ex)
             {
-                dict = returnDictList(_folders, reportType);
-                NPOIHelper.ImportExcelByFileList(dict, "", "", out exportPath);
-                hidExcelPath.Text = exportPath;
+                LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
+                MessageBox.Show("Error Msg:" + ex.Message + " , StackTrace:" + ex.StackTrace ,"Error");
+                return;
             }
-
-
-            Clipboard.SetDataObject(hidExcelPath.Text);
-            MessageBox.Show("Combine Success ! The file Path has been copied to the clipboard");
         }
 
         private Dictionary<string, FileInfo> returnDictList(DirectoryInfo _folder, string reportType)

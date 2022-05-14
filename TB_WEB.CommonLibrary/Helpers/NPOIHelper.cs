@@ -910,6 +910,7 @@ namespace TB_WEB.CommonLibrary.Helpers
 
             exportfilePath = originPath;
         }
+
         private static void RenderReport(DataTable dt)
         {
             if (!dt.Columns.Contains("CONTRACT#"))

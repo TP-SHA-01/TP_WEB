@@ -13,7 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Tests", "WebApi.Tests\WebApi.Tests.csproj", "{57D72002-934F-4008-9B4E-5FE92DF96BD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpt_WebForm", "Rpt_WebForm\Rpt_WebForm.csproj", "{253F4804-368B-4757-811A-F394F72F8002}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpt_WebForm", "Rpt_WebForm\Rpt_WebForm.csproj", "{253F4804-368B-4757-811A-F394F72F8002}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "rpt-form-installer", "rpt-form-installer\rpt-form-installer.vdproj", "{0AF594A4-588F-40BA-8475-29449F03BFD5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,11 +47,17 @@ Global
 		{253F4804-368B-4757-811A-F394F72F8002}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{253F4804-368B-4757-811A-F394F72F8002}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{253F4804-368B-4757-811A-F394F72F8002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AF594A4-588F-40BA-8475-29449F03BFD5}.Debug|Any CPU.ActiveCfg = Debug
+		{0AF594A4-588F-40BA-8475-29449F03BFD5}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E563C55D-5DEB-4555-AAE4-85BDE99E5A9E}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 EndGlobal

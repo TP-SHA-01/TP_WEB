@@ -39,6 +39,7 @@ namespace Rpt_WebForm
             this.btn_ShowInfo = new System.Windows.Forms.Button();
             this.btn_Combined = new System.Windows.Forms.Button();
             this.hidExcelPath = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -50,7 +51,7 @@ namespace Rpt_WebForm
             this.groupBox1.Controls.Add(this.txt_MultiExcel);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.combReportType);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Location = new System.Drawing.Point(12, 22);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(625, 114);
             this.groupBox1.TabIndex = 0;
@@ -108,7 +109,7 @@ namespace Rpt_WebForm
             // 
             this.groupBox2.Controls.Add(this.btn_ShowInfo);
             this.groupBox2.Controls.Add(this.btn_Combined);
-            this.groupBox2.Location = new System.Drawing.Point(12, 132);
+            this.groupBox2.Location = new System.Drawing.Point(12, 142);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(625, 69);
             this.groupBox2.TabIndex = 1;
@@ -146,11 +147,21 @@ namespace Rpt_WebForm
             this.hidExcelPath.TabStop = false;
             this.hidExcelPath.Visible = false;
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(581, -1);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(46, 20);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "v1.0.8";
+            // 
             // Frm_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(649, 214);
+            this.ClientSize = new System.Drawing.Size(644, 220);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.hidExcelPath);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -177,6 +188,7 @@ namespace Rpt_WebForm
         private System.Windows.Forms.Button btn_ShowInfo;
         private System.Windows.Forms.Button btn_Combined;
         private System.Windows.Forms.TextBox hidExcelPath;
+        private System.Windows.Forms.Label label3;
     }
 }
 

@@ -75,14 +75,14 @@ namespace TB_WEB.CommonLibrary.Helpers
                         }
                         else
                         {
-                            arrColWidth[item.Ordinal] = Encoding.GetEncoding("UTF-8").GetBytes(item.ColumnName.ToString()).Length;
+                            arrColWidth[item.Ordinal] = Encoding.GetEncoding("UTF-8").GetBytes(item.ColumnName.ToString().Trim()).Length;
                         }
                     }
                     for (int i = 0; i < table.Rows.Count; i++)
                     {
                         for (int j = 0; j < table.Columns.Count; j++)
                         {
-                            int intTemp = Encoding.GetEncoding("UTF-8").GetBytes(table.Rows[i][j].ToString()).Length;
+                            int intTemp = Encoding.GetEncoding("UTF-8").GetBytes(table.Rows[i][j].ToString().Trim()).Length;
                             if (intTemp > arrColWidth[j])
                             {
                                 if (arrColWidth[j] >= 255)
@@ -153,7 +153,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                             }
                             else
                             {
-                                sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 199);
+                                sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
                             }
 
                         }
@@ -245,7 +245,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                             font.Boldweight = 700;
                             headStyle.SetFont(font);
                             headerRow.GetCell(0).CellStyle = headStyle;
-                            sheet.AddMergedRegion(new NPOI.SS.Util.CellRangeAddress(0, 0, 0, dtSource.Columns.Count - 1));
+                            //sheet.AddMergedRegion(new NPOI.SS.Util.CellRangeAddress(0, 0, 0, dtSource.Columns.Count - 1));
 
                         }
                     }
@@ -264,7 +264,13 @@ namespace TB_WEB.CommonLibrary.Helpers
                             headerRow.CreateCell(column.Ordinal).SetCellValue(column.ColumnName);
                             headerRow.GetCell(column.Ordinal).CellStyle = headStyle;
                             //设置列宽
-                            sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
+                            if (arrColWidth[column.Ordinal] >= 255) {
+                                sheet.SetColumnWidth(column.Ordinal, 250);
+                            }
+                            else
+                            {
+                                sheet.SetColumnWidth(column.Ordinal, arrColWidth[column.Ordinal] * 256 + 200);
+                            }
                         }
 
 

@@ -1,6 +1,7 @@
 ﻿using NPOI.HPSF;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
+using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections;
@@ -38,14 +39,30 @@ namespace TB_WEB.CommonLibrary.Helpers
                     dateStyle.SetFont(font);
 
                     dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
+
+                    //sheet.SetAutoFilter(new CellRangeAddress(0, 0, 0, 40)); //首行筛选
+                    //sheet.CreateFreezePane(40, 1); //首行冻结
+
                     IRow headerRow = sheet.CreateRow(0);
                     if (!String.IsNullOrEmpty(sheetName))
                     {
                         workbook.SetSheetName(0, sheetName);
                     }
+
+                    ICellStyle headStyle = workbook.CreateCellStyle();
+                    headStyle.FillPattern = FillPattern.SolidForeground;
+                    headStyle.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey40Percent.Index;
+                    
                     // handling header.
-                    foreach (DataColumn column in table.Columns)
+                    foreach (DataColumn column in table.Columns) {
                         headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+                    }
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        headerRow.GetCell(i).CellStyle = headStyle;
+                    }
+
 
                     sheet.ForceFormulaRecalculation = true;
 
@@ -54,7 +71,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                     {
                         if (arrColWidth[item.Ordinal] >= 255)
                         {
-                            arrColWidth[item.Ordinal] = 99;
+                            arrColWidth[item.Ordinal] = 120;
                         }
                         else
                         {
@@ -70,7 +87,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                             {
                                 if (arrColWidth[j] >= 255)
                                 {
-                                    arrColWidth[j] = 99;
+                                    arrColWidth[j] = 120;
                                 }
                                 else
                                 {
@@ -132,7 +149,7 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                             if (arrColWidth[column.Ordinal] >= 255)
                             {
-                                sheet.SetColumnWidth(column.Ordinal, 99);
+                                sheet.SetColumnWidth(column.Ordinal, 120);
                             }
                             else
                             {
@@ -152,7 +169,6 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
 

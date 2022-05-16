@@ -2162,7 +2162,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Rpt_WebForm, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Rpt_WebForm, Version=1.0.6.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_EDCAA3E2F352472D8E97E170DA39E857"
@@ -2357,16 +2357,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:rpt-form-installer"
-        "ProductCode" = "8:{46146EE2-4F55-4207-A498-60B4098FE55A}"
-        "PackageCode" = "8:{E36E0D43-5521-424D-AD9A-989886589B9B}"
+        "ProductName" = "8:Combine-Tool-Installer"
+        "ProductCode" = "8:{6CB180A4-0E41-4D59-B326-E924B3F4DB13}"
+        "PackageCode" = "8:{EE7CE838-FB15-4231-92BF-0DF3DD1E2732}"
         "UpgradeCode" = "8:{FD89BC29-7BB9-4DDC-805C-1A95D9A27544}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.2"
+        "ProductVersion" = "8:1.0.8"
         "Manufacturer" = "8:topocean"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -2481,7 +2481,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_41A632947CA3401181CF6CB170B24979"
             {
-            "Name" = "8:Combine Report Tool.exe"
+            "Name" = "8:Combine Report Tool"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -2495,8 +2495,8 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7A5B5270582F4758B68817C1E1E0460E"
             {
-            "Name" = "8:Shortcut to msiexec.exe"
-            "Arguments" = "8:/X {D3BFBA4E-7A47-4023-9DF7-B972CF3269E1}"
+            "Name" = "8:uninstall.exe"
+            "Arguments" = "8:/X {6CB180A4-0E41-4D59-B326-E924B3F4DB13}"
             "Description" = "8:"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
@@ -2908,7 +2908,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C4740947C3FA41B1B0550F50AC6656A5"
             {
-            "SourcePath" = "8:..\\Rpt_WebForm\\obj\\Release\\net5.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\Rpt_WebForm\\obj\\Debug\\net5.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_2B59E40741BB44FC810A5C99DC9917C5"

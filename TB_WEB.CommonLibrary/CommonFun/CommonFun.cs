@@ -580,7 +580,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
             StringBuilder sb = new StringBuilder();
             sb.Append("<html><head>");
             sb.Append("<title></title>");
-            sb.Append("<meta http-equiv='content-type' content='text/html; charset=UTF-8'> ");
+            sb.Append("<meta http-equiv='Content-Type' content='text/html; charset=GBK'/> ");
             sb.Append("<style type=text/css>");
             sb.Append("td{font-size: 9pt;border:solid 1 #000000;width:200px;}");
             sb.Append("table{padding:3 0 3 0;border:solid 1 #000000;margin:0 0 0 0;BORDER-COLLAPSE: collapse;}");
@@ -592,8 +592,8 @@ namespace TB_WEB.CommonLibrary.CommonFun
             sb.Append("</head>");
             sb.Append("<body>");
             sb.Append("<div> <i>To whom may concern: </i>  </div>");
-            sb.Append("<table cellSpacing='0' cellPadding='0' width ='800px' border='1'>");
-            sb.Append("<tr style='background:#03a9f4;display:table-cell; vertical-align:middle;'>");
+            sb.Append("<table cellSpacing='0' cellPadding='0' width ='1300px' border='1'>");
+            sb.Append("<tr style='background:#03a9f4; vertical-align:middle;'>");
             sb.Append("<td><b></b></td>");
             foreach (DataColumn column in dt.Columns)
             {

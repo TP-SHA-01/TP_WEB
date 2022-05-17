@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TB_WEB.CommonLibrary.Log;
 
 namespace TB_WEB.CommonLibrary.Helpers
 {
@@ -52,9 +53,10 @@ namespace TB_WEB.CommonLibrary.Helpers
                     ICellStyle headStyle = workbook.CreateCellStyle();
                     headStyle.FillPattern = FillPattern.SolidForeground;
                     headStyle.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey40Percent.Index;
-                    
+
                     // handling header.
-                    foreach (DataColumn column in table.Columns) {
+                    foreach (DataColumn column in table.Columns)
+                    {
                         headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
                     }
 
@@ -264,7 +266,8 @@ namespace TB_WEB.CommonLibrary.Helpers
                             headerRow.CreateCell(column.Ordinal).SetCellValue(column.ColumnName);
                             headerRow.GetCell(column.Ordinal).CellStyle = headStyle;
                             //设置列宽
-                            if (arrColWidth[column.Ordinal] >= 255) {
+                            if (arrColWidth[column.Ordinal] >= 255)
+                            {
                                 sheet.SetColumnWidth(column.Ordinal, 250);
                             }
                             else
@@ -755,7 +758,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
-        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict, string tempReportType,string savePath, out string exportfilePath)
+        public static void ImportExcelByFileList(Dictionary<string, FileInfo> dict, string tempReportType, string savePath, out string exportfilePath)
         {
             DataSet ds = new DataSet();
             DataTable tempDt = InitTemplateTable();
@@ -1010,7 +1013,35 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    dr["MONTH"] = Convert.ToDateTime(dr["BookingDate"]).ToString("MMM", CultureInfo.CreateSpecificCulture("en-GB")).ToUpper();
+                    string str_BD = dr["BookingDate"].ToString();
+                    string str_ETD = dr["ETD"].ToString();
+                    string str_ETA = dr["ETA"].ToString();
+
+                    if (str_BD.Length > 0 && str_BD.Contains("-") && str_BD.Contains("月"))//14-4月-2022
+                    {
+                        str_BD = CheckCNDate(str_BD);
+                    }
+                    if (str_ETD.Length > 0 && str_ETD.Contains("-") && str_ETD.Contains("月"))//14-4月-2022
+                    {
+                        str_ETD = CheckCNDate(str_ETD);
+                    }
+                    if (str_ETA.Length > 0 && str_ETA.Contains("-") && str_ETA.Contains("月"))//14-4月-2022
+                    {
+                        str_ETA = CheckCNDate(str_ETA);
+                    }
+
+                    try
+                    {
+                        dr["MONTH"] = String.IsNullOrEmpty(str_BD) ? "" : Convert.ToDateTime(str_BD).ToString("MMM", CultureInfo.CreateSpecificCulture("en-GB")).ToUpper();
+                        dr["ETD"] = String.IsNullOrEmpty(str_ETD) ? "" : Convert.ToDateTime(str_ETD).ToString("MM/dd/yyyy", CultureInfo.CreateSpecificCulture("en-GB")).ToUpper();
+                        dr["ETA"] = String.IsNullOrEmpty(str_ETA) ? "" : Convert.ToDateTime(str_ETA).ToString("MM/dd/yyyy", CultureInfo.CreateSpecificCulture("en-GB")).ToUpper();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.Debug("strOffice:" + strOffice + "ex:" + ex.Message + ";" + ex.StackTrace);
+                    }
+
+
                     dr["TRAFFIC"] = "USA";
                     dr["AGENT"] = "641";
                     dr["BRANCH"] = "SINGAPORE";
@@ -1019,6 +1050,39 @@ namespace TB_WEB.CommonLibrary.Helpers
 
             RenderReport(dt);
         }
+        private static string CheckCNDate(string CheckDate)
+        {
+            string str_d = String.Empty;
+            str_d = CheckDate.Replace("月", "");
+            string[] strDate = str_d.Split('-');
+            string str_rd = CheckDate;
+
+            if (strDate.Length == 3)
+            {
+                str_rd = strDate[2] + "/" + strDate[1].ToString() + "/" + strDate[0];
+
+                if (!IsDatetime(str_rd))
+                {
+                    str_rd = null;
+                }
+            }
+
+            return str_rd;
+        }
+
+        private static bool IsDatetime(string _s)
+        {
+            DateTime dtDate;
+            if (DateTime.TryParse(_s, out dtDate))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private static DataTable ReturnTempDataTable(DataTable tempDt)
         {
 
@@ -1043,6 +1107,36 @@ namespace TB_WEB.CommonLibrary.Helpers
                 if (_ttl > 0)
                 {
                     dr["TTL"] = _ttl;
+                }
+
+                try
+                {
+                    if (!String.IsNullOrEmpty(CheckEmpty(dr["ETD"])))
+                    {
+                        string str_ETD = dr["ETD"].ToString();
+                        if (str_ETD.Length > 0 && str_ETD.Contains("-") && str_ETD.Contains("月"))
+                        {
+                            str_ETD = CheckCNDate(str_ETD);
+                            dr["ETD"] = str_ETD;
+
+                        }
+
+                    }
+
+                    if (!String.IsNullOrEmpty(CheckEmpty(dr["ETA"])))
+                    {
+                        string str_ETA = dr["ETA"].ToString();
+                        if (str_ETA.Length > 0 && str_ETA.Contains("-") && str_ETA.Contains("月"))
+                        {
+                            str_ETA = CheckCNDate(str_ETA);
+                            dr["ETA"] = str_ETA;
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Debug("ex:" + ex.Message + ";" + ex.StackTrace);
                 }
 
             }

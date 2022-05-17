@@ -136,7 +136,7 @@ namespace Rpt_WebForm
                     if (fi.Extension.ToUpper() == ".XLSX" || fi.Extension.ToUpper() == ".XLS")
                     {
                         //FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read);
-                        if (!fi.Name.Contains(reportType))
+                        if (!fi.Name.Contains(reportType) && !fi.Name.Contains("MAR") && !fi.Name.Contains("NONTP"))
                         {
                             if (!dict.ContainsKey(fi.Name))
                             {

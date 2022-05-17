@@ -87,12 +87,12 @@ namespace WebApi.Services
                                  where (r.Field<string>("Late1Y_30Hr").Trim() != "N")
                                  && r.Field<int>("CBPVsLstVslETD") < 24
                                  && r.Field<DateTime>("LastVslETD") <= DateTime.Now.AddDays(lastVslETD_From)
-                                 && r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(lastVslETD_To)
+                                 //&& r.Field<DateTime>("LastVslETD") > DateTime.Now.AddDays(lastVslETD_To)
                                  select r);
                     if (query.Count() > 0)
                     {
                         DataTable tempDB = query.CopyToDataTable<DataRow>();
-                        tempDB.DefaultView.Sort = "LastVslETD DESC";
+                        tempDB.DefaultView.Sort = "LastVslETD,SCAC,ShptVessel,MBL ASC";
                         retDB = tempDB.DefaultView.ToTable(false, new string[] { "HBL", "MBL", "SCAC", "ShptPOL", "ShptVessel", "ShptLastPort", "Submission", "LastVslETD", "LastUsr", "Remark" });
                         retDB.Columns["ShptPOL"].ColumnName = "RECEIPT PORT";
                         retDB.Columns["ShptVessel"].ColumnName = "AMS VESSEL";

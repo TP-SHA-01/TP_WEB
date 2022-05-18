@@ -32,6 +32,8 @@ namespace WebApi.Services
             DataTable retDB = new DataTable();
             MemoryStream stream = new MemoryStream();
             AMS_ResponseMode responseMode = new AMS_ResponseMode();
+            string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
+            string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
 
             try
             {
@@ -45,8 +47,9 @@ namespace WebApi.Services
                 dt = dbHelper.ExecDataTable(CommandType.StoredProcedure, sql, ps.ToArray());
                 if (dt == null)
                 {
-                    LogHelper.Error("GetAMSFilingData => No Record return");
-                    responseMode.result = "Error";
+                    LogHelper.Error("GetAMSFilingData => originOffice :" + originOffice + " DB is Null");
+                    responseMode.result = "Error return Data is Null";
+                    responseMode.mailTo = "";
                     return responseMode;
                 }
 
@@ -120,8 +123,22 @@ namespace WebApi.Services
 
                         Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
                         keyValues.Add(fileName, stream);
-                        string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"];
+                        string mailList = String.Empty;
 
+                        if (originOffice == "SHA")
+                        {
+                            mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"];
+                        }
+                        else if (arrSPRC_Office.Contains(originOffice))
+                        {
+                            mailList = ConfigurationManager.AppSettings["SPRC_MAIL"];
+                        }
+                        else if (arrAMSCenter_Office.Contains(originOffice))
+                        {
+                            mailList = ConfigurationManager.AppSettings["AMSCenter_MAIL"];
+                        }
+
+                        mailList = mailList + "," + ConfigurationManager.AppSettings["Default_MAIL"];
                         emailHelper.SendMailViaAPI(title, mailBody, mailList, keyValues);
 
                         responseMode.table = retDB;
@@ -131,9 +148,17 @@ namespace WebApi.Services
                     }
                     else
                     {
-                        responseMode.result = "No Data ";
+                        LogHelper.Error("GetAMSFilingData => originOffice :" + originOffice + " Error No Data");
+                        responseMode.result = "Error No Data";
                     }
-                    
+
+                }
+                else
+                {
+                    LogHelper.Error("GetAMSFilingData => originOffice :" + originOffice + " Error No Record return");
+                    responseMode.result = "Error No Record return";
+                    responseMode.mailTo = "";
+                    return responseMode;
                 }
             }
             catch (Exception ex)

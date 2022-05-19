@@ -54,7 +54,7 @@
 		<add key="bizName" value="WebApi" />
 		<add key="AWSBucketToLabel" value="qa-api-topocean" />
 		<!-- Development:DEV;Production:PRO -->
-		<add key="ASPNET_ENVIRONMENT" value="PRO" />
+		<add key="ASPNET_ENVIRONMENT" value="DEV" />
 		<add key="TBS_DEFAULT_SENDER" value="web@topocean.com"/>
 		<add key="SHA_MAIL" value="markjiang@topocean.com.cn,yvonneli@topocean.com.cn" />
 		<add key="SPRC_MAIL" value="billyin@topocean.com.cn,abbyzheng@topocean.com.cn,ceciliaruan@topocean.com.cn" />
@@ -65,6 +65,6 @@
 		<!-- Send by 16:00 -->
 		<!--<add key="OFFICE_LIST" value="SHA,ZHG,GZO,SZN" />-->
 		<!-- Send by 17:00 -->
-		<add key="OFFICE_LIST" value="BAL,BAW,HKK,JKT,JOH,MNL,PEN,SIN,SMG,SPL,SUR,THI,TJN,TLK,TSB,TSU,VNM" />
+		<!--<add key="OFFICE_LIST" value="BAL,BAW,HKK,JKT,JOH,MNL,PEN,SIN,SMG,SPL,SUR,THI,TJN,TLK,TSB,TSU,VNM" />-->
 	</appSettings>
 </configuration>

@@ -197,7 +197,7 @@ namespace WebApi.Edi.Common
             }
         }
 
-        public bool SendMailViaAPI(string mailSubject, string mailBody, string mailReciever,Dictionary<string, MemoryStream> attachmentList)
+        public bool SendMailViaAPI(string mailSubject, string mailBody, string mailReciever, Dictionary<string, MemoryStream> attachmentList = null)
         {
             try
             {

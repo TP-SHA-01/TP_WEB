@@ -1,14 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using TB_WEB.CommonLibrary.CommonFun;
-using TB_WEB.CommonLibrary.Helpers;
 using TB_WEB.CommonLibrary.Log;
 using WebApi.Edi.Common;
 using WebApi.Edi.Topocean.EdiModels.Common;
@@ -19,19 +14,36 @@ namespace TP_Console
 {
     class Program
     {
-        private static int resend_count = 2;
-        private static int x = 0;
         static void Main(string[] args)
         {
+            string officeList = String.Empty;
+            string[] officeGroup = ConfigurationManager.AppSettings["OFFICE_GROUP"].Split(',');
             Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Start Program"));
 
-            string officeList = ConfigurationManager.AppSettings["OFFICE_LIST"];
+            string pPara = CommonUnit.CheckEmpty(args[0]);
 
-            if (String.IsNullOrEmpty(officeList))
+            if (String.IsNullOrEmpty(pPara))
             {
-                LogHelper.Error("No OFFICE_LIST");
+                LogHelper.Error("Input Error Office:" + pPara);
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "input Office is Null"));
+                Console.ReadKey();
+            }
+            else
+            {
+                string[] arrArg = pPara.Split(',');
+                for (int i = 0; i < arrArg.Length; i++)
+                {
+                    if (!officeGroup.Contains(arrArg[i]))
+                    {
+                        LogHelper.Error("Input Error Office:" + arrArg[i]);
+                        Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "input Office did not Exists"));
+                        Console.ReadKey();
+                    }
+                }
             }
 
+            officeList = pPara;
+            
             string[] list = officeList.Split(',');
 
             for (int i = 0; i < list.Length; i++)
@@ -57,7 +69,6 @@ namespace TP_Console
         {
             bool ret = true;
             DataTable dt = new DataTable();
-
             try
             {
                
@@ -85,7 +96,6 @@ namespace TP_Console
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Wait...."));
 
                 Thread.Sleep(180000);
-
             }
             catch (Exception ex)
             {

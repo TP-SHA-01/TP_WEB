@@ -52,6 +52,8 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TP_Console-Pro.exe.config" />
+    <None Include="TP_Console-QA.exe.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TB_WEB.CommonLibrary\TB_WEB.CommonLibrary.csproj">

@@ -139,14 +139,7 @@ namespace WebApi.Services
                        
                         Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
 
-                        if (originOffice.Equals("AMSCenter"))
-                        {
-                            stream = NPOIHelper.RenderToExcel(retDB, sheetName);
-                        }
-                        else
-                        {
-                            stream = NPOIHelper.RenderToExcel(dt, sheetName);
-                        }
+                        stream = NPOIHelper.RenderToExcel(retDB, sheetName);
 
                         keyValues.Add(fileName, stream);
                         

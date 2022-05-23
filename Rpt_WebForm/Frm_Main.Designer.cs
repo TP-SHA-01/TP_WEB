@@ -152,9 +152,9 @@ namespace Rpt_WebForm
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(581, -1);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(46, 20);
+            this.label3.Size = new System.Drawing.Size(35, 20);
             this.label3.TabIndex = 5;
-            this.label3.Text = "v1.0.8";
+            this.label3.Text = "v1.3";
             // 
             // Frm_Main
             // 

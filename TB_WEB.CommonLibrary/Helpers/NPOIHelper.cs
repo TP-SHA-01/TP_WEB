@@ -986,6 +986,11 @@ namespace TB_WEB.CommonLibrary.Helpers
             {
                 dt.Columns.Add("MBLBOOKTO");
             }
+            if (!dt.Columns.Contains("AGENTNAME"))
+            {
+                dt.Columns.Add("AGENTNAME");
+            }
+            
         }
 
         private static void RenderLoadingReport(DataTable dt, string strOffice)
@@ -1141,6 +1146,7 @@ namespace TB_WEB.CommonLibrary.Helpers
 
             }
 
+            tempDt.Columns["AGENTNAME"].ColumnName = "AGENT NAME";
             tempDt.Columns["PRINCIPAL"].ColumnName = "Principal";
             tempDt.Columns["NOMINATIONSALES"].ColumnName = "NOMINATION SALES";
             tempDt.Columns["CONTRACT#"].ColumnName = "CONTRACT #";
@@ -1168,6 +1174,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                                     ,"TRAFFIC"
                                     ,"BY"
                                     ,"AGENT"
+                                    ,"AGENTNAME"
                                     ,"SHIPPER"
                                     ,"PRINCIPAL"
                                     ,"CONSIGNEE"
@@ -1202,7 +1209,7 @@ namespace TB_WEB.CommonLibrary.Helpers
         private static string[] ReturnTemplateColumn()
         {
             string[] list = new string[] {"MONTH","WEEK","BRANCH"
-            ,"TRAFFIC","BY","AGENT","SHIPPER"
+            ,"TRAFFIC","BY","AGENT","AGENTNAME","SHIPPER"
             ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ","53" ,"FEUS","CONSOL","TTL","CBM","TYPE","CARRIER"  ,"CONTRACT#" ,"SERVICESTRING"
             ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#","TRADE","ACCOUNT TYPE","LENTHOFHBL","SHIPMENTCOUNT","TOTALFEU"};
             return list;

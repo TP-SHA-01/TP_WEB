@@ -33,6 +33,7 @@ namespace WebApi.Services
             string mailList = String.Empty;
             string officeList = String.Empty;
             DataTable retDB = new DataTable();
+            DataTable tempDB = new DataTable();
             MemoryStream stream = new MemoryStream();
             AMS_ResponseMode responseMode = new AMS_ResponseMode();
             string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
@@ -99,7 +100,7 @@ namespace WebApi.Services
                     }
 
                     string sheetName = DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd") + "=>" + DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
-                    
+
                     var query = (from r in dt.AsEnumerable()
                                  where (r.Field<string>("Late1Y_30Hr").Trim() != "N")
                                  && r.Field<int>("CBPVsLstVslETD") < 24
@@ -108,7 +109,7 @@ namespace WebApi.Services
                     LogHelper.Debug("GetAMSFilingData => query Count :" + query.Count());
                     if (query.Count() > 0)
                     {
-                        DataTable tempDB = query.CopyToDataTable<DataRow>();
+                        tempDB = query.CopyToDataTable<DataRow>();
                         tempDB.DefaultView.Sort = "OriginOffice,LastVslETD,SCAC,ShptVessel,MBL ASC";
                         retDB = tempDB.DefaultView.ToTable(false, new string[] { "OriginOffice", "HBL", "MBL", "SCAC", "ShptPOL", "ShptVessel", "ShptLastPort", "Submission", "LastVslETD", "LastUsr", "Remark" });
                         retDB.Columns["OriginOffice"].ColumnName = "OFFICE";
@@ -136,13 +137,19 @@ namespace WebApi.Services
                             title = "AMS Filing Checking Alert - " + originOffice + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
                         }
 
-                       
+
                         Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
 
-                        stream = NPOIHelper.RenderToExcel(retDB, sheetName);
+                        stream = NPOIHelper.RenderToExcel(tempDB, sheetName);
+
+                        if (env == "DEV")
+                        {
+                            string originPath = "D:" + "\\" + "SPRC" + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
+                            NPOIHelper.ExportExcel(tempDB, "", originPath);
+                        }
 
                         keyValues.Add(fileName, stream);
-                        
+
                         emailHelper.SendMailViaAPI(title, mailBody, mailList, keyValues);
 
                         responseMode.table = retDB;

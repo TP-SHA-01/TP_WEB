@@ -119,7 +119,14 @@ namespace TB_WEB.CommonLibrary.Helpers
                                 case "System.DateTime"://日期类型
                                     DateTime dateV;
                                     DateTime.TryParse(drValue, out dateV);
-                                    newCell.SetCellValue(dateV);
+                                    if (String.IsNullOrEmpty(drValue))
+                                    {
+                                        newCell.SetCellValue("");
+                                    }
+                                    else
+                                    {
+                                        newCell.SetCellValue(drValue);
+                                    }
                                     newCell.CellStyle = dateStyle;//格式化显示
                                     break;
                                 case "System.Boolean"://布尔型

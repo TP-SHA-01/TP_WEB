@@ -125,7 +125,7 @@ namespace WebApi.Services
                     if (retDB.Rows.Count > 0)
                     {
                         string mailBody = CommonFun.GetHtmlString(retDB);
-                        string fileName = "AMSFilingCheckRpt_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
+                        string fileName = "AMSFilingCheckRpt_" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xls";
                         string title = String.Empty;
 
                         if (env == "DEV")
@@ -184,7 +184,6 @@ namespace WebApi.Services
 
             return responseMode;
         }
-
 
         private static void SendNoDataMail()
         {

@@ -52,6 +52,18 @@
         "Entry"
         {
         "MsmKey" = "8:_1F08E5F5C765752F61B4F3FF32069B13"
+        "OwnerKey" = "8:_69D86C492B54C287089E06952CCEC27A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1F08E5F5C765752F61B4F3FF32069B13"
+        "OwnerKey" = "8:_453E58C7F271D54968BF2B82F18FAFE7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1F08E5F5C765752F61B4F3FF32069B13"
         "OwnerKey" = "8:_12DC505015714284AC9C61517ABCEEB3"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -147,6 +159,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_453E58C7F271D54968BF2B82F18FAFE7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4D7CFCCFF9414B82AE1593572E6C5858"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -184,7 +202,19 @@
         "Entry"
         {
         "MsmKey" = "8:_69D86C492B54C287089E06952CCEC27A"
+        "OwnerKey" = "8:_453E58C7F271D54968BF2B82F18FAFE7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_69D86C492B54C287089E06952CCEC27A"
         "OwnerKey" = "8:_828492D11D6A4E1FBD1320F503C14C84"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_69D86C492B54C287089E06952CCEC27A"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -197,6 +227,12 @@
         {
         "MsmKey" = "8:_6D35F3A0873DD6E5F47F0F73EC973F23"
         "OwnerKey" = "8:_26744B23D0234AA6BCAC7474073F3BEA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6DF87169F4AD4F0BA572754227574914"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -244,12 +280,6 @@
         "Entry"
         {
         "MsmKey" = "8:_7C9C700995F84BC49A16F88012769288"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7DC210DC5C7440CE95F09A3398CC4670"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -532,19 +562,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_12DC505015714284AC9C61517ABCEEB3"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_3444CEC0B8294DC5BC84FA49C97DE704"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_12DC505015714284AC9C61517ABCEEB3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -724,6 +742,30 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_453E58C7F271D54968BF2B82F18FAFE7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_12DC505015714284AC9C61517ABCEEB3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_69D86C492B54C287089E06952CCEC27A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_12DC505015714284AC9C61517ABCEEB3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_0AB0315568A04C5BA46A4F6A803C0D6A"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -752,6 +794,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -997,7 +1047,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Rpt_WebForm, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Rpt_WebForm, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_26744B23D0234AA6BCAC7474073F3BEA"
@@ -1257,6 +1307,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_453E58C7F271D54968BF2B82F18FAFE7"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Web.Http, Version=5.2.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_453E58C7F271D54968BF2B82F18FAFE7"
+                    {
+                    "Name" = "8:System.Web.Http.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Web.Http.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_3D389FA8432B49798A379E77C752D3EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4D7CFCCFF9414B82AE1593572E6C5858"
             {
             "AssemblyRegister" = "3:1"
@@ -1390,6 +1471,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_69D86C492B54C287089E06952CCEC27A"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Net.Http.Formatting, Version=5.2.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_69D86C492B54C287089E06952CCEC27A"
+                    {
+                    "Name" = "8:System.Net.Http.Formatting.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Net.Http.Formatting.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_3D389FA8432B49798A379E77C752D3EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6C0C743C7F3540ED9C786D45CFB12129"
             {
             "SourcePath" = "8:..\\Rpt_WebForm\\bin\\Release\\net5.0-windows\\NPOI.OOXML.pdb"
@@ -1439,6 +1551,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6DF87169F4AD4F0BA572754227574914"
+            {
+            "SourcePath" = "8:..\\Rpt_WebForm\\bin\\Release\\net5.0-windows\\Rpt_WebForm.exe"
+            "TargetName" = "8:Rpt_WebForm.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_3D389FA8432B49798A379E77C752D3EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_71DFB870419644EF93005A6DD76D4949"
@@ -1558,26 +1690,6 @@
             {
             "SourcePath" = "8:..\\Rpt_WebForm\\bin\\Release\\net5.0-windows\\Rpt_WebForm.deps.json"
             "TargetName" = "8:Rpt_WebForm.deps.json"
-            "Tag" = "8:"
-            "Folder" = "8:_3D389FA8432B49798A379E77C752D3EF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DC210DC5C7440CE95F09A3398CC4670"
-            {
-            "SourcePath" = "8:..\\Rpt_WebForm\\bin\\Release\\net5.0-windows\\Rpt_WebForm.exe"
-            "TargetName" = "8:Rpt_WebForm.exe"
             "Tag" = "8:"
             "Folder" = "8:_3D389FA8432B49798A379E77C752D3EF"
             "Condition" = "8:"
@@ -2366,15 +2478,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Rpt-Installer"
-        "ProductCode" = "8:{572F358A-9EAA-4854-AC05-96AA4EB5FEEF}"
-        "PackageCode" = "8:{03982C3F-FAF3-4603-B13F-3EEC65EBCAD1}"
+        "ProductCode" = "8:{0927FC1E-7B0A-46B5-AB9C-65D65AF2188F}"
+        "PackageCode" = "8:{AD11FDC8-92D2-40E8-A050-9C5B6A8A9421}"
         "UpgradeCode" = "8:{72C17F8C-5C7D-4231-8B93-FAFA1A7ADF0A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.3"
+        "ProductVersion" = "8:1.5"
         "Manufacturer" = "8:Default Company Name"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -2487,7 +2599,21 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_40AB73267C5141ACA4E879AA3AB80693"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_44D1762C316149F5ADD8D138EB76DDBE"
+            {
+            "Name" = "8:Shortcut to msiexec.exe"
+            "Arguments" = "8:/X {0927FC1E-7B0A-46B5-AB9C-65D65AF2188F}"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_2AE517F4329D46119B00D123D6B97CD4"
+            "Folder" = "8:_3D389FA8432B49798A379E77C752D3EF"
+            "WorkingFolder" = "8:_3D389FA8432B49798A379E77C752D3EF"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_75339F81A3B640E7B7D080EE0A4B8563"
             {
             "Name" = "8:RptCombinedTool"
             "Arguments" = "8:"
@@ -2495,22 +2621,8 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_7DC210DC5C7440CE95F09A3398CC4670"
+            "Target" = "8:_6DF87169F4AD4F0BA572754227574914"
             "Folder" = "8:_082DE58341F1456AAF27AB887ED55875"
-            "WorkingFolder" = "8:_3D389FA8432B49798A379E77C752D3EF"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_44D1762C316149F5ADD8D138EB76DDBE"
-            {
-            "Name" = "8:Shortcut to msiexec.exe"
-            "Arguments" = "8:/X {572F358A-9EAA-4854-AC05-96AA4EB5FEEF}"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_2AE517F4329D46119B00D123D6B97CD4"
-            "Folder" = "8:_3D389FA8432B49798A379E77C752D3EF"
             "WorkingFolder" = "8:_3D389FA8432B49798A379E77C752D3EF"
             "Icon" = "8:"
             "Feature" = "8:"

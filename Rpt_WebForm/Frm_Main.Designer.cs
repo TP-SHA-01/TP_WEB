@@ -154,7 +154,7 @@ namespace Rpt_WebForm
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(35, 20);
             this.label3.TabIndex = 5;
-            this.label3.Text = "v1.3";
+            this.label3.Text = "v1.5";
             // 
             // Frm_Main
             // 

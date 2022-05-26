@@ -71,7 +71,6 @@ namespace TP_Console
             DataTable dt = new DataTable();
             try
             {
-               
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Office-" + _office + " Strat"));
                 AMS_ResponseMode responseMode = AMSFilingRpt_Service.GetAMSFilingData(_office);
                 EDIMapModel model = new EDIMapModel();

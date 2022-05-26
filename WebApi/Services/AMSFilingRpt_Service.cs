@@ -125,7 +125,7 @@ namespace WebApi.Services
                     if (retDB.Rows.Count > 0)
                     {
                         string mailBody = CommonFun.GetHtmlString(retDB);
-                        string fileName = "AMSFilingCheckRpt_" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xls";
+                        string fileName = "AMSFilingCheckRpt_" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
                         string title = String.Empty;
 
                         if (env == "DEV")
@@ -140,12 +140,12 @@ namespace WebApi.Services
 
                         Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
 
-                        stream = NPOIHelper.RenderToExcel(tempDB, sheetName);
+                        stream = NPOIHelper.RenderToExcel_AMS(RenderExcelUpload(tempDB), sheetName);
 
                         if (env == "DEV")
                         {
-                            string originPath = "D:" + "\\" + "SPRC" + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
-                            NPOIHelper.ExportExcel(tempDB, "", originPath);
+                            string originPath = "D:" + "\\" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                            NPOIHelper.ExportExcel(RenderExcelUpload(tempDB), sheetName, originPath);
                         }
 
                         keyValues.Add(fileName, stream);
@@ -183,6 +183,62 @@ namespace WebApi.Services
             }
 
             return responseMode;
+        }
+
+        private static DataTable RenderExcelUpload(DataTable dt) {
+            DataTable tempDT = new DataTable();
+            tempDT = dt.DefaultView.ToTable(false
+                , new string[] {
+                    "OriginOffice",
+                    "BookingReqID",
+                    "HBL",
+                    "MBL",
+                    "SCAC",
+                    "ShptPOL",
+                    "ShptETD",
+                    "ShptVessel",
+                    "ShptLastPort",
+                    "AMS_CutOff",
+                    "AMSCutVsLstETD",
+                    "Submission",
+                    "CBP_RspDte",
+                    "CBP_Status",
+                    "CBP_Vessel",
+                    "LastVslETD",
+                    "SubmissionVsCBP",
+                    "CBPVsLstVslETD",
+                    "MissSubmission_48Hr",
+                    "Late1Y_30Hr",
+                    "LastUsr",
+                    "EDI_COUNT",
+                    "LateByTopocean",
+                    "LateByCarrier",
+                    "NotLate",
+                    "Remark"
+                });
+
+            tempDT.Columns["BookingReqID"].ColumnName = "Booking Req ID";
+            tempDT.Columns["ShptPOL"].ColumnName = "SHPT POL";
+            tempDT.Columns["ShptETD"].ColumnName = "SHPT ETD";
+            tempDT.Columns["ShptVessel"].ColumnName = "SHPT LST VESSEL";
+            tempDT.Columns["ShptLastPort"].ColumnName = "SHPT LST POL";
+            tempDT.Columns["AMS_CutOff"].ColumnName = "AMS CUT (2 DAYS B/F LST ETD)";
+            tempDT.Columns["AMSCutVsLstETD"].ColumnName = "DATE DIFF OF AMS CUT & CBP RSP DATE";
+            tempDT.Columns["Submission"].ColumnName = "SUBMISSION DATE";
+            tempDT.Columns["CBP_RspDte"].ColumnName = "CBP RSP DATE";
+            tempDT.Columns["CBP_Status"].ColumnName = "CBP STATUS";
+            tempDT.Columns["CBP_Vessel"].ColumnName = "CBP VESSEL";
+            tempDT.Columns["LastVslETD"].ColumnName = "LAST VSL ETD";
+            tempDT.Columns["SubmissionVsCBP"].ColumnName = "SUBMISSION VS CBP STATUS (HRS)";
+            tempDT.Columns["CBPVsLstVslETD"].ColumnName = "CBP STATUS VS LAST VSL ETD (HRS)";
+            tempDT.Columns["MissSubmission_48Hr"].ColumnName = "NO SUBMISSION FROM 48 HRS PRIOR TO LAST VSL ETD";
+            tempDT.Columns["Late1Y_30Hr"].ColumnName = "LATE 1Y FROM 30HRS PRIOR TO LAST VSL ETD";
+            tempDT.Columns["LastUsr"].ColumnName = "CREATE/LAST UPDATE USER";
+            tempDT.Columns["EDI_COUNT"].ColumnName = "EDI COUNT";
+            tempDT.Columns["LateByTopocean"].ColumnName = "LATE 1Y by Topocean(Y)";
+            tempDT.Columns["LateByCarrier"].ColumnName = "LATE 1Y by Carrier(Y)";
+            tempDT.Columns["NotLate"].ColumnName = "Not Late AMS Result";
+            return tempDT;
         }
 
         private static void SendNoDataMail()

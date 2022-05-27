@@ -348,7 +348,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
             catch (Exception ex)
             {
-                throw ex;
+                LogHelper.Error("NPOI Helper Error RenderToExcel_AMS :" + ex.Message + " StackTrace: " + ex.StackTrace);
             }
 
             return ms;
@@ -522,7 +522,7 @@ namespace TB_WEB.CommonLibrary.Helpers
         /// <param name="strFileName">保存位置(文件名及路径)</param>
         public static void ExportExcel(DataTable dtSource, string strHeaderText, string strFileName)
         {
-            using (MemoryStream ms = RenderToExcel(dtSource, strHeaderText))
+            using (MemoryStream ms = RenderToExcel_AMS(dtSource, strHeaderText))
             {
                 using (FileStream fs = new FileStream(strFileName, FileMode.Create, FileAccess.Write))
                 {

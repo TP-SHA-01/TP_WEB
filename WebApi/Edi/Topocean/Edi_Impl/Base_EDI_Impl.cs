@@ -298,9 +298,10 @@ namespace WebApi.Edi.Topocean.Edi_Impl
         public string GetICN()
         {
             string strICN = String.Empty;
+            string sql = String.Empty;
             try
             {
-                string sql = String.Format(" SELECT {0} FROM EDISysInfo ", entity.icn_type);
+                sql = String.Format(" SELECT {0} FROM EDISysInfo ", entity.icn_type);
                 DataTable dt = dbHelper.ExecDataTable(sql);
 
                 if (dt.Rows.Count > 0)
@@ -324,7 +325,7 @@ namespace WebApi.Edi.Topocean.Edi_Impl
             }
             catch (Exception ex)
             {
-                LogHelper.Error("Exception Message -- > " + ex.Message + " ; StackTrace --> :" + ex.StackTrace);
+                LogHelper.Error("Exception Message -- > " + ex.Message + " ; StackTrace --> :" + ex.StackTrace + " sql:" + sql);
             }
 
             return strICN;

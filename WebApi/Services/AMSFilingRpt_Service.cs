@@ -141,17 +141,17 @@ namespace WebApi.Services
                         Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
 
                         stream = NPOIHelper.RenderToExcel_AMS(RenderExcelUpload(tempDB), sheetName);
-
+                        LogHelper.Debug("GetAMSFilingData => RenderToExcel_AMS Get stream");
                         if (env == "DEV")
                         {
-                            string originPath = "D:" + "\\" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-                            NPOIHelper.ExportExcel(RenderExcelUpload(tempDB), sheetName, originPath);
+                            //string originPath = "D:" + "\\" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                            //NPOIHelper.ExportExcel(RenderExcelUpload(tempDB), sheetName, originPath);
                         }
 
                         keyValues.Add(fileName, stream);
-
+                        LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
                         emailHelper.SendMailViaAPI(title, mailBody, mailList, keyValues);
-
+                        LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : End");
                         responseMode.table = retDB;
                         responseMode.temptable = dt;
                         responseMode.mailTo = mailList;
@@ -178,7 +178,7 @@ namespace WebApi.Services
             }
             catch (Exception ex)
             {
-                LogHelper.Error(ex.Message);
+                LogHelper.Error("AMS Checking Service: " + ex.Message + ",StackTrace:" + ex.StackTrace);
                 responseMode.result = "Error";
             }
 
@@ -256,7 +256,7 @@ namespace WebApi.Services
 
             string mailList = String.Empty;
             mailList = ConfigurationManager.AppSettings[pOriginOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
-            emailHelper.SendMailViaAPI(title, "No Data", mailList);
+            emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString("No Data"), mailList);
         }
         public static DataTable GetData(string pDateFrom, string pDateTo, string pOriginOffice)
         {

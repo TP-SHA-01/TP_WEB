@@ -645,6 +645,21 @@ namespace TB_WEB.CommonLibrary.CommonFun
             return sb.ToString();
         }
 
+        public static string GetHtmlString(string strText)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html>" +
+                      "<head>");
+            sb.Append("<title></title>");
+            sb.Append("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/> ");
+            sb.Append("</head>");
+            sb.Append("<body>");
+            sb.Append(" <div>" + strText + "</div>");
+            sb.Append("</body>" +
+                      "</html>");
+            return sb.ToString();
+        }
+
         public static string ExportDatatableToHtml(DataTable dt)
         {
             StringBuilder strHTMLBuilder = new StringBuilder();

@@ -85,6 +85,7 @@
     <Compile Include="Helpers\DBHelperBase.cs" />
     <Compile Include="Helpers\DBMSSQLHelper.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
+    <Compile Include="Helpers\MemoryStreamHelper.cs" />
     <Compile Include="Helpers\NPOIHelper.cs" />
     <Compile Include="Linq\EnumerableExtentions.cs" />
     <Compile Include="Log\LogHelper.cs" />

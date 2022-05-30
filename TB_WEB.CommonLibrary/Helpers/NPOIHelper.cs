@@ -191,7 +191,8 @@ namespace TB_WEB.CommonLibrary.Helpers
 
         public static MemoryStream RenderToExcel_AMS(DataTable table, string sheetName = null)
         {
-            MemoryStream ms = new MemoryStream();
+            MemoryStreamHelper ms = new MemoryStreamHelper();
+            //MemoryStream ms = new MemoryStream();
             IWorkbook workbook;
             try
             {
@@ -342,8 +343,13 @@ namespace TB_WEB.CommonLibrary.Helpers
                     sheet.CreateRow(0).CreateCell(0).SetCellValue("Report Date : " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     sheet.CreateRow(1).CreateCell(0).SetCellValue("Date Range  : " + sheetName);
                     //sheet.SetAutoFilter(new CellRangeAddress(0, 3, 0, 26)); //首行筛选
+
+                    ms.AllowClose = false;
                     workbook.Write(ms);
+                    workbook.Close();
                     ms.Flush();
+                    ms.Position = 0;
+                    ms.AllowClose = true;
                 }
             }
             catch (Exception ex)

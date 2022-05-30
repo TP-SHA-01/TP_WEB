@@ -21,16 +21,23 @@ namespace TB_WEB.CommonLibrary.Helpers
     /// </summary>
     public static class NPOIHelper
     {
-        public static MemoryStream RenderToExcel(DataTable table, string sheetName = null)
+        public static MemoryStream RenderToExcel(DataTable table, string sheetName = null, string excelType = "XLSX")
         {
             MemoryStream ms = new MemoryStream();
-
+            IWorkbook workbook;
             try
             {
                 using (table)
                 {
-                    IWorkbook workbook = new HSSFWorkbook();
-                    //IWorkbook workbook = new XSSFWorkbook();
+                    if (excelType == "XLS")
+                    {
+                        workbook = new HSSFWorkbook();
+                    }
+                    else
+                    {
+                        workbook = new XSSFWorkbook();
+                    }
+
                     ISheet sheet = workbook.CreateSheet();
                     IDataFormat format = workbook.CreateDataFormat();
                     ICellStyle dateStyle = workbook.CreateCellStyle();
@@ -119,7 +126,14 @@ namespace TB_WEB.CommonLibrary.Helpers
                                 case "System.DateTime"://日期类型
                                     DateTime dateV;
                                     DateTime.TryParse(drValue, out dateV);
-                                    newCell.SetCellValue(dateV);
+                                    if (String.IsNullOrEmpty(drValue))
+                                    {
+                                        newCell.SetCellValue("");
+                                    }
+                                    else
+                                    {
+                                        newCell.SetCellValue(drValue);
+                                    }
                                     newCell.CellStyle = dateStyle;//格式化显示
                                     break;
                                 case "System.Boolean"://布尔型
@@ -165,13 +179,182 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                     workbook.Write(ms);
                     ms.Flush();
-                    ms.Position = 0;
-
                 }
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+
+            return ms;
+        }
+
+        public static MemoryStream RenderToExcel_AMS(DataTable table, string sheetName = null)
+        {
+            MemoryStreamHelper ms = new MemoryStreamHelper();
+            //MemoryStream ms = new MemoryStream();
+            IWorkbook workbook;
+            try
+            {
+                using (table)
+                {
+                    workbook = new XSSFWorkbook();
+                    ISheet sheet = workbook.CreateSheet();
+                    IDataFormat format = workbook.CreateDataFormat();
+                    ICellStyle dateStyle = workbook.CreateCellStyle();
+                    dateStyle.Alignment = HorizontalAlignment.Center;
+                    IFont font = workbook.CreateFont();
+                    font.Boldweight = 700;
+                    dateStyle.SetFont(font);
+
+                    dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
+
+                    //sheet.SetAutoFilter(new CellRangeAddress(3, 0, 0, 26)); //首行筛选
+                    //sheet.CreateFreezePane(40, 1); //首行冻结
+
+                    IRow headerRow = sheet.CreateRow(0);
+                    if (!String.IsNullOrEmpty(sheetName))
+                    {
+                        workbook.SetSheetName(0, sheetName);
+                    }
+
+                    ICellStyle headStyle = workbook.CreateCellStyle();
+                    headStyle.FillPattern = FillPattern.SolidForeground;
+                    headStyle.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey40Percent.Index;
+
+                    // handling header.
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+                    }
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        headerRow.GetCell(i).CellStyle = headStyle;
+                    }
+
+
+                    sheet.ForceFormulaRecalculation = true;
+
+                    int[] arrColWidth = new int[table.Columns.Count];
+                    foreach (DataColumn item in table.Columns)
+                    {
+                        if (arrColWidth[item.Ordinal] >= 255)
+                        {
+                            arrColWidth[item.Ordinal] = 120;
+                        }
+                        else
+                        {
+                            arrColWidth[item.Ordinal] = Encoding.GetEncoding("UTF-8").GetBytes(item.ColumnName.ToString().Trim()).Length;
+                        }
+                    }
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        for (int j = 0; j < table.Columns.Count; j++)
+                        {
+                            int intTemp = Encoding.GetEncoding("UTF-8").GetBytes(table.Rows[i][j].ToString().Trim()).Length;
+                            if (intTemp > arrColWidth[j])
+                            {
+                                if (arrColWidth[j] >= 255)
+                                {
+                                    arrColWidth[j] = 120;
+                                }
+                                else
+                                {
+                                    arrColWidth[j] = intTemp;
+                                }
+
+                            }
+                        }
+                    }
+
+                    // handling value.
+                    int rowIndex = 1;
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        IRow dataRow = sheet.CreateRow(rowIndex);
+
+                        foreach (DataColumn column in table.Columns)
+                        {
+                            ICell newCell = dataRow.CreateCell(column.Ordinal);
+                            string drValue = row[column].ToString();
+                            switch (column.DataType.ToString())
+                            {
+                                case "System.String"://字符串类型
+                                    newCell.SetCellValue(drValue);
+                                    break;
+                                case "System.DateTime"://日期类型
+                                    DateTime dateV;
+                                    DateTime.TryParse(drValue, out dateV);
+                                    if (String.IsNullOrEmpty(drValue))
+                                    {
+                                        newCell.SetCellValue("");
+                                    }
+                                    else
+                                    {
+                                        newCell.SetCellValue(drValue);
+                                    }
+                                    newCell.CellStyle = dateStyle;//格式化显示
+                                    break;
+                                case "System.Boolean"://布尔型
+                                    bool boolV = false;
+                                    bool.TryParse(drValue, out boolV);
+                                    newCell.SetCellValue(boolV);
+                                    break;
+                                case "System.Int16":
+                                case "System.Int32":
+                                case "System.Int64":
+                                case "System.Byte":
+                                    int intV = 0;
+                                    int.TryParse(drValue, out intV);
+                                    newCell.SetCellValue(intV);
+                                    break;
+                                case "System.Decimal":
+                                case "System.Double":
+                                    double doubV = 0;
+                                    double.TryParse(drValue, out doubV);
+                                    newCell.SetCellValue(doubV);
+                                    break;
+                                case "System.DBNull"://空值处理
+                                    newCell.SetCellValue("");
+                                    break;
+                                default:
+                                    newCell.SetCellValue("");
+                                    break;
+                            }
+
+                            if (arrColWidth[column.Ordinal] >= 255)
+                            {
+                                sheet.SetColumnWidth(column.Ordinal, 120);
+                            }
+                            else
+                            {
+                                sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
+                            }
+
+                        }
+
+                        rowIndex++;
+                    }
+
+                    sheet.ShiftRows(0, sheet.LastRowNum, 3, true, false);
+
+                    sheet.CreateRow(0).CreateCell(0).SetCellValue("Report Date : " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    sheet.CreateRow(1).CreateCell(0).SetCellValue("Date Range  : " + sheetName);
+                    //sheet.SetAutoFilter(new CellRangeAddress(0, 3, 0, 26)); //首行筛选
+
+                    ms.AllowClose = false;
+                    workbook.Write(ms);
+                    workbook.Close();
+                    ms.Flush();
+                    ms.Position = 0;
+                    ms.AllowClose = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error("NPOI Helper Error RenderToExcel_AMS :" + ex.Message + " StackTrace: " + ex.StackTrace);
             }
 
             return ms;
@@ -345,7 +528,7 @@ namespace TB_WEB.CommonLibrary.Helpers
         /// <param name="strFileName">保存位置(文件名及路径)</param>
         public static void ExportExcel(DataTable dtSource, string strHeaderText, string strFileName)
         {
-            using (MemoryStream ms = RenderToExcel(dtSource, strHeaderText))
+            using (MemoryStream ms = RenderToExcel_AMS(dtSource, strHeaderText))
             {
                 using (FileStream fs = new FileStream(strFileName, FileMode.Create, FileAccess.Write))
                 {
@@ -930,7 +1113,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                 filePath = savePath;
             }
 
-            string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
+            string originPath = filePath + "\\" + reportType + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
             ExportExcel(tempDt, "", originPath);
 
             exportfilePath = originPath;
@@ -990,7 +1173,28 @@ namespace TB_WEB.CommonLibrary.Helpers
             {
                 dt.Columns.Add("AGENTNAME");
             }
-            
+
+            if (!dt.Columns.Contains("STATUS"))
+            {
+                dt.Columns.Add("STATUS");
+            }
+            if (!dt.Columns.Contains("SENDPRE-ALERT"))
+            {
+                dt.Columns.Add("SENDPRE-ALERT");
+            }
+            if (!dt.Columns.Contains("UPDATE"))
+            {
+                dt.Columns.Add("UPDATE");
+            }
+            if (!dt.Columns.Contains("LOT#"))
+            {
+                dt.Columns.Add("LOT#");
+            }
+            if (!dt.Columns.Contains("LOCALSALES"))
+            {
+                dt.Columns.Add("LOCALSALES");
+            }
+
         }
 
         private static void RenderLoadingReport(DataTable dt, string strOffice)
@@ -1156,6 +1360,9 @@ namespace TB_WEB.CommonLibrary.Helpers
             tempDt.Columns["HOUSEBL#"].ColumnName = "HOUSEBL #";
             tempDt.Columns["MASTERBL#"].ColumnName = "MASTERBL #";
             tempDt.Columns["CONTAINER#"].ColumnName = "CONTAINER #";
+            tempDt.Columns["SENDPRE-ALERT"].ColumnName = "SEND PRE-ALERT";
+            tempDt.Columns["LOT#"].ColumnName = "LOT #";
+            tempDt.Columns["LOCALSALES"].ColumnName = "LOCAL SALES";
             tempDt.Columns["TRADE"].ColumnName = "Trade";
             tempDt.Columns["ACCOUNT TYPE"].ColumnName = "Account Type";
             tempDt.Columns["LENTHOFHBL"].ColumnName = "LENTH OF HBL";
@@ -1202,16 +1409,64 @@ namespace TB_WEB.CommonLibrary.Helpers
                                     ,"MBLBOOKTO"
                                     ,"HOUSEBL#"
                                     ,"MASTERBL#"
-                                    ,"CONTAINER#"};
+                                    ,"CONTAINER#"
+                                    ,"STATUS"
+                                    ,"SENDPRE-ALERT"
+                                    ,"UPDATE"
+                                    ,"LOT#"
+                                    ,"LOCALSALES"};
             return list;
         }
 
         private static string[] ReturnTemplateColumn()
         {
-            string[] list = new string[] {"MONTH","WEEK","BRANCH"
-            ,"TRAFFIC","BY","AGENT","AGENTNAME","SHIPPER"
-            ,"PRINCIPAL","CONSIGNEE" ,"NOMINATION","NOMINATIONSALES","20","40","45","HQ","53" ,"FEUS","CONSOL","TTL","CBM","TYPE","CARRIER"  ,"CONTRACT#" ,"SERVICESTRING"
-            ,"SONO","VESSEL","VOYAGE","ETD","ETA","POL","DEST","MBLBOOKTO","HOUSEBL#","MASTERBL#","CONTAINER#","TRADE","ACCOUNT TYPE","LENTHOFHBL","SHIPMENTCOUNT","TOTALFEU"};
+            string[] list = new string[] {
+                "MONTH"
+                ,"WEEK"
+                ,"BRANCH"
+                ,"TRAFFIC"
+                ,"BY"
+                ,"AGENT"
+                ,"AGENTNAME"
+                ,"SHIPPER"
+                ,"PRINCIPAL"
+                ,"CONSIGNEE"
+                ,"NOMINATION"
+                ,"NOMINATIONSALES"
+                ,"20"
+                ,"40"
+                ,"45"
+                ,"HQ"
+                ,"53"
+                ,"FEUS"
+                ,"CONSOL"
+                ,"TTL"
+                ,"CBM"
+                ,"TYPE"
+                ,"CARRIER"
+                ,"CONTRACT#"
+                ,"SERVICESTRING"
+                ,"SONO"
+                ,"VESSEL"
+                ,"VOYAGE"
+                ,"ETD"
+                ,"ETA"
+                ,"POL"
+                ,"DEST"
+                ,"MBLBOOKTO"
+                ,"HOUSEBL#"
+                ,"MASTERBL#"
+                ,"CONTAINER#"
+                ,"STATUS"
+                ,"SENDPRE-ALERT"
+                ,"UPDATE"
+                ,"LOT#"
+                ,"LOCALSALES"
+                ,"TRADE"
+                ,"ACCOUNT TYPE"
+                ,"LENTHOFHBL"
+                ,"SHIPMENTCOUNT"
+                ,"TOTALFEU"};
             return list;
         }
 

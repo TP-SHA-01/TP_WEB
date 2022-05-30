@@ -21,6 +21,7 @@ namespace TP_Console
             Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Start Program"));
 
             string pPara = CommonUnit.CheckEmpty(args[0]);
+            //string pPara = CommonUnit.CheckEmpty("SPRC");
 
             if (String.IsNullOrEmpty(pPara))
             {
@@ -71,7 +72,6 @@ namespace TP_Console
             DataTable dt = new DataTable();
             try
             {
-               
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Office-" + _office + " Strat"));
                 AMS_ResponseMode responseMode = AMSFilingRpt_Service.GetAMSFilingData(_office);
                 EDIMapModel model = new EDIMapModel();
@@ -100,7 +100,7 @@ namespace TP_Console
             catch (Exception ex)
             {
                 ret = false;
-                LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
+                LogHelper.Error("Program Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
 

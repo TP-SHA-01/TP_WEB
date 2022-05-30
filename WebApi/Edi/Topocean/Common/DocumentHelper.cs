@@ -247,8 +247,9 @@ namespace WebApi.Edi.Common
                 retVal.Add(respObj.payload.destination);
                 retVal.Add(respObj.payload.destination_content);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogHelper.Error("DocumentHelper PODownloadDoc2S3: " + ex.Message + ",StackTrace:" + ex.StackTrace);
             }
             return retVal.ToArray();
         }

@@ -32,9 +32,8 @@ namespace WebApi.Services
         {
             string mailList = String.Empty;
             string officeList = String.Empty;
-            DataTable retDB = new DataTable();
-            DataTable tempDB = new DataTable();
-            MemoryStream stream = new MemoryStream();
+            DataTable retDB = new DataTable(); ;
+            DataTable tempDB = new DataTable(); ;
             AMS_ResponseMode responseMode = new AMS_ResponseMode();
             string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
             string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
@@ -140,7 +139,7 @@ namespace WebApi.Services
 
                         Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
 
-                        stream = NPOIHelper.RenderToExcel_AMS(RenderExcelUpload(tempDB), sheetName);
+                        MemoryStream stream = NPOIHelper.RenderToExcel_AMS(RenderExcelUpload(tempDB), sheetName);
                         LogHelper.Debug("GetAMSFilingData => RenderToExcel_AMS Get stream");
                         if (env == "DEV")
                         {

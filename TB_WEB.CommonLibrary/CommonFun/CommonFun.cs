@@ -575,12 +575,12 @@ namespace TB_WEB.CommonLibrary.CommonFun
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
-        public static string GetHtmlString(DataTable dt)
+        public static string GetHtmlString(DataTable dt,string htmlName="AMS")
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("<html><head>");
             sb.Append("<title></title>");
-            sb.Append("<meta http-equiv='Content-Type' content='text/html; charset=GBK'/> ");
+            sb.Append("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/> ");
             sb.Append("<style type=text/css>");
             sb.Append("td{font-size: 9pt;border:solid 1 #000000;width:200px;}");
             sb.Append("table{padding:3 0 3 0;border:solid 1 #000000;margin:0 0 0 0;BORDER-COLLAPSE: collapse;}");
@@ -626,9 +626,8 @@ namespace TB_WEB.CommonLibrary.CommonFun
             }
             sb.Append("</table>");
             sb.Append("</br>");
-            sb.Append("<div> <i>Authorized AMS monitor can  synchronize remarks in TBS page via below link </i>  </div>");
-            //sb.Append("<div> <input value='AMS Filing Check' type=button οnclick='window.location.href('https://www.topocean.com/WebBooking/toTBS.asp?targetPage=AMSFilingCheck.aspx')'> </div>");
-            sb.Append("<div> <p><a href='https://www.topocean.com/WebBooking/toTBS.asp?targetPage=AMSFilingCheck.aspx'>AMS Filing Check</a></p> </div>");
+            sb.Append("<div> <i>Authorized "+ htmlName + " monitor can  synchronize remarks in TBS page via below link </i>  </div>");
+            sb.Append("<div> <p><a href='https://www.topocean.com/WebBooking/toTBS.asp?targetPage="+ htmlName +"FilingCheck.aspx'>" + htmlName + " Filing Check</a></p> </div>");
 
             //点击单元格 输出 行和列
             sb.Append("<script src='https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js'></script>");
@@ -642,6 +641,21 @@ namespace TB_WEB.CommonLibrary.CommonFun
             sb.Append("</script>");
 
             sb.Append("</body></html>");
+            return sb.ToString();
+        }
+
+        public static string GetHtmlString(string strText)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html>" +
+                      "<head>");
+            sb.Append("<title></title>");
+            sb.Append("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/> ");
+            sb.Append("</head>");
+            sb.Append("<body>");
+            sb.Append(" <div>" + strText + "</div>");
+            sb.Append("</body>" +
+                      "</html>");
             return sb.ToString();
         }
 

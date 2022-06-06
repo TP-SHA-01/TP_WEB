@@ -187,6 +187,8 @@
     <Compile Include="Models\ReportTemplate\ReportTempModel.cs" />
     <Compile Include="Models\Result\CommonResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\EMFFilingRpt_Service.cs" />
+    <Compile Include="Services\ACIFilingRpt_Service.cs" />
     <Compile Include="Services\AMSFilingRpt_Service.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -143,8 +143,13 @@ namespace WebApi.Services
                         LogHelper.Debug("GetAMSFilingData => RenderToExcel_AMS Get stream");
                         if (env == "DEV")
                         {
-                            //string originPath = "D:" + "\\" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-                            //NPOIHelper.ExportExcel(RenderExcelUpload(tempDB), sheetName, originPath);
+                            string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + originOffice + "_EXCEL_FOLDER";
+                            if (!Directory.Exists(path))
+                            {
+                                Directory.CreateDirectory(path);
+                            }
+                            string originPath = path + "\\" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                            NPOIHelper.ExportExcel_AMS(RenderExcelUpload(tempDB), sheetName, originPath);
                         }
 
                         keyValues.Add(fileName, stream);

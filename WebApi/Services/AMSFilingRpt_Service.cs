@@ -54,9 +54,12 @@ namespace WebApi.Services
                     case "SHA":
                         officeList = "SHA";
                         break;
+                    default:
+                        officeList = originOffice;
+                        break;
                 }
 
-                dt = GetData(DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss"), officeList);
+                dt = GetData(DateTime.Now.AddDays(14).AddMonths(-3).AddDays(-15).ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss"), officeList);
                 if (dt == null)
                 {
                     SendNoDataMail();

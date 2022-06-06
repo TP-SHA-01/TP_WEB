@@ -23,7 +23,7 @@ namespace TB_WEB.CommonLibrary.Helpers
     {
         public static MemoryStream RenderToExcel(DataTable table, string sheetName = null, string excelType = "XLSX")
         {
-            MemoryStream ms = new MemoryStream();
+            MemoryStreamHelper ms = new MemoryStreamHelper();
             IWorkbook workbook;
             try
             {
@@ -177,8 +177,12 @@ namespace TB_WEB.CommonLibrary.Helpers
                         rowIndex++;
                     }
 
+                    ms.AllowClose = false;
                     workbook.Write(ms);
+                    workbook.Close();
                     ms.Flush();
+                    ms.Position = 0;
+                    ms.AllowClose = true;
                 }
             }
             catch (Exception ex)
@@ -527,6 +531,20 @@ namespace TB_WEB.CommonLibrary.Helpers
         /// <param name="strHeaderText">表头文本</param>
         /// <param name="strFileName">保存位置(文件名及路径)</param>
         public static void ExportExcel(DataTable dtSource, string strHeaderText, string strFileName)
+        {
+            using (MemoryStream ms = RenderToExcel(dtSource, strHeaderText))
+            //using (MemoryStream ms = RenderToExcel_AMS(dtSource, strHeaderText))
+            {
+                using (FileStream fs = new FileStream(strFileName, FileMode.Create, FileAccess.Write))
+                {
+                    byte[] data = ms.ToArray();
+                    fs.Write(data, 0, data.Length);
+                    fs.Flush();
+                }
+            }
+        }
+
+        public static void ExportExcel_AMS(DataTable dtSource, string strHeaderText, string strFileName)
         {
             using (MemoryStream ms = RenderToExcel_AMS(dtSource, strHeaderText))
             {

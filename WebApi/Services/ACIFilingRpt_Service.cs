@@ -64,7 +64,11 @@ namespace WebApi.Services
                         break;
                 }
 
-                dt = GetData(DateTime.Now.AddDays(14).AddMonths(-3).AddDays(-15).ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss"), officeList);
+                string startDay = DateTime.Now.AddDays(14).AddMonths(-3).AddDays(-15).ToString("yyyy-MM-dd HH:mm:ss");
+                string endDay = DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss");
+
+                dt = GetData(startDay, endDay, officeList);
+
                 if (dt == null)
                 {
                     SendNoDataMail();

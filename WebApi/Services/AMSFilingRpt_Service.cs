@@ -43,6 +43,12 @@ namespace WebApi.Services
                 DataTable dt = new DataTable();
                 pOriginOffice = originOffice;
                 mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+
+
+                LogHelper.Debug("GetAMSFilingData => GET originOffice :" + originOffice);
+                LogHelper.Debug("GetAMSFilingData => GET originOffice mailList :" + ConfigurationManager.AppSettings[originOffice + "_MAIL"]);
+                LogHelper.Debug("GetAMSFilingData => GET mailList :" + mailList);
+
                 switch (originOffice)
                 {
                     case "SPRC":

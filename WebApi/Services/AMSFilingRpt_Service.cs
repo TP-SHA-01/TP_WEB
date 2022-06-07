@@ -43,6 +43,12 @@ namespace WebApi.Services
                 DataTable dt = new DataTable();
                 pOriginOffice = originOffice;
                 mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+
+
+                LogHelper.Debug("GetAMSFilingData => GET originOffice :" + originOffice);
+                LogHelper.Debug("GetAMSFilingData => GET originOffice mailList :" + ConfigurationManager.AppSettings[originOffice + "_MAIL"]);
+                LogHelper.Debug("GetAMSFilingData => GET mailList :" + mailList);
+
                 switch (originOffice)
                 {
                     case "SPRC":
@@ -54,9 +60,16 @@ namespace WebApi.Services
                     case "SHA":
                         officeList = "SHA";
                         break;
+                    default:
+                        officeList = originOffice;
+                        break;
                 }
 
-                dt = GetData(DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss"), officeList);
+                string startDay = DateTime.Now.AddDays(14).AddMonths(-3).AddDays(-15).ToString("yyyy-MM-dd HH:mm:ss");
+                string endDay = DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss");
+
+                dt = GetData(startDay, endDay, officeList);
+
                 if (dt == null)
                 {
                     SendNoDataMail();
@@ -98,7 +111,7 @@ namespace WebApi.Services
                         lastVslETD_To = -30;
                     }
 
-                    string sheetName = DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd") + "=>" + DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
+                    string sheetName = startDay + "=>" + endDay;
 
                     var query = (from r in dt.AsEnumerable()
                                  where (r.Field<string>("Late1Y_30Hr").Trim() != "N")

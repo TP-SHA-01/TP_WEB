@@ -43,6 +43,11 @@ namespace WebApi.Services
                 DataTable dt = new DataTable();
                 pOriginOffice = originOffice;
                 mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+
+                LogHelper.Debug("GetACIFilingData => GET originOffice :" + originOffice);
+                LogHelper.Debug("GetACIFilingData => GET originOffice mailList :" + ConfigurationManager.AppSettings[originOffice + "_MAIL"]);
+                LogHelper.Debug("GetACIFilingData => GET mailList :" + mailList);
+
                 switch (originOffice)
                 {
                     case "SPRC":
@@ -54,9 +59,16 @@ namespace WebApi.Services
                     case "SHA":
                         officeList = "SHA";
                         break;
+                    default:
+                        officeList = originOffice;
+                        break;
                 }
 
-                dt = GetData(DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss"), officeList);
+                string startDay = DateTime.Now.AddDays(14).AddMonths(-3).AddDays(-15).ToString("yyyy-MM-dd HH:mm:ss");
+                string endDay = DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss");
+
+                dt = GetData(startDay, endDay, officeList);
+
                 if (dt == null)
                 {
                     SendNoDataMail();
@@ -110,13 +122,14 @@ namespace WebApi.Services
                     {
                         tempDB = query.CopyToDataTable<DataRow>();
                         tempDB.DefaultView.Sort = "OriginOffice,LastVslETD,SCAC,ShptVessel,MBL ASC";
-                        retDB = tempDB.DefaultView.ToTable(false, new string[] { "OriginOffice", "HBL", "MBL", "SCAC", "ShptPOL", "ShptVessel", "ShptLastPort", "Submission", "LastVslETD", "LastUsr", "Remark" });
+                        retDB = tempDB.DefaultView.ToTable(false, new string[] { "OriginOffice", "HBL", "MBL", "SCAC", "ShptPOL", "ShptETD", "ShptVessel", "ShptLastPort", "Submission", "LastVslETD", "LastUsr", "Remark" });
                         retDB.Columns["OriginOffice"].ColumnName = "OFFICE";
-                        retDB.Columns["ShptPOL"].ColumnName = "RECEIPT PORT";
-                        retDB.Columns["ShptVessel"].ColumnName = "ACI VESSEL";
-                        retDB.Columns["ShptLastPort"].ColumnName = "ACI LAST PORT";
+                        retDB.Columns["ShptPOL"].ColumnName = "SHPT POL";
+                        retDB.Columns["ShptETD"].ColumnName = "SHPT ETD";
+                        retDB.Columns["ShptVessel"].ColumnName = "SHPT LST VESSEL";
+                        retDB.Columns["ShptLastPort"].ColumnName = "SHPT LST POL";
                         retDB.Columns["Submission"].ColumnName = "SUBMISSION DATE";
-                        retDB.Columns["LastVslETD"].ColumnName = "ACI VSL ETD";
+                        retDB.Columns["LastVslETD"].ColumnName = "LAST VSL ETD";
                         retDB.Columns["LastUsr"].ColumnName = "CREATE/LAST UPDATE USER";
                         retDB.Columns["Remark"].ColumnName = "CS/OP FOLLOW";
                     }

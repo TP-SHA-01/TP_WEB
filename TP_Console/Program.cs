@@ -216,7 +216,7 @@ namespace TP_Console
                 archive_model.DataContent = JsonConvert.SerializeObject(responseMode.table);
                 archive_model.EDIContent = JsonConvert.SerializeObject(responseMode.temptable);
 
-                //CommonUnit.InsertAMSEDIRecord(archive_model, model);
+                CommonUnit.InsertAMSEDIRecord(archive_model, model);
 
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), responseMode.result));
 
@@ -308,7 +308,7 @@ namespace TP_Console
                 archive_model.DataContent = JsonConvert.SerializeObject(responseMode.table);
                 archive_model.EDIContent = JsonConvert.SerializeObject(responseMode.temptable);
 
-                //CommonUnit.InsertAMSEDIRecord(archive_model, model);
+                CommonUnit.InsertAMSEDIRecord(archive_model, model);
 
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), responseMode.result));
 

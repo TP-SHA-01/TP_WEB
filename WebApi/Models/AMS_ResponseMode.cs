@@ -14,4 +14,18 @@ namespace WebApi.Models
         public string mailTo { get; set; }
         public string result { get; set; }
     }
+
+    public class Load_SPRC_ResponseData
+    {
+        public DataTable sheet1 { get; set; }
+        public DataTable Account { get; set; }
+        public DataTable Carrier { get; set; }
+    }
+
+    public class Load_Volume_ResponseData
+    {
+        public DataTable sheet1 { get; set; }
+        public DataTable Volume { get; set; }
+        public DataTable Workload { get; set; }
+    }
 }

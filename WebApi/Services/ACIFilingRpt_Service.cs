@@ -110,7 +110,7 @@ namespace WebApi.Services
                         lastVslETD_To = -30;
                     }
 
-                    string sheetName = DateTime.Now.AddDays(14).AddMonths(-3).ToString("yyyy-MM-dd") + "=>" + DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
+                    string sheetName = startDay + "=>" + endDay;
 
                     var query = (from r in dt.AsEnumerable()
                                  where (r.Field<string>("Late1Y_30Hr").Trim() != "N")

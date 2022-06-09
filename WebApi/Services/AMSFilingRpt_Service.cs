@@ -68,6 +68,9 @@ namespace WebApi.Services
                 string startDay = DateTime.Now.AddDays(14).AddMonths(-3).AddDays(-15).ToString("yyyy-MM-dd HH:mm:ss");
                 string endDay = DateTime.Today.AddDays(14).ToString("yyyy-MM-dd HH:mm:ss");
 
+                string sheet_startDay = DateTime.Now.AddDays(14).AddMonths(-3).AddDays(-15).ToString("yyyy-MM-dd");
+                string sheet_endDay = DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
+
                 dt = GetData(startDay, endDay, officeList);
 
                 if (dt == null)
@@ -111,7 +114,7 @@ namespace WebApi.Services
                         lastVslETD_To = -30;
                     }
 
-                    string sheetName = startDay + "=>" + endDay;
+                    string sheetName = sheet_startDay + "=>" + sheet_endDay;
 
                     var query = (from r in dt.AsEnumerable()
                                  where (r.Field<string>("Late1Y_30Hr").Trim() != "N")

@@ -20,18 +20,18 @@ namespace WebApi.Services
 {
     public class BookingAdviceAnalysisRpt_Service:IBookingAdviceAnalysisRpt
     {
-	
+
 		static string env = BaseCont.ENVIRONMENT;
-        static EmailHelper emailHelper = new EmailHelper();
-        static private string pOriginOffice { get; set; }
+		static EmailHelper emailHelper = new EmailHelper();
+		static private string pOriginOffice { get; set; }
 
 		//For testing : isnull(principal.Company,POTracing.CNEE)  && ModifiedBy,Principal
 
-		static string selSQL = String.Format(@" if object_id(N'tempsheet1',N'U') is not null drop table tempsheet1  Select Top 20000 
-											[Week], BRANCH,[Booking ID],[Booking Date],[Booking Status],
+		static string selSQL = String.Format(@" if object_id(N'tempsheet',N'U') is not null drop table tempsheet  Select Top 20000 
+											[Week] as WeekTemp, BRANCH,[Booking ID],[Booking Date],[Booking Status],
 											[Transportation Mode],[Created By],[Handling User Email],
 											[Origin Office],[Dest Office], Principal, Consignee, Vendor,
-											[Place Of Receipt],[Carrier Dest], Carrier,[Contract Type],
+											[Place Of Receipt],[Carrier Dest], isnull(Carrier,'') as Carrier,[Contract Type],
 											[Contract No],[Carrier Commodity], Vessel, Voyage, MBL, HBL,
 											[Delivery Type],[PO Ready Date],[POL],[Original ETD],[Current ETD],
 											ATD,[POD],[Original ETA],[Current ETA],[Final Dest],[Final ETA],
@@ -40,7 +40,7 @@ namespace WebApi.Services
 											(((a.[Booked 40] + a.[Booked HQ] + a.[Booked 45] + a.[Booked 53]) * 1) + (a.[Booked 20] * .5)) As[Booked FEU],
 											[Approval Status],[Approval Date],[Approval Remark],[VGM Sent],
 											[ISF Sent Date],[Customs Response #],[Forwarder Remarks],[Nomination Office],
-											[Nomination Sales],[Container List],[Rolled],[Service String],[IsTBS] into tempsheet1
+											[Nomination Sales],[Container List],[Rolled],[Service String],[IsTBS] into tempsheet
 											From(
 												Select
 												CASE WHEN POTracing.ISTBS = 'Y' THEN ISNULL(POTracing.WB_WeekOfYear, 0)
@@ -95,19 +95,21 @@ namespace WebApi.Services
 												(case when((select count(*) from TBS_Route
 												where WBIID = POTracing.BookingReqID and TBS_Route.IsActive = 1) > 1 and POTracing.loadedOnMotherVesselFlag = 'Y') then 'Y' else 'N' end) as [Rolled], [dbo].[udf_GetServiceStringByID](POTracing.BookingReqID) as [Service String], 
 												ISNULL(POTracing.IsTBS, 'N') as [IsTBS]
-												FROM POTracing LEFT JOIN Customer principal ON principal.uID = POTracing.Principle
+												FROM POTracing 
+												LEFT JOIN Customer principal ON principal.uID = POTracing.Principle
 												LEFT JOIN OptionList agent ON agent.OptValue = POTracing.Dest AND agent.OptType = 'TitanOffice'
 												AND agent.IsActive = 'Y' AND Criteria3 = 'Y' AND(Criteria5 <> '' OR Criteria5 IS NOT NULL)
 												LEFT JOIN Customer non_sea_trans ON non_sea_trans.Company = POTracing.CNEE
 												LEFT JOIN LoginView lv ON lv.UserLoginName = POTracing.HandlingUser
 												LEFT JOIN CNEECarrierContract contract ON contract.uID = POTracing.CNEECarrierContractID
 												OUTER APPLY(Select Top 1 tm.TRAFFIC From TrafficMap tm Join LocationMgr traffic On tm.Country_code = traffic.CountryCode Where traffic.Location = POTracing.FinalDest) tm
-											   OUTER APPLY(Select Top 1 ModifiedBy From ModifyRecord m Where CargoId = POTracing.uID and m.modifiedBy <> '' Order By ActionDate asc) m WHERE(POTracing.BookingContractType IN ('TOPOCEAN','NVO/NON-TOPOCEAN CONTRACT') Or POTracing.IsTBS = 'Y')
+											    OUTER APPLY(Select Top 1 ModifiedBy From ModifyRecord m Where CargoId = POTracing.uID and m.modifiedBy <> '' Order By ActionDate asc) m 
+												WHERE
+												(POTracing.BookingContractType IN ('TOPOCEAN','NVO/NON-TOPOCEAN CONTRACT') Or POTracing.IsTBS = 'Y')
 												And POTracing.CNEE Not In('ABC COMPUTER', 'ABC COMPUTER-TBS', 'ABC COMP EU')
 												And ISNULL(POTracing.WB_Status, '') NOT IN('REJECTED','CANCELLED') AND POTracing.BookingReqID IS NOT NULL
 												And(TopoceanYearAndWeek between weekfrom and weekto)   
 												And(POTracing.BookingReqID <> '')
-												And (POTracing.IsTBS = 'Y')
 												And(POTracing.Traffic = 'USA')
 												And(POTracing.TransportationMode = 'SEA')
 												And(POTracing.BookingContractType = 'TOPOCEAN')
@@ -123,21 +125,29 @@ namespace WebApi.Services
 												POTracing.P2PATD, POTracing.DischPort, POTracing.P2PETA, POTracing.D2DETA, POTracing.OriginalP2PETA, POTracing.DestRamp,
 												POTracing.FinalDest, POTracing.Description, POTracing.Commodity2, POTracing.Orig, POTracing.WBApprovalStatus,
 												POTracing.WBApprovalDate, POTracing.WBApprovalRemark, POTracing.ISFSentDate, POTracing.Comments,
-												POTracing.BookingInstruction, POTracing.ISTBS, POTracing.loadedOnMotherVesselFlag,POTracing.ModifiedBy,POTracing.CreatedBy  ) a");
-		public IEnumerable<string> GetValue()
-        {
-            return new List<string>() { "hi", "PO" };
-        }
+												POTracing.BookingInstruction, POTracing.ISTBS, POTracing.loadedOnMotherVesselFlag,POTracing.ModifiedBy,POTracing.CreatedBy  ) a
+												
+												 if object_id(N'tempsheet1',N'U') is not null drop table tempsheet1
+												select case when (temp.Carrier='' and temp.Vessel='' and Voyage='') then '0' else [WeekTemp] end as Week, temp.* into tempsheet1 from tempsheet temp
 
-        public static Load_SPRC_ResponseData GetBookingAdviceByBranchData(string weekfrom,string weekto)
-        {
+												");
+		////Add rule: CS没有Input Carrier（Q),Vessel(U),Voyage(V) ,自动Week为0
+
+
+		public IEnumerable<string> GetValue()
+		{
+			return new List<string>() { "hi", "PO" };
+		}
+
+		public static Load_SPRC_ResponseData GetBookingAdviceByBranchData(string weekfrom, string weekto)
+		{
 
 			Load_SPRC_ResponseData responseMode = new Load_SPRC_ResponseData();
 
-            try
-            {
+			try
+			{
 				DataTable dt_sheet1 = new DataTable();
-				dt_sheet1 = GetData(weekfrom, weekto,"sheet1");
+				dt_sheet1 = GetData(weekfrom, weekto, "sheet1");
 
 				DataTable dt_Account = new DataTable();
 				dt_Account = GetData(weekfrom, weekto, "Account");
@@ -151,13 +161,13 @@ namespace WebApi.Services
 
 
 			}
-            catch (Exception ex)
-            {
-                LogHelper.Error(ex.Message);
-            }
+			catch (Exception ex)
+			{
+				LogHelper.Error(ex.Message);
+			}
 
-            return responseMode;
-        }
+			return responseMode;
+		}
 
 		public static Load_Volume_ResponseData GetBookingVolumeByBranchData(string weekfrom, string weekto)
 		{
@@ -191,7 +201,7 @@ namespace WebApi.Services
 
 		public static DataTable GetData(string weekfrom, string weekto, string datatype)
 		{
-		
+
 
 			selSQL = selSQL.Replace("weekfrom", weekfrom).Replace("weekto", weekto).ToString();
 
@@ -242,7 +252,7 @@ namespace WebApi.Services
 					}
 				}
 
-				
+
 				if (datatype == "Carrier")
 				{
 					selSQL = " if object_id(N'Temcarrier',N'U') is not null drop table Temcarrier  select Carrier,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into Temcarrier from ( " + selSQL + "";
@@ -257,7 +267,8 @@ namespace WebApi.Services
 				drop table Temcarrier";
 
 
-				}else if (datatype == "Account" || datatype=="Volume")
+				}
+				else if (datatype == "Account" || datatype == "Volume")
 				{
 					selSQL = " if object_id(N'TemPrincipal',N'U') is not null drop table TemPrincipal  select Principal,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into TemPrincipal from ( " + selSQL + "";
 
@@ -298,14 +309,14 @@ namespace WebApi.Services
 			DataSet ds = dbHelper.ExecuteDataset(CommandType.Text, selSQL, null);
 
 			dt = ds.Tables[0];
-            LogHelper.Debug("GetAMSFilingData => SQL :" + selSQL);
+			LogHelper.Debug("GetAMSFilingData => SQL :" + selSQL);
 
-            return dt;
-        }
+			return dt;
+		}
 
 
-		public static DataSet GetCarrierRptByBranchData(string weekfrom,string weekto)
-        {
+		public static DataSet GetCarrierRptByBranchData(string weekfrom, string weekto)
+		{
 
 
 			string RunSQL = selSQL.Replace("weekfrom", weekfrom).Replace("weekto", weekto).ToString();
@@ -314,7 +325,7 @@ namespace WebApi.Services
 			string sql_Sum = "";
 			//202217-202230
 			//202247-202310
-			if (weekfrom != "" && weekto!="")
+			if (weekfrom != "" && weekto != "")
 			{
 				int fromNo = Convert.ToInt32(weekfrom.Substring(4, 2));
 				int fromyear = Convert.ToInt32(weekfrom.Substring(0, 4));
@@ -389,7 +400,7 @@ namespace WebApi.Services
 									drop table TemPrincipal";
 
 
-				RunSQL = RunSQL.Replace("sql_each", sql_each).Replace("weekcount", weekcount.ToString()+".00").Replace("sql_Sum", sql_Sum.ToString());
+				RunSQL = RunSQL.Replace("sql_each", sql_each).Replace("weekcount", weekcount.ToString() + ".00").Replace("sql_Sum", sql_Sum.ToString());
 
 				RunSQL = RunSQL + @" Select * from tempsheet1 ";
 			}
@@ -397,7 +408,7 @@ namespace WebApi.Services
 			DBHelper dbHelper = new DBHelper();
 
 			DataSet ds = dbHelper.ExecuteDataset(CommandType.Text, RunSQL, null);
-			if (ds!= null && ds.Tables.Count == 3)
+			if (ds != null && ds.Tables.Count == 3)
 			{
 				ds.Tables[0].TableName = "By Carrier";
 				ds.Tables[1].TableName = "By Account";
@@ -409,7 +420,7 @@ namespace WebApi.Services
 
 		public static DataSet GetzVolumeRptByBranchData(string weekfrom, string weekto)
 		{
-			
+
 
 			string RunSQL = selSQL.Replace("weekfrom", weekfrom).Replace("weekto", weekto).ToString();
 
@@ -497,13 +508,14 @@ namespace WebApi.Services
 								drop table VolumeRpt2";
 
 				RunSQL = RunSQL + @" if object_id(N'VolumeRpt3', N'U') is not null drop table VolumeRpt3
-								select [Dest Office],[Week],Count(isnull([Booked FEU], 0)) as [Booked FEU] into VolumeRpt3 
+								select case when [Dest Office]='ORD' or [Dest Office]='SFO' then 'ORD/SFO' else [Dest Office] end  as [Dest Office],[Week],Count(isnull([Booked FEU], 0)) as [Booked FEU] into VolumeRpt3 
 								from tempsheet1  where 1=1  and [Created By] like 'tbs%'
 								group by [Dest Office],[Week] order by [Dest Office] asc
 								SELECT
 								  isnull([Dest Office],'') as [Team],sql_each 
 								  SUM([Booked FEU]) AS [Total Booked FEU],  
-								  cast(SUM([Booked FEU])/weekcount/(select count(distinct [Created By])  from tempsheet1 T1 where T1.[Dest Office] = V3.[Dest Office]
+								  cast(SUM([Booked FEU])/weekcount/(select count(distinct [Created By])  from tempsheet1 T1 where 
+								  (case when (T1.[Dest Office]='ORD' or T1.[Dest Office]='SFO') then 'ORD/SFO' else T1.[Dest Office] end) = V3.[Dest Office]
 								  and 1=1 and T1.[Created By] like 'tbs%') as decimal(15,2)) as [SHPTS PER WK]
 								  FROM VolumeRpt3 V3
 								  GROUP BY [Dest Office]
@@ -512,7 +524,7 @@ namespace WebApi.Services
 
 
 
-                RunSQL = RunSQL.Replace("sql_each", sql_each).Replace("weekcount", weekcount.ToString()+".00").Replace("sql_Sum", sql_Sum.ToString()); ;
+				RunSQL = RunSQL.Replace("sql_each", sql_each).Replace("weekcount", weekcount.ToString() + ".00").Replace("sql_Sum", sql_Sum.ToString()); ;
 
 				RunSQL = RunSQL + @" Select * from tempsheet1  drop table tempsheet1 ";
 			}
@@ -520,7 +532,7 @@ namespace WebApi.Services
 			DBHelper dbHelper = new DBHelper();
 
 			DataSet ds = dbHelper.ExecuteDataset(CommandType.Text, RunSQL, null);
-			if(ds != null && ds.Tables.Count==4)
+			if (ds != null && ds.Tables.Count == 4)
 			{
 				ds.Tables[0].TableName = "Volume analysis";
 				ds.Tables[1].TableName = "Work Load";

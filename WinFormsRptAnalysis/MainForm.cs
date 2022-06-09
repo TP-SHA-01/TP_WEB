@@ -146,217 +146,6 @@ namespace WinFormsRptAnalysis
             }
         }
 
-        public void ExportDataToExcel(DataSet SetTable, string FileName)
-        {
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            //设置文件标题
-            saveFileDialog.Title = "导出Excel文件";
-            //设置文件类型
-            saveFileDialog.Filter = "Excel 工作簿(*.xlsx)|*.xlsx|Excel 97-2003 工作簿(*.xls)|*.xls";
-            //设置默认文件类型显示顺序  
-            saveFileDialog.FilterIndex = 1;
-            //是否自动在文件名中添加扩展名
-            saveFileDialog.AddExtension = true;
-            //是否记忆上次打开的目录
-            saveFileDialog.RestoreDirectory = true;
-            //设置默认文件名
-            saveFileDialog.FileName = FileName;
-            //按下确定选择的按钮  
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                //获得文件路径 
-                string localFilePath = saveFileDialog.FileName.ToString();
-
-                if (SetTable.Tables.Count > 0)
-                {
-                    for (int k = 0; k < SetTable.Tables.Count; k++)
-                    {
-                        DataTable TableName = SetTable.Tables[k];
-                        //数据初始化
-                        int TotalCount;     //总行数
-                        int RowRead = 0;    //已读行数
-                        int Percent = 0;    //百分比
-
-                        TotalCount = TableName.Rows.Count;
-                        lblStatus.Text = "共有" + TotalCount + "条数据";
-                        lblStatus.Visible = true;
-                        barStatus.Visible = true;
-
-                        //NPOI
-
-                        string FileExt = Path.GetExtension(localFilePath).ToLower();
-
-                        //秒钟
-                        Stopwatch timer = new Stopwatch();
-                        timer.Start();
-
-                        //ISheet sheet = createSheet(FileExt, SetTable.Tables[k].TableName.ToString());
-
-                        string sheetName = SetTable.Tables[k].TableName.ToString();
-
-                        if (FileExt == ".xlsx")
-                        {
-                            IWorkbook workbook = new XSSFWorkbook();
-
-                            ISheet sheet = workbook.CreateSheet(sheetName);
-                            IRow RowHead = sheet.CreateRow(0);
-
-                            for (int iColumnIndex = 0; iColumnIndex < 10; iColumnIndex++)
-                            {
-                                RowHead.CreateCell(iColumnIndex).SetCellValue(Guid.NewGuid().ToString());
-                            }
-
-                            for (int iRowIndex = 0; iRowIndex < 20; iRowIndex++)
-                            {
-                                IRow RowBody = sheet.CreateRow(iRowIndex + 1);
-                                for (int iColumnIndex = 0; iColumnIndex < 10; iColumnIndex++)
-                                {
-                                    RowBody.CreateCell(iColumnIndex).SetCellValue(DateTime.Now.Millisecond);
-                                    sheet.AutoSizeColumn(iColumnIndex);
-                                }
-                            }
-
-                            //读取标题  
-                            IRow rowHeader = sheet.CreateRow(0);
-                            for (int i = 0; i < TableName.Columns.Count; i++)
-                            {
-                                ICell cell = rowHeader.CreateCell(i);
-                                cell.SetCellValue(TableName.Columns[i].ColumnName);
-                            }
-
-                            //读取数据  
-                            for (int i = 0; i < TableName.Rows.Count; i++)
-                            {
-                                IRow rowData = sheet.CreateRow(i + 1);
-                                for (int j = 0; j < TableName.Columns.Count; j++)
-                                {
-                                    ICell cell = rowData.CreateCell(j);
-                                    cell.SetCellValue(TableName.Rows[i][j].ToString());
-                                }
-                                //状态栏显示
-                                RowRead++;
-                                Percent = (int)(100 * RowRead / TotalCount);
-                                barStatus.Maximum = TotalCount;
-                                barStatus.Value = RowRead;
-                                lblStatus.Text = "共有" + TotalCount + "条数据，已读取" + Percent.ToString() + "%的数据。";
-                                Application.DoEvents();
-                            }
-
-                            //状态栏更改
-                            lblStatus.Text = "正在生成Excel...";
-                            Application.DoEvents();
-
-                            //转为字节数组  
-                            MemoryStream stream = new MemoryStream();
-                            workbook.Write(stream);
-                            var buf = stream.ToArray();
-
-
-                        }
-                        else if (FileExt == ".xls")
-                        {
-                            IWorkbook workbook = new HSSFWorkbook();
-
-                            ISheet sheet = workbook.CreateSheet(sheetName);
-                            IRow RowHead = sheet.CreateRow(0);
-
-                            for (int iColumnIndex = 0; iColumnIndex < 10; iColumnIndex++)
-                            {
-                                RowHead.CreateCell(iColumnIndex).SetCellValue(Guid.NewGuid().ToString());
-                            }
-
-                            for (int iRowIndex = 0; iRowIndex < 20; iRowIndex++)
-                            {
-                                IRow RowBody = sheet.CreateRow(iRowIndex + 1);
-                                for (int iColumnIndex = 0; iColumnIndex < 10; iColumnIndex++)
-                                {
-                                    RowBody.CreateCell(iColumnIndex).SetCellValue(DateTime.Now.Millisecond);
-                                    sheet.AutoSizeColumn(iColumnIndex);
-                                }
-                            }
-
-                            //读取标题  
-                            IRow rowHeader = sheet.CreateRow(0);
-                            for (int i = 0; i < TableName.Columns.Count; i++)
-                            {
-                                ICell cell = rowHeader.CreateCell(i);
-                                cell.SetCellValue(TableName.Columns[i].ColumnName);
-                            }
-
-                            //读取数据  
-                            for (int i = 0; i < TableName.Rows.Count; i++)
-                            {
-                                IRow rowData = sheet.CreateRow(i + 1);
-                                for (int j = 0; j < TableName.Columns.Count; j++)
-                                {
-                                    ICell cell = rowData.CreateCell(j);
-                                    cell.SetCellValue(TableName.Rows[i][j].ToString());
-                                }
-                                //状态栏显示
-                                RowRead++;
-                                Percent = (int)(100 * RowRead / TotalCount);
-                                barStatus.Maximum = TotalCount;
-                                barStatus.Value = RowRead;
-                                lblStatus.Text = "共有" + TotalCount + "条数据，已读取" + Percent.ToString() + "%的数据。";
-                                Application.DoEvents();
-                            }
-
-                            //状态栏更改
-                            lblStatus.Text = "正在生成Excel...";
-                            Application.DoEvents();
-
-                            //转为字节数组  
-                            MemoryStream stream = new MemoryStream();
-                            workbook.Write(stream);
-                            var buf = stream.ToArray();
-
-                        }
-                        else
-                        {
-                            MessageBox.Show("Fail", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-
-                        //ISheet sheet = workbook.CreateSheet(SetTable.Tables[k].TableName);
-                        try
-                        {
-                            //状态栏更改
-                            lblStatus.Text = "生成Excel成功，共耗时" + timer.ElapsedMilliseconds + "毫秒。";
-                            Application.DoEvents();
-
-                            //关闭秒钟
-                            timer.Reset();
-                            timer.Stop();
-
-                            //赋初始值
-                            lblStatus.Visible = false;
-                            barStatus.Visible = false;
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message, "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        finally
-                        {
-                            //关闭秒钟
-                            timer.Reset();
-                            timer.Stop();
-                            //赋初始值
-                            lblStatus.Visible = false;
-                            barStatus.Visible = false;
-                        }
-                    }
-
-                    //成功提示
-                    if (MessageBox.Show("导出成功，是否立即打开？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
-                    {
-                        System.Diagnostics.Process.Start(localFilePath);
-                    }
-                }
-            }
-        }
-
-
         public void ExportDataToExcel2(DataSet SetTable, string FileName)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -415,7 +204,7 @@ namespace WinFormsRptAnalysis
 
                     style_header.FillForegroundColor = 0;
                     style_header.FillPattern = FillPattern.SolidForeground;
-                    ((XSSFColor)style_header.FillForegroundColorColor).SetRgb(new byte[] { 30, 144, 255 });
+                    ((XSSFColor)style_header.FillForegroundColorColor).SetRgb(new byte[] { 188, 210, 238 });
 
 
                     style_header.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
@@ -479,7 +268,16 @@ namespace WinFormsRptAnalysis
                             }
 
                         }
+
+                        //Tables count = 3, sheet1 = By Carrier,Sheet2 = By Account,Sheet3 = List
+                        //Sheet1 & Sheet2 最后一行为Header的样式。
+                        //Value为0 则为空
+                        //Tables Count = 4，Sheet1 = VolumeAnalysis,Sheet2 = WorkLoad,Sheet3 = List
+                        //Sheet1 , 为空的数据标黄色
+                        //Sheet ， 最后一行为Header的样式
                         //读取数据  
+
+                        //k第几张表
                         for (int i = 0; i < TableName.Rows.Count; i++)
                         {
                             IRow rowData = sheet.CreateRow(i + 1);
@@ -492,16 +290,44 @@ namespace WinFormsRptAnalysis
                                 {
                                     cell.SetCellValue("");
 
-                                    if (rowscount == 4)
+                                    if (rowscount == 4 && k == 0 && i != (TableName.Rows.Count - 1) && j!=1 )
+                                    {
                                         cell.CellStyle = style_row_Ye;
+                                    }
+                                    else if (rowscount == 4 && k == 0 && i == TableName.Rows.Count - 1)
+                                    {
+                                        cell.CellStyle = style_header;
+                                    }
+                                    else if (rowscount == 3 && k < 2 && i == TableName.Rows.Count - 1)
+                                    {
+                                        cell.CellStyle = style_header;
+                                    }
                                     else
+                                    {
                                         cell.CellStyle = style_row;
+                                    }
+
                                 }
                                 else
                                 {
                                     cell.SetCellValue(TableName.Rows[i][j].ToString());
-                                    cell.CellStyle = style_row;
+
+                                    if (rowscount == 4 && k == 0 && i == TableName.Rows.Count - 1)
+                                    {
+                                        cell.CellStyle = style_header;
+                                    }
+                                    else if (rowscount == 3 && k < 2 && i == TableName.Rows.Count - 1)
+                                    {
+                                        cell.CellStyle = style_header;
+                                    }
+                                    else
+                                    {
+                                        cell.CellStyle = style_row;
+                                    }
+
                                 }
+
+
 
                             }
                             Application.DoEvents();
@@ -539,10 +365,7 @@ namespace WinFormsRptAnalysis
                                     if (TableName1.Rows[i][j].ToString() == "0")
                                     {
                                         cell.SetCellValue("");
-                                        if (rowscount == 4)
-                                            cell.CellStyle = style_row_Ye;
-                                        else
-                                            cell.CellStyle = style_row;
+                                        cell.CellStyle = style_row;
                                     }
                                     else
                                     {
@@ -607,74 +430,5 @@ namespace WinFormsRptAnalysis
             }
         }
 
-        private void combYearFrom_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void combYearTo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void combWeekFrom_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void combWeekTo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void combRptType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblStatus_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void barStatus_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label6_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }

@@ -55,7 +55,7 @@ namespace WinFormsRptAnalysis
             this.label2.Size = new System.Drawing.Size(109, 20);
             this.label2.TabIndex = 6;
             this.label2.Text = "Year From:";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
+            
             // 
             // combYearFrom
             // 
@@ -66,7 +66,7 @@ namespace WinFormsRptAnalysis
             this.combYearFrom.Name = "combYearFrom";
             this.combYearFrom.Size = new System.Drawing.Size(174, 28);
             this.combYearFrom.TabIndex = 5;
-            this.combYearFrom.SelectedIndexChanged += new System.EventHandler(this.combYearFrom_SelectedIndexChanged);
+            
             // 
             // label1
             // 
@@ -77,7 +77,7 @@ namespace WinFormsRptAnalysis
             this.label1.Size = new System.Drawing.Size(89, 20);
             this.label1.TabIndex = 8;
             this.label1.Text = "Year To:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
+            
             // 
             // combYearTo
             // 
@@ -88,7 +88,7 @@ namespace WinFormsRptAnalysis
             this.combYearTo.Name = "combYearTo";
             this.combYearTo.Size = new System.Drawing.Size(174, 28);
             this.combYearTo.TabIndex = 7;
-            this.combYearTo.SelectedIndexChanged += new System.EventHandler(this.combYearTo_SelectedIndexChanged);
+            
             // 
             // label3
             // 
@@ -99,7 +99,7 @@ namespace WinFormsRptAnalysis
             this.label3.Size = new System.Drawing.Size(109, 20);
             this.label3.TabIndex = 9;
             this.label3.Text = "Week From:";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
+            
             // 
             // combWeekFrom
             // 
@@ -110,7 +110,7 @@ namespace WinFormsRptAnalysis
             this.combWeekFrom.Name = "combWeekFrom";
             this.combWeekFrom.Size = new System.Drawing.Size(174, 28);
             this.combWeekFrom.TabIndex = 10;
-            this.combWeekFrom.SelectedIndexChanged += new System.EventHandler(this.combWeekFrom_SelectedIndexChanged);
+            
             // 
             // label4
             // 
@@ -121,7 +121,7 @@ namespace WinFormsRptAnalysis
             this.label4.Size = new System.Drawing.Size(89, 20);
             this.label4.TabIndex = 11;
             this.label4.Text = "Week To:";
-            this.label4.Click += new System.EventHandler(this.label4_Click);
+            
             // 
             // combWeekTo
             // 
@@ -132,7 +132,7 @@ namespace WinFormsRptAnalysis
             this.combWeekTo.Name = "combWeekTo";
             this.combWeekTo.Size = new System.Drawing.Size(174, 28);
             this.combWeekTo.TabIndex = 12;
-            this.combWeekTo.SelectedIndexChanged += new System.EventHandler(this.combWeekTo_SelectedIndexChanged);
+            
             // 
             // combRptType
             // 
@@ -143,7 +143,7 @@ namespace WinFormsRptAnalysis
             this.combRptType.Name = "combRptType";
             this.combRptType.Size = new System.Drawing.Size(501, 28);
             this.combRptType.TabIndex = 13;
-            this.combRptType.SelectedIndexChanged += new System.EventHandler(this.combRptType_SelectedIndexChanged);
+            
             // 
             // label5
             // 
@@ -154,7 +154,7 @@ namespace WinFormsRptAnalysis
             this.label5.Size = new System.Drawing.Size(129, 20);
             this.label5.TabIndex = 14;
             this.label5.Text = "Report Type:";
-            this.label5.Click += new System.EventHandler(this.label5_Click);
+            
             // 
             // BtnRun
             // 
@@ -175,7 +175,7 @@ namespace WinFormsRptAnalysis
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(0, 20);
             this.lblStatus.TabIndex = 16;
-            this.lblStatus.Click += new System.EventHandler(this.lblStatus_Click);
+            
             // 
             // barStatus
             // 
@@ -183,7 +183,7 @@ namespace WinFormsRptAnalysis
             this.barStatus.Name = "barStatus";
             this.barStatus.Size = new System.Drawing.Size(622, 29);
             this.barStatus.TabIndex = 17;
-            this.barStatus.Click += new System.EventHandler(this.barStatus_Click);
+            
             // 
             // label6
             // 
@@ -194,7 +194,7 @@ namespace WinFormsRptAnalysis
             this.label6.Size = new System.Drawing.Size(149, 20);
             this.label6.TabIndex = 18;
             this.label6.Text = "Origin Office:";
-            this.label6.Click += new System.EventHandler(this.label6_Click);
+            
             // 
             // textBox1
             // 
@@ -205,7 +205,7 @@ namespace WinFormsRptAnalysis
             this.textBox1.Size = new System.Drawing.Size(246, 30);
             this.textBox1.TabIndex = 19;
             this.textBox1.Text = "GZO, HKG, SZN, ZHG";
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            
             // 
             // MainForm
             // 

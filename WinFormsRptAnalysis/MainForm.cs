@@ -1,26 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
-
-using WebApi.Services;
-using WebApi.Models;
 using System.Diagnostics;
-
-using TB_WEB.CommonLibrary.Helpers;
-using TB_WEB.CommonLibrary.Log;
-
-using NPOI.HPSF;
-using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
-using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
-
+using NPOI.HSSF.UserModel;
 
 namespace WinFormsRptAnalysis
 {
@@ -415,10 +400,13 @@ namespace WinFormsRptAnalysis
                     Application.DoEvents();
 
                     //成功提示
-                    if (MessageBox.Show("导出成功，是否立即打开？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
-                    {
-                        System.Diagnostics.Process.Start(localFilePath);
-                    }
+                    //if (MessageBox.Show("导出成功，是否立即打开？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    //{
+                    //    System.Diagnostics.Process.Start(localFilePath);
+                    //}
+
+                    Clipboard.SetDataObject(localFilePath);
+                    MessageBox.Show("导出成功，生成的文件目录可以直接复制粘贴打开！");
 
                     //关闭秒钟
                     timer.Reset();

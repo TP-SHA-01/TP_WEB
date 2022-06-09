@@ -9,27 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NPOI" Version="2.5.6" />
     <PackageReference Include="System.Data.OleDb" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TB_WEB.CommonLibrary\TB_WEB.CommonLibrary.csproj" />
     <ProjectReference Include="..\WebApi\WebApi.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="NPOI">
-      <HintPath>..\packages\NPOI.2.5.6\lib\net45\NPOI.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI.OOXML">
-      <HintPath>..\TB_WEB.CommonLibrary\bin\Debug\NPOI.OOXML.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI.OpenXml4Net">
-      <HintPath>..\TB_WEB.CommonLibrary\bin\Debug\NPOI.OpenXml4Net.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI.OpenXmlFormats">
-      <HintPath>..\TB_WEB.CommonLibrary\bin\Debug\NPOI.OpenXmlFormats.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

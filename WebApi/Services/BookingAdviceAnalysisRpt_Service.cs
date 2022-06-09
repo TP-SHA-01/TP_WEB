@@ -130,8 +130,8 @@ namespace WebApi.Services
 												 if object_id(N'tempsheet1',N'U') is not null drop table tempsheet1
 												select case when (temp.Carrier='' and temp.Vessel='' and Voyage='') then '0' else [WeekTemp] end as Week, temp.* into tempsheet1 from tempsheet temp
 
-												");
-		////Add rule: CS没有Input Carrier（Q),Vessel(U),Voyage(V) ,自动Week为0
+												"
+												);////Add rule: CS没有Input Carrier（Q),Vessel(U),Voyage(V) ,自动Week为0
 
 
 		public IEnumerable<string> GetValue()
@@ -255,12 +255,12 @@ namespace WebApi.Services
 
 				if (datatype == "Carrier")
 				{
-					selSQL = " if object_id(N'Temcarrier',N'U') is not null drop table Temcarrier  select Carrier,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into Temcarrier from ( " + selSQL + "";
+					selSQL = " if object_id(N'Temcarrier',N'U') is not null drop table Temcarrier  select Carrier,[Week],SUM(isnull([Booked FEU],0)) as [Booked FEU]  into Temcarrier from ( " + selSQL + "";
 
 					selSQL = selSQL + @")b group by Carrier,[Week] order by Carrier asc
 				SELECT
 				  Carrier,sql_each 
-				  SUM([Booked FEU]) AS[Total Booked FEU]
+				  SUM(isnull([Booked FEU],0)) AS[Total Booked FEU]
 					FROM Temcarrier
 					GROUP BY Carrier
 					ORDER BY Carrier ASC
@@ -270,12 +270,12 @@ namespace WebApi.Services
 				}
 				else if (datatype == "Account" || datatype == "Volume")
 				{
-					selSQL = " if object_id(N'TemPrincipal',N'U') is not null drop table TemPrincipal  select Principal,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into TemPrincipal from ( " + selSQL + "";
+					selSQL = " if object_id(N'TemPrincipal',N'U') is not null drop table TemPrincipal  select Principal,[Week],SUM(isnull([Booked FEU],0)) as [Booked FEU]  into TemPrincipal from ( " + selSQL + "";
 
 					selSQL = selSQL + @")b group by Principal,[Week] order by Principal asc
 				SELECT
 				 isnull(Principal,'') as Principal,sql_each 
-				  SUM([Booked FEU]) AS[Total Booked FEU]
+				  SUM(isnull([Booked FEU],0)) AS[Total Booked FEU]
 					FROM TemPrincipal
 					GROUP BY Principal
 					ORDER BY Principal ASC
@@ -289,7 +289,7 @@ namespace WebApi.Services
 					selSQL = selSQL + @")b group by Principal,[Week] order by Principal asc
 				SELECT
 				  isnull([Created By],'') as [Created By],sql_each 
-				  SUM([Booked FEU]) AS[Total Booked FEU],  SUM([Booked FEU])/weekcount as [SHPTS PER WK]
+				  SUM(isnull([Booked FEU],0)) AS[Total Booked FEU],  SUM(isnull([Booked FEU],0))/weekcount as [SHPTS PER WK]
 					FROM TemWorkLoad
 					GROUP BY [Created By]
 					ORDER BY [Created By] ASC
@@ -334,8 +334,8 @@ namespace WebApi.Services
 
 				int weekcount = 0;
 
-				sql_each = sql_each + " MAX(CASE Week WHEN '0' THEN[Booked FEU] ELSE 0 END) AS '0',";
-				sql_Sum = sql_Sum + " sum(cast([0] as int)) '0', ";
+				sql_each = sql_each + " MAX(CASE Week WHEN '0' THEN [Booked FEU] ELSE 0 END) AS '0',";
+				sql_Sum = sql_Sum + " sum(cast([0] as money)) '0', ";
 
 				if (fromyear == toyear)
 				{
@@ -344,8 +344,8 @@ namespace WebApi.Services
 						for (int k = Convert.ToInt32(fromNo); k <= Convert.ToInt32(toNo); k++)
 						{
 
-							sql_each = sql_each + " MAX(CASE Week WHEN '" + k.ToString() + "' THEN[Booked FEU] ELSE 0 END) AS '" + k.ToString() + "',";
-							sql_Sum = sql_Sum + " sum(cast([" + k.ToString() + "] as int)) '" + k.ToString() + "', ";
+							sql_each = sql_each + " MAX(CASE Week WHEN '" + k.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS '" + k.ToString() + "',";
+							sql_Sum = sql_Sum + " sum(cast([" + k.ToString() + "] as money)) '" + k.ToString() + "', ";
 							weekcount = weekcount + 1;
 						}
 					}
@@ -358,27 +358,30 @@ namespace WebApi.Services
 					{
 						for (int m = Convert.ToInt32(fromNo); m <= Convert.ToInt32("52"); m++)
 						{
-							sql_each = sql_each + "MAX(CASE Week WHEN '" + m.ToString() + "' THEN[Booked FEU] ELSE 0 END) AS '" + m.ToString() + "',";
-							sql_Sum = sql_Sum + " sum(cast([" + m.ToString() + "] as int)) '" + m.ToString() + "', ";
+							sql_each = sql_each + "MAX(CASE Week WHEN '" + m.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS '" + m.ToString() + "',";
+							sql_Sum = sql_Sum + " sum(cast([" + m.ToString() + "] as money)) '" + m.ToString() + "', ";
 							weekcount = weekcount + 1;
 						}
 						for (int n = Convert.ToInt32("1"); n <= Convert.ToInt32(toNo); n++)
 						{
-							sql_each = sql_each + "MAX(CASE Week WHEN '" + n.ToString() + "' THEN[Booked FEU] ELSE 0 END) AS 'n.ToString()',";
-							sql_Sum = sql_Sum + " sum(cast([" + n.ToString() + "] as int)) '" + n.ToString() + "', ";
+							sql_each = sql_each + "MAX(CASE Week WHEN '" + n.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS 'n.ToString()',";
+							sql_Sum = sql_Sum + " sum(cast([" + n.ToString() + "] as money)) '" + n.ToString() + "', ";
 							weekcount = weekcount + 1;
 						}
 					}
 				}
 
-				RunSQL = RunSQL + @" if object_id(N'Temcarrier',N'U') is not null drop table Temcarrier  select Carrier,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into Temcarrier from  tempsheet1 group by Carrier,[Week] order by Carrier asc";
+				RunSQL = RunSQL + @" if object_id(N'Temcarrier',N'U') is not null drop table Temcarrier  
+									 select Carrier,[Week],
+									 SUM(isnull([Booked FEU],0)) as [Booked FEU]  into Temcarrier 
+									 from  tempsheet1 group by Carrier,[Week] order by Carrier asc";
 				RunSQL = RunSQL + @" select case when Carrier is not null then Carrier else 'Total' end Carrier,
 								sql_Sum
-								sum(cast([Total Booked FEU] as int)) as [Total]
+								sum(cast([Total Booked FEU] as money)) as [Total]
 								from (
 									SELECT
 										Carrier,sql_each 
-										SUM([Booked FEU]) AS[Total Booked FEU]
+										SUM(isnull([Booked FEU],0)) AS[Total Booked FEU]
 										FROM Temcarrier
 										GROUP BY Carrier
 								) as a group by Carrier with rollup										
@@ -386,14 +389,17 @@ namespace WebApi.Services
 
 
 
-				RunSQL = RunSQL + @" if object_id(N'TemPrincipal',N'U') is not null drop table TemPrincipal  select Principal,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into TemPrincipal from tempsheet1  group by Principal,[Week] order by Principal asc";
+				RunSQL = RunSQL + @" if object_id(N'TemPrincipal',N'U') is not null drop table TemPrincipal  
+									 select Principal,[Week],
+									 SUM(isnull([Booked FEU],0)) as [Booked FEU]  into TemPrincipal 
+									 from tempsheet1  group by Principal,[Week] order by Principal asc";
 				RunSQL = RunSQL + @" select case when Principal is not null then Principal else 'Total' end Principal,
 									sql_Sum
-									sum(cast([Total Booked FEU] as int)) as [Total]
+									sum(cast([Total Booked FEU] as money)) as [Total]
 									from (
 									SELECT
 										isnull(Principal,'') as Principal,sql_each 
-										SUM([Booked FEU]) AS[Total Booked FEU]
+										SUM(isnull([Booked FEU],0)) AS[Total Booked FEU]
 										FROM TemPrincipal
 										GROUP BY Principal
 									) as a group by Principal with rollup				
@@ -438,8 +444,8 @@ namespace WebApi.Services
 
 				int weekcount = 0;
 
-				sql_each = sql_each + " MAX(CASE Week WHEN '0' THEN[Booked FEU] ELSE 0 END) AS '0',";
-				sql_Sum = sql_Sum + " sum(cast([0] as int)) '0', ";
+				sql_each = sql_each + " MAX(CASE Week WHEN '0' THEN [Booked FEU] ELSE 0 END) AS '0',";
+				sql_Sum = sql_Sum + " sum(cast([0] as money)) '0', ";
 
 				if (fromyear == toyear)
 				{
@@ -448,8 +454,8 @@ namespace WebApi.Services
 						for (int k = Convert.ToInt32(fromNo); k <= Convert.ToInt32(toNo); k++)
 						{
 
-							sql_each = sql_each + " MAX(CASE Week WHEN '" + k.ToString() + "' THEN[Booked FEU] ELSE 0 END) AS '" + k.ToString() + "',";
-							sql_Sum = sql_Sum + " sum(cast([" + k.ToString() + "] as int)) '" + k.ToString() + "', ";
+							sql_each = sql_each + " MAX(CASE Week WHEN '" + k.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS '" + k.ToString() + "',";
+							sql_Sum = sql_Sum + " sum(cast([" + k.ToString() + "] as money)) '" + k.ToString() + "', ";
 							weekcount = weekcount + 1;
 						}
 					}
@@ -462,14 +468,14 @@ namespace WebApi.Services
 					{
 						for (int m = Convert.ToInt32(fromNo); m <= Convert.ToInt32("52"); m++)
 						{
-							sql_each = sql_each + " MAX(CASE Week WHEN '" + m.ToString() + "' THEN[Booked FEU] ELSE 0 END) AS '" + m.ToString() + "',";
-							sql_Sum = sql_Sum + " sum(cast([" + m.ToString() + "] as int)) '" + m.ToString() + "', ";
+							sql_each = sql_each + " MAX(CASE Week WHEN '" + m.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS '" + m.ToString() + "',";
+							sql_Sum = sql_Sum + " sum(cast([" + m.ToString() + "] as money)) '" + m.ToString() + "', ";
 							weekcount = weekcount + 1;
 						}
 						for (int n = Convert.ToInt32("1"); n <= Convert.ToInt32(toNo); n++)
 						{
-							sql_each = sql_each + " MAX(CASE Week WHEN '" + n.ToString() + "' THEN[Booked FEU] ELSE 0 END) AS 'n.ToString()',";
-							sql_Sum = sql_Sum + " sum(cast([" + n.ToString() + "] as int)) '" + n.ToString() + "', ";
+							sql_each = sql_each + " MAX(CASE Week WHEN '" + n.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS 'n.ToString()',";
+							sql_Sum = sql_Sum + " sum(cast([" + n.ToString() + "] as money)) '" + n.ToString() + "', ";
 							weekcount = weekcount + 1;
 						}
 					}
@@ -478,43 +484,46 @@ namespace WebApi.Services
 
 
 				RunSQL = RunSQL + @" if object_id(N'VolumeRpt1',N'U') is not null drop table VolumeRpt1  
-									select Principal,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into VolumeRpt1 
+									select Principal,[Week],
+									SUM (isnull([Booked FEU],0)) as [Booked FEU]  into VolumeRpt1 
 									from tempsheet1  group by Principal,[Week] order by Principal asc";
 
 				RunSQL = RunSQL + @" select case when Principal is not null then Principal else 'Total' end Principal,
 									sql_Sum
-									sum(cast([Total Booked FEU] as int)) as [Total],'' as Reason ,'' as Detail
+									sum(cast([Total Booked FEU] as money)) as [Total],'' as Reason ,'' as Detail
 									from(
 										SELECT
 										isnull(Principal,'') as Principal,
 										sql_each 
-										SUM([Booked FEU]) AS[Total Booked FEU]
+										SUM(isnull([Booked FEU],0)) AS[Total Booked FEU]
 										FROM VolumeRpt1
 										GROUP BY Principal 
 									) as a group by Principal with rollup				
 								    drop table VolumeRpt1";
 
 				RunSQL = RunSQL + @" if object_id(N'VolumeRpt2', N'U') is not null drop table VolumeRpt2 
-								select [Created By],[Week],Count(isnull([Booked FEU], 0)) as [Booked FEU]  into VolumeRpt2 
+								select [Created By],[Week],
+								SUM (isnull([Booked FEU], 0)) as [Booked FEU]  into VolumeRpt2 
 								from tempsheet1 where  1=1 and [Created By] like 'tbs%'  
 								group by [Created By],[Week] order by [Created By] asc
 								SELECT
 								  isnull([Created By],'') as [CS],sql_each 
-								  SUM([Booked FEU]) AS[Total Booked FEU], 
-								  cast((SUM([Booked FEU])/weekcount) as decimal(15,2)) [SHPTS PER WK]
+								  SUM(isnull([Booked FEU],0)) AS[Total Booked FEU], 
+								  cast((SUM(isnull([Booked FEU],0))/weekcount) as decimal(15,2)) [SHPTS PER WK]
 								  FROM VolumeRpt2 
 								  GROUP BY [Created By]
 								  ORDER BY [Created By] ASC
 								drop table VolumeRpt2";
 
 				RunSQL = RunSQL + @" if object_id(N'VolumeRpt3', N'U') is not null drop table VolumeRpt3
-								select case when [Dest Office]='ORD' or [Dest Office]='SFO' then 'ORD/SFO' else [Dest Office] end  as [Dest Office],[Week],Count(isnull([Booked FEU], 0)) as [Booked FEU] into VolumeRpt3 
+								select case when [Dest Office]='ORD' or [Dest Office]='SFO' then 'ORD/SFO' else [Dest Office] end  as [Dest Office],[Week],
+								SUM (isnull([Booked FEU], 0)) as [Booked FEU] into VolumeRpt3 
 								from tempsheet1  where 1=1  and [Created By] like 'tbs%'
 								group by [Dest Office],[Week] order by [Dest Office] asc
 								SELECT
 								  isnull([Dest Office],'') as [Team],sql_each 
-								  SUM([Booked FEU]) AS [Total Booked FEU],  
-								  cast(SUM([Booked FEU])/weekcount/(select count(distinct [Created By])  from tempsheet1 T1 where 
+								  SUM(isnull([Booked FEU],0)) AS [Total Booked FEU],  
+								  cast(SUM(isnull([Booked FEU],0))/weekcount/(select count(distinct [Created By])  from tempsheet1 T1 where 
 								  (case when (T1.[Dest Office]='ORD' or T1.[Dest Office]='SFO') then 'ORD/SFO' else T1.[Dest Office] end) = V3.[Dest Office]
 								  and 1=1 and T1.[Created By] like 'tbs%') as decimal(15,2)) as [SHPTS PER WK]
 								  FROM VolumeRpt3 V3
@@ -542,6 +551,5 @@ namespace WebApi.Services
 			}
 			return ds;
 		}
-
 	}
 }

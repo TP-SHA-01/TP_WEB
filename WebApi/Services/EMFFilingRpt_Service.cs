@@ -35,6 +35,7 @@ namespace WebApi.Services
             DataTable retDB = new DataTable(); ;
             DataTable tempDB = new DataTable(); ;
             AMS_ResponseMode responseMode = new AMS_ResponseMode();
+            string[] arrMAL_Office = new string[] { "PEN", "TSB", "JOH" };
             string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
             string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
 
@@ -55,6 +56,9 @@ namespace WebApi.Services
                         break;
                     case "AMSCenter":
                         officeList = String.Join("','", arrAMSCenter_Office.ToArray());
+                        break; 
+                    case "MAL":
+                        officeList = String.Join("','", arrMAL_Office.ToArray());
                         break;
                     case "SHA":
                         officeList = "SHA";

@@ -283,7 +283,7 @@ namespace WebApi.Services
 				}
 				else if (datatype == "WorkLoad")
 				{
-					selSQL = " if object_id(N'TemWorkLoad',N'U') is not null drop table TemWorkLoad  select Principal,[Week],Count(isnull([Booked FEU],0)) as [Booked FEU]  into TemWorkLoad from ( " + selSQL + "";
+					selSQL = " if object_id(N'TemWorkLoad',N'U') is not null drop table TemWorkLoad  select Principal,[Week],SUM(isnull([Booked FEU],0)) as [Booked FEU]  into TemWorkLoad from ( " + selSQL + "";
 
 					selSQL = selSQL + @")b group by Principal,[Week] order by Principal asc
 				SELECT

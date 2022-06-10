@@ -130,9 +130,8 @@ namespace WebApi.Services
 												 if object_id(N'tempsheet1',N'U') is not null drop table tempsheet1
 												select case when (temp.Carrier='' and temp.Vessel='' and Voyage='') then '0' else [WeekTemp] end as Week, temp.* into tempsheet1 from tempsheet temp
 
-												"
-												);////Add rule: CS没有Input Carrier（Q),Vessel(U),Voyage(V) ,自动Week为0
-
+												");
+		////Add rule: CS没有Input Carrier（Q),Vessel(U),Voyage(V) ,自动Week为0
 
 		public IEnumerable<string> GetValue()
 		{

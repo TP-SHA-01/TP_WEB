@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,7 +74,9 @@
   <ItemGroup>
     <Compile Include="Cache\CacheProvider.cs" />
     <Compile Include="Cache\ICacheService.cs" />
+    <Compile Include="CommonFun\CacheData.cs" />
     <Compile Include="CommonFun\CommonFun.cs" />
+    <Compile Include="CommonFun\MemoryCacheUtil.cs" />
     <Compile Include="CommonFun\StringExtensions.cs" />
     <Compile Include="Date\DateFormatHelper.cs" />
     <Compile Include="Encrypt\Decryption.cs" />

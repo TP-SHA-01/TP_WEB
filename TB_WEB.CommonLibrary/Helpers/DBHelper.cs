@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using TB_WEB.CommonLibrary.Encrypt;
+using TB_WEB.CommonLibrary.Log;
 
 namespace TB_WEB.CommonLibrary.Helpers
 {
@@ -268,7 +269,8 @@ namespace TB_WEB.CommonLibrary.Helpers
             {
                 SaveLog("DBHelper > ExecDataTable: " + qry, "E");
                 SaveLog(ex.ToString(), "E");
-
+                LogHelper.Debug("DBHelper > ExecDataTable: " + qry);
+                LogHelper.Debug("DBHelper > Exception: " + ex.ToString());
                 return null;
             }
 

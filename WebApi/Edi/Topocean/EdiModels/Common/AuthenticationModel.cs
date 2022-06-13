@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Web.UI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TB_WEB.CommonLibrary.CommonFun;
+using TB_WEB.CommonLibrary.Log;
 using WebApi.Edi.Common;
 
 namespace WebApi.Edi.Topocean.EdiModels.Common
@@ -47,6 +50,7 @@ namespace WebApi.Edi.Topocean.EdiModels.Common
             }
             catch (Exception e)
             {
+                LogHelper.Error("Post_GetAccessToken : " + e.Message);
                 Console.WriteLine(e);
                 throw;
             }
@@ -64,6 +68,7 @@ namespace WebApi.Edi.Topocean.EdiModels.Common
             }
             catch (Exception e)
             {
+                LogHelper.Error("Put_GetAccessToken : " + e.Message);
                 Console.WriteLine(e);
                 throw;
             }
@@ -77,7 +82,7 @@ namespace WebApi.Edi.Topocean.EdiModels.Common
 
             try
             {
-                if (apiVisitHelper.getSession("access_token") == null)
+                if (MemoryCacheUtil.GetValue("access_token") == null)
                 {
                     if (type == "POST")
                     {
@@ -88,7 +93,7 @@ namespace WebApi.Edi.Topocean.EdiModels.Common
                         apiVisitHelper = new RestApiVisitHelper(tokenHeadName, _refresh_token);
                         retStringtoken = apiVisitHelper.Put(tokenApiUrl, null, authObject, null);
                     }
-
+                    LogHelper.Debug("GetAccessToken => retStringtoken: " + retStringtoken);
                     JObject retStringtokenJob = JObject.Parse(retStringtoken);
 
                     JObject useJObject = JObject.Parse(retStringtokenJob["payload"]["user"].ToString());
@@ -103,25 +108,31 @@ namespace WebApi.Edi.Topocean.EdiModels.Common
 
                     this.session_expire = session_expire_obj.session_expire ;
 
+                    int tiemOut = 0;
                     DateTime dt = DateTime.Now.AddSeconds(session_expire_obj.session_expire);
-
+                    TimeSpan duration = dt - DateTime.Now;
+                    if (duration.Minutes > 0)
+                    {
+                        tiemOut = duration.Minutes;
+                    }
                     Formatting microsoftDataFormatSetting = default(Formatting);
                     this.access_token = obj.access_token;
                     this.refresh_token = obj.refresh_token;
 
-                    apiVisitHelper.setSession("access_token", obj.access_token, dt);
-                    apiVisitHelper.setSession("refresh_token", obj.refresh_token, dt);
+                    MemoryCacheUtil.SetValue("access_token", obj.access_token, tiemOut);
+                    MemoryCacheUtil.SetValue("refresh_token", obj.refresh_token, tiemOut);
                 }
                 else
                 {
-                    this.access_token = CommonUnit.CheckEmpty(apiVisitHelper.getSession("access_token"));
-                    this.refresh_token = CommonUnit.CheckEmpty(apiVisitHelper.getSession("refresh_token"));
+                    this.access_token = CommonUnit.CheckEmpty(MemoryCacheUtil.GetValue("access_token"));
+                    this.refresh_token = CommonUnit.CheckEmpty(MemoryCacheUtil.GetValue("refresh_token"));
                 }
 
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                LogHelper.Error("GetAccessToken : " + e.Message + ", retStringtoken" + retStringtoken);
                 throw;
             }
         }

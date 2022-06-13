@@ -240,6 +240,8 @@ namespace WebApi.Edi.Common
                     }
                 }
                 string postJSON = fileTransfer_Imp.serialize();
+                LogHelper.Debug("SendMailViaAPI apiUrl:" + BaseCont.ApiUrl + "/file-transfer");
+                LogHelper.Debug("SendMailViaAPI body:" + postJSON);
 
                 // Authentication
                 AuthenticationModel authenticationModel = new AuthenticationModel(
@@ -255,7 +257,7 @@ namespace WebApi.Edi.Common
 
                 //get the response object
                 FileTransferResponse<FileTransfer_PayloadItem> respObj = fileTransferResponse_Imp.LoadBaseResponse<FileTransferResponse<FileTransfer_PayloadItem>>();
-
+                LogHelper.Debug("SendMailViaAPI respObj:" + Newtonsoft.Json.JsonConvert.SerializeObject(respObj));
                 return true;
             }
             catch (Exception ex)

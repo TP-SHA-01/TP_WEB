@@ -76,7 +76,7 @@ namespace WebApi.Services
 
                 if (dt == null)
                 {
-                    SendNoDataMail();
+                    SendNoDataMail("Error return Data is Null");
                     LogHelper.Error("GetAMSFilingData => originOffice :" + originOffice + " DB is Null");
                     responseMode.result = "Error return Data is Null";
                     responseMode.mailTo = mailList;
@@ -262,7 +262,7 @@ namespace WebApi.Services
             return tempDT;
         }
 
-        private static void SendNoDataMail()
+        private static void SendNoDataMail(string msg = "No Data")
         {
             string title = String.Empty;
 
@@ -277,7 +277,7 @@ namespace WebApi.Services
 
             string mailList = String.Empty;
             mailList = ConfigurationManager.AppSettings[pOriginOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
-            emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString("No Data"), mailList);
+            emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList);
         }
         public static DataTable GetData(string pDateFrom, string pDateTo, string pOriginOffice)
         {

@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpt_WebForm", "Rpt_WebForm\
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Rpt-Installer", "Rpt-Installer\Rpt-Installer.vdproj", "{574C105A-E5A1-4389-B11A-056BFFEE82D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSAPPBookingReport", "CSAPPBookingReport\CSAPPBookingReport.csproj", "{EB306B82-9B11-4836-ABCB-EB848DE2480C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{253F4804-368B-4757-811A-F394F72F8002}.Release|Any CPU.Build.0 = Release|Any CPU
 		{574C105A-E5A1-4389-B11A-056BFFEE82D2}.Debug|Any CPU.ActiveCfg = Debug
 		{574C105A-E5A1-4389-B11A-056BFFEE82D2}.Release|Any CPU.ActiveCfg = Release
+		{EB306B82-9B11-4836-ABCB-EB848DE2480C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB306B82-9B11-4836-ABCB-EB848DE2480C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB306B82-9B11-4836-ABCB-EB848DE2480C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB306B82-9B11-4836-ABCB-EB848DE2480C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -189,6 +189,10 @@ namespace WebApi.Edi.Topocean.Edi_Impl
 
                 if (apiVisitHelper.CheckTokenExpirse(rep))
                 {
+                    LogHelper.Debug("POST API_URL :" + apiUrl);
+                    LogHelper.Debug("POST BODY :" + body);
+                    LogHelper.Debug("POST access_token :" + auth.access_token);
+
                     AuthenticationEntity auValue = apiVisitHelper.GetRefreshToken(new AuthenticationEntity()
                     {
                         access_token = auth.access_token
@@ -202,11 +206,14 @@ namespace WebApi.Edi.Topocean.Edi_Impl
 
                     apiVisitHelper = new RestApiVisitHelper(tokenHeadName, auValue.access_token);
                     rep = apiVisitHelper.Post(apiUrl, null, body);
+
+                    LogHelper.Debug("Post => rep: " + rep);
                 }
 
             }
             catch (Exception e)
             {
+                LogHelper.Error("Post :" + e.Message);
                 rep = e.Message;
             }
 
@@ -221,6 +228,10 @@ namespace WebApi.Edi.Topocean.Edi_Impl
             {
                 apiVisitHelper = new RestApiVisitHelper(tokenHeadName, access_token);
                 rep = apiVisitHelper.Get(apiUrl, queryParams);
+
+                LogHelper.Debug("Get API_URL :" + apiUrl);
+                LogHelper.Debug("Get BODY :" + JsonConvert.SerializeObject(queryParams));
+                LogHelper.Debug("Get access_token :" + auth.access_token);
 
                 if (apiVisitHelper.CheckTokenExpirse(rep))
                 {
@@ -237,12 +248,15 @@ namespace WebApi.Edi.Topocean.Edi_Impl
 
                     apiVisitHelper = new RestApiVisitHelper(tokenHeadName, auValue.access_token);
                     rep = apiVisitHelper.Get(apiUrl, queryParams);
+
+                    LogHelper.Debug("Get => rep: " + rep);
                 }
 
             }
             catch (Exception e)
             {
                 rep = e.Message;
+                LogHelper.Error("GET :" + e.Message);
             }
 
             this.repJson = rep;

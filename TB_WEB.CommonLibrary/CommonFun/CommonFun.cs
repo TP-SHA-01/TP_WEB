@@ -213,6 +213,26 @@ namespace TB_WEB.CommonLibrary.CommonFun
         #endregion
 
 
+        public static double CheckNumber(Object str)
+        {
+            double ret = 0;
+            //try
+            //{
+            //    ret = double.Parse(CheckEmpty(str));
+            //}
+            //catch (Exception)
+            //{
+            //    ret = 0;
+            //}
+
+            if (double.TryParse(CheckEmpty(str), out ret))
+            {
+                return ret;
+            }
+
+            return ret;
+        }
+
         #region UI function
 
         #endregion

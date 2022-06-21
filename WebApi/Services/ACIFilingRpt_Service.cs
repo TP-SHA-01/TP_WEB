@@ -353,7 +353,7 @@ namespace WebApi.Services
                                           "		AND (SELECT COUNT(*) FROM LateACI_FromExcel ex WITH (NOLOCK) WHERE ex.BookingReqID = p.BookingReqID AND ex.IsActive = 1             " +
                                           "		AND (ex.LateByTopocean = 'Y' OR ex.LateByCarrier = 'Y' OR ex.NotLateAMSResult = 'Y')) = 0                                           " +
                                           "		                                                                                                                                    " +
-                                          "		AND OriginOffice IN ({2})                                                            " +
+                                          "		AND OriginOffice IN ({2})                                                                                                           " +
                                           "	) AS Table1 ON p.uID = Table1.uID                                                                                                       " +
                                           "	ORDER BY OriginOffice,ShptLastPortETD ",
                                           CommonUnit.retDBStr(CommonUnit.CheckEmpty(pDateFrom)),

@@ -19,6 +19,10 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Rpt-Installer", "Rpt-Instal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSAPPBookingReport", "CSAPPBookingReport\CSAPPBookingReport.csproj", "{EB306B82-9B11-4836-ABCB-EB848DE2480C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommissionReport", "CommissionReport\CommissionReport.csproj", "{5197D337-A7E5-4790-AC6C-DF7A23A720D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CombineReport", "CombineReport\CombineReport.csproj", "{346BB5C3-B925-45DB-A6F1-59A4E449E36E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +59,14 @@ Global
 		{EB306B82-9B11-4836-ABCB-EB848DE2480C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB306B82-9B11-4836-ABCB-EB848DE2480C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB306B82-9B11-4836-ABCB-EB848DE2480C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5197D337-A7E5-4790-AC6C-DF7A23A720D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5197D337-A7E5-4790-AC6C-DF7A23A720D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5197D337-A7E5-4790-AC6C-DF7A23A720D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5197D337-A7E5-4790-AC6C-DF7A23A720D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{346BB5C3-B925-45DB-A6F1-59A4E449E36E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{346BB5C3-B925-45DB-A6F1-59A4E449E36E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{346BB5C3-B925-45DB-A6F1-59A4E449E36E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{346BB5C3-B925-45DB-A6F1-59A4E449E36E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

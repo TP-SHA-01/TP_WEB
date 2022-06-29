@@ -29,7 +29,7 @@ namespace WebApi.Services
 
 		static string selSQL = String.Format(@" if object_id(N'tempsheet',N'U') is not null drop table tempsheet  Select Top 20000 
 											[Week] as WeekTemp, BRANCH,[Booking ID],[Booking Date],[Booking Status],
-											[Transportation Mode],[Created By],[Handling User Email],
+											[Transportation Mode],(case when [Created By]='tbs_HKG_kiny' then 'tbs_HKG_skiny' else [Created By] end) as [Created By],[Handling User Email],
 											[Origin Office],[Dest Office], Principal, Consignee, Vendor,
 											[Place Of Receipt],[Carrier Dest], isnull(Carrier,'') as Carrier,[Contract Type],
 											[Contract No],[Carrier Commodity], Vessel, Voyage, MBL, HBL,
@@ -95,7 +95,7 @@ namespace WebApi.Services
 												(case when((select count(*) from TBS_Route
 												where WBIID = POTracing.BookingReqID and TBS_Route.IsActive = 1) > 1 and POTracing.loadedOnMotherVesselFlag = 'Y') then 'Y' else 'N' end) as [Rolled], [dbo].[udf_GetServiceStringByID](POTracing.BookingReqID) as [Service String], 
 												ISNULL(POTracing.IsTBS, 'N') as [IsTBS]
-												FROM POTracing 
+												FROM POTracing WITH (NOLOCK)
 												LEFT JOIN Customer principal ON principal.uID = POTracing.Principle
 												LEFT JOIN OptionList agent ON agent.OptValue = POTracing.Dest AND agent.OptType = 'TitanOffice'
 												AND agent.IsActive = 'Y' AND Criteria3 = 'Y' AND(Criteria5 <> '' OR Criteria5 IS NOT NULL)
@@ -128,9 +128,70 @@ namespace WebApi.Services
 												POTracing.BookingInstruction, POTracing.ISTBS, POTracing.loadedOnMotherVesselFlag,POTracing.ModifiedBy,POTracing.CreatedBy  ) a
 												
 												 if object_id(N'tempsheet1',N'U') is not null drop table tempsheet1
-												select case when (temp.Carrier='' and temp.Vessel='' and Voyage='') then '0' else [WeekTemp] end as Week, temp.* into tempsheet1 from tempsheet temp
+												select case when (isnull(temp.Carrier,'')='' and isnull(temp.Vessel,'')='' and isnull(Voyage,'')='') then '0' else [WeekTemp] end as Week, 
+												temp.* into tempsheet1 from tempsheet temp
 
 												");
+
+		static string SQLAirShipment = string.Format(@" if object_id(N'tempAirShipment',N'U') is not null drop table tempAirShipment 
+													Select [Week],[BRANCH],[Booking Date],[Booking ID],[Transportation Mode],
+													[Booking Status],[PO Ready Date],(case when [Created By]='tbs_HKG_kiny' then 'tbs_HKG_skiny' else [Created By] end) as [Created By],[Origin Office],[Dest Office],
+													Principle,Consignee,Vendor,[Place Of Receipt],(Case when len(a.[FLIGHT#])=6 then SUBSTRING(a.[FLIGHT#],1,2) else  a.Airline end) as Airline,[Contract Type],
+													[Trade Term],[Actual Commodity] ,(Case when len(a.[FLIGHT#])=6 then SUBSTRING(a.[FLIGHT#],3,4) else  a.[FLIGHT#] end) as [FLIGHT#],MBL,HBL,[Delivery Type],
+													POL,ETD,ATD,POD,ETA,ATA,[Final Dest],[Dimension (CBM)],[WEIGHT],
+													[CHARGABLE WEIGHT],[Forwarder Remarks] ,[Nomination Office],
+													[Nomination Sales],Traffic,[TopoceanYearAndWeek] into tempAirShipment 
+													From 
+													( Select 
+													POTracing.WB_WeekOfYear as [Week],[dbo].[fun_WBIBrhMapping_v5](POTracing.OriginOffice, 
+													POTracing.FinalDest, POTracing.TransportationMode) as [BRANCH],POTracing.BookingDate as [Booking Date],
+													'' + POTracing.BookingReqID + '' as [Booking ID],ISNULL(POTracing.TransportationMode, '') as [Transportation Mode],
+													UPPER(POTracing.WB_STATUS) as [Booking Status],POTracing.POReadyDate As [PO Ready Date],
+													ISNULL(m.ModifiedBy, '') as [Created By],ISNULL(POTracing.OriginOffice, '') as [Origin Office],
+													ISNULL(POTracing.Dest, '') as [Dest Office],Principle.Company as [Principle],POTracing.CNEE as [Consignee],
+													POTracing.Vendor as [Vendor],POTracing.orig AS [Place of Receipt],POTracing.Carrier as [Airline],
+													ISNULL(POTracing.BookingContractType, '') As [Contract Type],ISNULL(Term, '') as [Trade Term],
+													POTracing.Description As [Actual Commodity],POTracing.Voyage as [FLIGHT#], POTracing.MBL as [MBL],
+													POTracing.HBL as [HBL],POTracing.DeliveryType as [Delivery Type],POTracing.LoadPort as [POL],
+													POTracing.P2PETD As [ETD],POTracing.P2PATD As [ATD],POTracing.DischPort as [POD],
+													POTracing.P2PETA As [ETA],POTracing.P2PATA As [ATA],POTracing.FinalDest as [Final Dest],
+													ROUND(SUM(ISNULL(WB_CNTR.CBM, 0)), 4) as [Dimension (CBM)],ROUND(SUM(ISNULL(WB_CNTR.Weight, 0)), 4) as [WEIGHT],
+													ROUND(SUM(ISNULL(WB_CNTR.ChargeableWeight, 0)), 4) as [CHARGABLE WEIGHT],POTracing.BookingInstruction As [Forwarder Remarks],
+													ISNULL(Principle.NomName, '') as [Nomination Office],ISNULL(Principle.NomSales, '') as [Nomination Sales],
+													POTracing.Traffic,POTracing.[TopoceanYearAndWeek] FROM POTracing  WITH (NOLOCK)         
+													LEFT JOIN WB_CNTR  ON WB_CNTR.BookingReqID = POTracing.BookingReqID 
+													LEFT JOIN OptionList agent ON agent.OptValue = POTracing.Dest AND agent.OptType = 'TitanOffice' 
+													AND agent.IsActive ='Y' AND Criteria3 ='Y' AND (Criteria5 <> '' OR Criteria5 IS NOT NULL) 
+													LEFT JOIN Customer non_sea_trans ON non_sea_trans.Company = POTracing.CNEE 
+													LEFT JOIN Customer Principle ON Principle.uID = POTracing.Principle 
+													OUTER APPLY 
+													(Select Top 1 ModifiedBy From ModifyRecord m  WITH (NOLOCK)         
+													Where CargoId = POTracing.uID and m.modifiedBy <> '' Order By ActionDate asc) m 
+													WHERE 
+
+													POTracing.CNEE Not In ('ABC COMPUTER','ABC COMPUTER-TBS','ABC COMP EU') 
+													And ISNULL(POTracing.WB_Status, '') NOT IN ('REJECTED','CANCELLED') 
+													And ISNULL(TransportationMode, '') IN ('AIR','PARCEL') 
+													AND POTracing.BookingReqID IS NOT NULL 
+													and (TopoceanYearAndWeek between strTopoceanYearAndWeek_from and strTopoceanYearAndWeek_to) 
+													--and (TopoceanYearAndWeek between 202201 and 202212) 
+													and (POTracing.BookingReqID<>'') 
+
+													GROUP BY POTracing.WB_WeekOfYear, POTracing.uid, 
+													POTracing.OriginOffice, POTracing.Dest,Principle.Company, 
+													POTracing.CNEE, POTracing.Vendor, Principle.NomName, 
+													Principle.NomSales, POTracing.BookingContractType,
+													POTracing.BookingDate, POTracing.BookingReqID, 
+													POTracing.WB_STATUS, POTracing.Orig, POTracing.DeliveryType,
+													POTracing.Carrier, POTracing.MBL, POTracing.HBL, POTracing.LoadPort, 
+													POTracing.POReadyDate, POTracing.P2PETD, POTracing.P2PATD, 
+													POTracing.DischPort, POTracing.P2PETA, POTracing.P2PATA, 
+													POTracing.Description, POTracing.Traffic, POTracing.Voyage, 
+													POTracing.BookingInstruction, POTracing.FinalDest,
+													POTracing.Term,POTracing.TransportationMode,m.ModifiedBy,[TopoceanYearAndWeek] )
+													a
+													");
+
 		////Add rule: CS没有Input Carrier（Q),Vessel(U),Voyage(V) ,自动Week为0
 
 		public IEnumerable<string> GetValue()
@@ -423,14 +484,19 @@ namespace WebApi.Services
 			return ds;
 		}
 
-		public static DataSet GetzVolumeRptByBranchData(string weekfrom, string weekto)
+		public static DataSet GetVolumeRptByBranchData(string weekfrom, string weekto)
 		{
-
 
 			string RunSQL = selSQL.Replace("weekfrom", weekfrom).Replace("weekto", weekto).ToString();
 
 			string sql_each = "";
 			string sql_Sum = "";
+			string sql_Team = "";
+
+			//LoadTeamNumber from webconfig
+			string Workload_LAX = ConfigurationManager.AppSettings["Workload_LAX"];
+			string Workload_NYC = ConfigurationManager.AppSettings["Workload_NYC"];
+			string Workload_ORD = ConfigurationManager.AppSettings["Workload_ORD"];
 
 			//202217-202230
 			//202247-202310
@@ -442,9 +508,13 @@ namespace WebApi.Services
 				int toyear = Convert.ToInt32(weekto.Substring(0, 4));
 
 				int weekcount = 0;
+				//SUM([0]) as '0',SUM([25]) as '25',SUM([26]) as '26',SUM([27]) as '27',SUM([28]) as '28'
+				//Team Need
 
 				sql_each = sql_each + " MAX(CASE Week WHEN '0' THEN [Booked FEU] ELSE 0 END) AS '0',";
 				sql_Sum = sql_Sum + " sum(cast([0] as money)) '0', ";
+
+				sql_Team = sql_Team + " SUM([0]) as '0', ";
 
 				if (fromyear == toyear)
 				{
@@ -452,9 +522,9 @@ namespace WebApi.Services
 					{
 						for (int k = Convert.ToInt32(fromNo); k <= Convert.ToInt32(toNo); k++)
 						{
-
 							sql_each = sql_each + " MAX(CASE Week WHEN '" + k.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS '" + k.ToString() + "',";
 							sql_Sum = sql_Sum + " sum(cast([" + k.ToString() + "] as money)) '" + k.ToString() + "', ";
+							sql_Team = sql_Team + "SUM([" + k.ToString() + "]) as '" + k.ToString() + "',";
 							weekcount = weekcount + 1;
 						}
 					}
@@ -469,12 +539,14 @@ namespace WebApi.Services
 						{
 							sql_each = sql_each + " MAX(CASE Week WHEN '" + m.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS '" + m.ToString() + "',";
 							sql_Sum = sql_Sum + " sum(cast([" + m.ToString() + "] as money)) '" + m.ToString() + "', ";
+							sql_Team = sql_Team + "SUM([" + m.ToString() + "]) as '" + m.ToString() + "',";
 							weekcount = weekcount + 1;
 						}
 						for (int n = Convert.ToInt32("1"); n <= Convert.ToInt32(toNo); n++)
 						{
 							sql_each = sql_each + " MAX(CASE Week WHEN '" + n.ToString() + "' THEN [Booked FEU] ELSE 0 END) AS 'n.ToString()',";
 							sql_Sum = sql_Sum + " sum(cast([" + n.ToString() + "] as money)) '" + n.ToString() + "', ";
+							sql_Team = sql_Team + "SUM([" + n.ToString() + "]) as '" + n.ToString() + "',";
 							weekcount = weekcount + 1;
 						}
 					}
@@ -502,37 +574,46 @@ namespace WebApi.Services
 
 				RunSQL = RunSQL + @" if object_id(N'VolumeRpt2', N'U') is not null drop table VolumeRpt2 
 								select [Created By],[Week],
-								SUM (isnull([Booked FEU], 0)) as [Booked FEU]  into VolumeRpt2 
+								count ([week])  as [Booked FEU]  into VolumeRpt2 
 								from tempsheet1 where  1=1 and [Created By] like 'tbs%'  
 								group by [Created By],[Week] order by [Created By] asc
+
+								if object_id(N'CSTemp', N'U') is not null drop table CSTemp
+
 								SELECT
 								  isnull([Created By],'') as [CS],sql_each 
-								  SUM(isnull([Booked FEU],0)) AS[Total Booked FEU], 
-								  cast((SUM(isnull([Booked FEU],0))/weekcount) as decimal(15,2)) [SHPTS PER WK]
+								  SUM(isnull([Booked FEU],0)) AS[Total], 
+								  cast((SUM(isnull([Booked FEU],0))/weekcount) as decimal(15,2)) [SHPTS PER WK] into CSTemp
 								  FROM VolumeRpt2 
 								  GROUP BY [Created By]
 								  ORDER BY [Created By] ASC
-								drop table VolumeRpt2";
 
-				RunSQL = RunSQL + @" if object_id(N'VolumeRpt3', N'U') is not null drop table VolumeRpt3
-								select case when [Dest Office]='ORD' or [Dest Office]='SFO' then 'ORD/SFO' else [Dest Office] end  as [Dest Office],[Week],
-								SUM (isnull([Booked FEU], 0)) as [Booked FEU] into VolumeRpt3 
-								from tempsheet1  where 1=1  and [Created By] like 'tbs%'
-								group by [Dest Office],[Week] order by [Dest Office] asc
-								SELECT
-								  isnull([Dest Office],'') as [Team],sql_each 
-								  SUM(isnull([Booked FEU],0)) AS [Total Booked FEU],  
-								  cast(SUM(isnull([Booked FEU],0))/weekcount/(select count(distinct [Created By])  from tempsheet1 T1 where 
-								  (case when (T1.[Dest Office]='ORD' or T1.[Dest Office]='SFO') then 'ORD/SFO' else T1.[Dest Office] end) = V3.[Dest Office]
-								  and 1=1 and T1.[Created By] like 'tbs%') as decimal(15,2)) as [SHPTS PER WK]
-								  FROM VolumeRpt3 V3
-								  GROUP BY [Dest Office]
-								  ORDER BY [Dest Office] ASC
-								drop table VolumeRpt3";
+								drop table VolumeRpt2
+							
+								";
+
+				RunSQL = RunSQL + @" select * from CSTemp
+
+								select 'LAX' as Team ,sql_Team SUM([Total]) as Total,SUM([Total])/4/6 as [SHPTS PER WK]
+								from CSTemp where CS in Workload_LAX
+								union
+								select 'NYC' as Team ,sql_Team SUM([Total]) as Total,SUM([Total])/4/4 as [SHPTS PER WK]
+								from CSTemp where CS in Workload_NYC
+								union
+								select 'ORD/SFO' as Team ,sql_Team SUM([Total]) as Total,SUM([Total])/4/2 as [SHPTS PER WK]
+								from CSTemp where CS in Workload_ORD
+
+								if object_id(N'CSTemp', N'U') is not null drop table CSTemp";
 
 
 
-				RunSQL = RunSQL.Replace("sql_each", sql_each).Replace("weekcount", weekcount.ToString() + ".00").Replace("sql_Sum", sql_Sum.ToString()); ;
+
+				RunSQL = RunSQL.Replace("sql_each", sql_each).Replace("weekcount", weekcount.ToString() + ".00").Replace("sql_Sum", sql_Sum.ToString()); 
+
+				RunSQL = RunSQL.Replace("sql_Team", sql_Team);
+				RunSQL = RunSQL.Replace("Workload_LAX", Workload_LAX);
+				RunSQL = RunSQL.Replace("Workload_NYC", Workload_NYC);
+				RunSQL = RunSQL.Replace("Workload_ORD", Workload_ORD);
 
 				RunSQL = RunSQL + @" Select * from tempsheet1  drop table tempsheet1 ";
 			}
@@ -540,6 +621,7 @@ namespace WebApi.Services
 			DBHelper dbHelper = new DBHelper();
 
 			DataSet ds = dbHelper.ExecuteDataset(CommandType.Text, RunSQL, null);
+
 			if (ds != null && ds.Tables.Count == 4)
 			{
 				ds.Tables[0].TableName = "Volume analysis";
@@ -547,8 +629,316 @@ namespace WebApi.Services
 				ds.Tables[2].TableName = "Work Load By Origin";
 				ds.Tables[3].TableName = "Booking Advice List";
 
-			}
+            }
+			// else
+			// {
+			//	ds.Tables.Add("Error");
+			//	ds.Tables[0].Columns.Add("SQL", Type.GetType("System.String"));
+			//	ds.Tables[0].Rows.Add(new object[] { RunSQL });
+			//}
 			return ds;
+		}
+
+		public static DataSet GetAirShipmentReport(string weekfrom, string weekto)
+		{
+
+			DataSet dt = new DataSet();
+			//注意，这里的周数是月份
+			//202201 指的是一月  202201-202204
+
+			if (weekfrom != "" && weekto != "")
+			{
+				 
+				int fromNo = Convert.ToInt32(weekfrom.Substring(4, 2));				
+				int toNo = Convert.ToInt32(weekto.Substring(4, 2));
+
+				string strFromno = "";
+				string strToNo = "";
+
+				switch (fromNo)
+				{ 
+					case 1:
+						strFromno = "01";
+						break;
+					case 2:
+						strFromno = "06";
+						break;
+					case 3:
+						strFromno = "10";
+						break;
+					case 4:
+						strFromno = "14";
+						break;
+					case 5:
+						strFromno = "19";
+						break;
+					case 6:
+						strFromno = "23";
+						break;
+					case 7:
+						strFromno = "27";
+						break;
+					case 8:
+						strFromno = "32";
+						break;
+					case 9:
+						strFromno = "36";
+						break;
+					case 10:
+						strFromno = "40";
+						break;
+					case 11:
+						strFromno = "45";
+						break;
+					case 12:
+						strFromno = "49";
+						break;
+					default:
+						break;
+				}
+
+				switch (toNo)
+				{
+					case 1:
+						strToNo = "05";
+						break;
+					case 2:
+						strToNo = "09";
+						break;
+					case 3:
+						strToNo = "13";
+						break;
+					case 4:
+						strToNo = "18";
+						break;
+					case 5:
+						strToNo = "22";
+						break;
+					case 6:
+						strToNo = "26";
+						break;
+					case 7:
+						strToNo = "31";
+						break;
+					case 8:
+						strToNo = "35";
+						break;
+					case 9:
+						strToNo = "39";
+						break;
+					case 10:
+						strToNo = "44";
+						break;
+					case 11:
+						strToNo = "48";
+						break;
+					case 12:
+						strToNo = "52";
+						break;
+					default:
+						break;
+				}
+
+				int fromyear = Convert.ToInt32(weekfrom.Substring(0, 4));
+				int toyear = Convert.ToInt32(weekto.Substring(0, 4));
+
+				string strTopoceanYearAndWeek_from = fromyear.ToString() + strFromno.ToString();
+				string strTopoceanYearAndWeek_to = toyear.ToString() + strToNo.ToString();
+
+				SQLAirShipment = SQLAirShipment.Replace("strTopoceanYearAndWeek_from", strTopoceanYearAndWeek_from).Replace("strTopoceanYearAndWeek_to", strTopoceanYearAndWeek_to);
+
+				string strSQLByMonth = "";
+
+
+				for(int k = fromNo; k<= toNo; k++) //from 1(Jan) to 5(May)
+                {
+					string TempFromno = "";
+					string TempToNo = "";
+
+					switch (k)
+					{
+						case 1:
+							TempFromno = "01";
+							break;
+						case 2:
+							TempFromno = "06";
+							break;
+						case 3:
+							TempFromno = "10";
+							break;
+						case 4:
+							TempFromno = "14";
+							break;
+						case 5:
+							TempFromno = "19";
+							break;
+						case 6:
+							TempFromno = "23";
+							break;
+						case 7:
+							TempFromno = "27";
+							break;
+						case 8:
+							TempFromno = "32";
+							break;
+						case 9:
+							TempFromno = "36";
+							break;
+						case 10:
+							TempFromno = "40";
+							break;
+						case 11:
+							TempFromno = "45";
+							break;
+						case 12:
+							TempFromno = "49";
+							break;
+						default:
+							break;
+					}
+					switch (k)
+					{
+						case 1:
+							TempToNo = "05";
+							break;
+						case 2:
+							TempToNo = "09";
+							break;
+						case 3:
+							TempToNo = "13";
+							break;
+						case 4:
+							TempToNo = "18";
+							break;
+						case 5:
+							TempToNo = "22";
+							break;
+						case 6:
+							TempToNo = "26";
+							break;
+						case 7:
+							TempToNo = "31";
+							break;
+						case 8:
+							TempToNo = "35";
+							break;
+						case 9:
+							TempToNo = "39";
+							break;
+						case 10:
+							TempToNo = "44";
+							break;
+						case 11:
+							TempToNo = "48";
+							break;
+						case 12:
+							TempToNo = "52";
+							break;
+						default:
+							break;
+					}
+
+					string eachFrom = fromyear + TempFromno;
+					string eachTo = toyear + TempToNo;
+
+					strSQLByMonth = strSQLByMonth + @" Select  row_number()over(order by HBL)  as [Item No.],
+													'' as [TP/Non TP],
+													TBS.Vendor as [Shipper],
+													TBS.Consignee as [Cnee],
+													TBS.MBL as [Mawb],
+													TBS.HBL as [Hawb],
+													TBS.[Origin Office] as [Origin],
+													TBS.[Dest Office] as [Dest.],
+													TBS.Airline as [Airline],
+													TBS.FLIGHT# as [Flt No.],
+													''  as [Package],
+													TBS.WEIGHT as [G.W.],
+													TBS.[CHARGABLE WEIGHT] as [C.W.],
+													TBS.[Dimension (CBM)] as [Volume],
+													'' as [S/R],'' as [B/R],
+													case when len(TBS.[Forwarder Remarks])>13 and  CHARINDEX('##COLOADER',TBS.[Forwarder Remarks])>0  then
+													replace(replace(substring(TBS.[Forwarder Remarks],charindex('##',(TBS.[Forwarder Remarks]))+2,
+													len(TBS.[Forwarder Remarks])-charindex('##',reverse(TBS.[Forwarder Remarks]))-charindex('##',(TBS.[Forwarder Remarks]))-2)
+													,'COLOADER:',''),' ','') else '' end as [Co-loader],
+													'' as Cost,
+													TBS.ETD as [ETD],
+													TBS.ATD as [ATD],
+													TBS.ETA as [ETA],
+													TBS.ATA as [ATA],
+													 TBS.[Forwarder Remarks] as [Remark],
+													''  as [Result],
+													''  as [PO]
+
+													from tempAirShipment TBS ";
+
+					strSQLByMonth = strSQLByMonth + @" where TBS.TopoceanYearAndWeek between 'eachFrom' and 'eachTo'";
+
+					strSQLByMonth = strSQLByMonth.Replace("eachFrom", eachFrom).Replace("eachTo", eachTo);
+
+					strSQLByMonth = strSQLByMonth + @"   ";
+                    
+				}
+
+				DBHelper dbHelper = new DBHelper();
+
+				DataSet ds = dbHelper.ExecuteDataset(CommandType.Text, SQLAirShipment + strSQLByMonth, null);
+				if (ds != null && ds.Tables.Count > 0)
+				{
+					for (int k = fromNo; k <= toNo; k++) //from 1(Jan) to 5(May)
+					{
+						string tablename = "";
+						//JAN(WK1 - 5)
+
+						switch (k)
+						{
+							case 1:
+								tablename = "JAN(WK1-5)";
+								break;
+							case 2:
+								tablename = "FEB(WK6-9)";
+								break;
+							case 3:
+								tablename = "MAR(WK10-13)";
+								break;
+							case 4:
+								tablename = "APR(WK14-18)";
+								break;
+							case 5:
+								tablename = "MAY(WK19-22)";
+								break;
+							case 6:
+								tablename = "JUN(WK23-26)";
+								break;
+							case 7:
+								tablename = "JUL(WK27-31)";
+								break;
+							case 8:
+								tablename = "AUG(WK32-35)";
+								break;
+							case 9:
+								tablename = "SEP(WK36-39)";
+								break;
+							case 10:
+								tablename = "OCT(WK40-44)";
+								break;
+							case 11:
+								tablename = "NOV(WK45-48)";
+								break;
+							case 12:
+								tablename = "DEC(WK49-52)";
+								break;
+							default:
+								break;
+						}
+
+						ds.Tables[k- fromNo].TableName = tablename;
+					}
+
+				}
+				return ds;
+			}
+
+			return dt;
 		}
 	}
 }

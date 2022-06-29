@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommissionReport", "Commiss
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CombineReport", "CombineReport\CombineReport.csproj", "{346BB5C3-B925-45DB-A6F1-59A4E449E36E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LevelReport", "LevelReport\LevelReport.csproj", "{AD937B8A-0912-48CE-BACD-5A7D69633867}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{346BB5C3-B925-45DB-A6F1-59A4E449E36E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{346BB5C3-B925-45DB-A6F1-59A4E449E36E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{346BB5C3-B925-45DB-A6F1-59A4E449E36E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD937B8A-0912-48CE-BACD-5A7D69633867}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD937B8A-0912-48CE-BACD-5A7D69633867}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD937B8A-0912-48CE-BACD-5A7D69633867}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD937B8A-0912-48CE-BACD-5A7D69633867}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

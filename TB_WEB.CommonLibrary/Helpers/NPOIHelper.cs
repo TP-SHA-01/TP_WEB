@@ -22,7 +22,7 @@ namespace TB_WEB.CommonLibrary.Helpers
     /// </summary>
     public static class NPOIHelper
     {
-        public static MemoryStream RenderToExcel(DataTable table, string sheetName = null, string excelType = "XLSX")
+        public static MemoryStream RenderToExcel(DataTable table,string Format, string sheetName = null, string excelType = "XLSX")
         {
             MemoryStreamHelper ms = new MemoryStreamHelper();
             IWorkbook workbook;
@@ -47,7 +47,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                     font.Boldweight = 700;
                     dateStyle.SetFont(font);
 
-                    dateStyle.DataFormat = format.GetFormat("MM/dd/yyyy HH:mm:ss");
+                    dateStyle.DataFormat = format.GetFormat(Format);
 
                     //sheet.SetAutoFilter(new CellRangeAddress(0, 0, 0, 40)); //首行筛选
                     //sheet.CreateFreezePane(40, 1); //首行冻结
@@ -133,7 +133,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                                     }
                                     else
                                     {
-                                        newCell.SetCellValue(drValue);
+                                        newCell.SetCellValue(dateV.ToString(Format));
                                     }
                                     newCell.CellStyle = dateStyle;//格式化显示
                                     break;
@@ -1076,9 +1076,9 @@ namespace TB_WEB.CommonLibrary.Helpers
         /// <param name="dtSource">源 DataaTable</param>
         /// <param name="strHeaderText">表头文本</param>
         /// <param name="strFileName">保存位置(文件名及路径)</param>
-        public static void ExportExcel(DataTable dtSource, string strHeaderText, string strFileName)
+        public static void ExportExcel(DataTable dtSource, string strHeaderText, string strFileName,string Format = "MM/dd/yyyy HH:mm:ss")
         {
-            using (MemoryStream ms = RenderToExcel(dtSource, strHeaderText))
+            using (MemoryStream ms = RenderToExcel(dtSource, Format, strHeaderText))
             //using (MemoryStream ms = RenderToExcel_AMS(dtSource, strHeaderText))
             {
                 using (FileStream fs = new FileStream(strFileName, FileMode.Create, FileAccess.Write))
@@ -1618,14 +1618,17 @@ namespace TB_WEB.CommonLibrary.Helpers
                     {
                         ICell _cell = _headerRow.GetCell(1);
 
-                        if (!String.IsNullOrEmpty(_cell.ToString()))
-                        {
-                            if (_cell.ToString().ToUpper().Trim() == "WEEK")
+                        if (_cell != null) {
+                            if (!String.IsNullOrEmpty(_cell.ToString()))
                             {
-                                headStartNum = i;
-                                break;
+                                if (_cell.ToString().ToUpper().Trim() == "WEEK")
+                                {
+                                    headStartNum = i;
+                                    break;
+                                }
                             }
                         }
+
                     }
                 }
 

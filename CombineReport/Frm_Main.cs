@@ -25,7 +25,7 @@ namespace CombineReport
         {
             InitializeComponent();
             combReportType.Items.AddRange(new object[] { "TP" });
-            combReportType.Items.AddRange(new object[] { "NONTP" });
+            //combReportType.Items.AddRange(new object[] { "NONTP" });
             combReportType.Items.AddRange(new object[] { "BY WEEK" });
             combReportType.SelectedIndex = 0;
 

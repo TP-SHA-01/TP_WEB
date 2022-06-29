@@ -119,6 +119,9 @@
     <Compile Include="App_Start\AutofacConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="AutofacDI\AutofacWebApiConfig.cs" />
+    <Compile Include="CommonEndpoint\Impl\CommonEndpoint_Imp.cs" />
+    <Compile Include="CommonEndpoint\Interface\ICommonEndpoint.cs" />
+    <Compile Include="CommonEndpoint\Model\ApiOptionVo.cs" />
     <Compile Include="Controllers\AMSFilingController.cs" />
     <Compile Include="Edi\Topocean\Common\CallEDIServer.cs" />
     <Compile Include="Edi\Topocean\Common\CommonUnit.cs" />
@@ -175,6 +178,7 @@
     <Compile Include="Edi\Topocean\Edi_Interface\IBase_EDI_Response.cs" />
     <Compile Include="Edi\Topocean\Edi_Interface\IFileTransfer.cs" />
     <Compile Include="Edi\Topocean\Edi_Interface\IFileTransferResponse.cs" />
+    <Compile Include="IServices\IAjaxEndpoint.cs" />
     <Compile Include="IServices\IAMSFilingRpt.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
@@ -188,6 +192,7 @@
     <Compile Include="Models\ReportTemplate\ReportTempModel.cs" />
     <Compile Include="Models\Result\CommonResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AjaxEndpoint_Service.cs" />
     <Compile Include="Services\BookingAdviceAnalysisRpt_Service.cs" />
     <Compile Include="Services\EMFFilingRpt_Service.cs" />
     <Compile Include="Services\ACIFilingRpt_Service.cs" />

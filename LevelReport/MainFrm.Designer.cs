@@ -45,9 +45,9 @@ namespace LevelReport
             this.lb_ReportType = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btn_Create = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             this.cmb_Status = new LevelReport.BaseComboBox();
             this.cmb_Traffic = new LevelReport.BaseComboBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.gb_SearchCondition.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -114,6 +114,7 @@ namespace LevelReport
             this.rd_BookingType_NONTP.TabIndex = 15;
             this.rd_BookingType_NONTP.Text = "NON-TP";
             this.rd_BookingType_NONTP.UseVisualStyleBackColor = true;
+            this.rd_BookingType_NONTP.Visible = false;
             this.rd_BookingType_NONTP.CheckedChanged += new System.EventHandler(this.radioBtn_CheckedChange);
             // 
             // rd_BookingType_TP
@@ -127,6 +128,7 @@ namespace LevelReport
             this.rd_BookingType_TP.TabStop = true;
             this.rd_BookingType_TP.Text = "TP";
             this.rd_BookingType_TP.UseVisualStyleBackColor = true;
+            this.rd_BookingType_TP.Visible = false;
             this.rd_BookingType_TP.CheckedChanged += new System.EventHandler(this.radioBtn_CheckedChange);
             // 
             // dt_ETDTo
@@ -222,6 +224,15 @@ namespace LevelReport
             this.btn_Create.UseVisualStyleBackColor = true;
             this.btn_Create.Click += new System.EventHandler(this.btn_Create_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(838, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(39, 15);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "v1.1";
+            // 
             // cmb_Status
             // 
             this.cmb_Status.ColumnHeaderVisible = true;
@@ -262,15 +273,6 @@ namespace LevelReport
             this.cmb_Traffic.ValueMember = null;
             this.cmb_Traffic.SelectedValueChanged += new System.EventHandler(this.cmb_Traffic_SelectedValueChanged);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(838, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(39, 15);
-            this.label1.TabIndex = 16;
-            this.label1.Text = "v1.0";
-            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -307,8 +309,8 @@ namespace LevelReport
         private System.Windows.Forms.DateTimePicker dt_ETDTo;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btn_Create;
+        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton rd_BookingType_NONTP;
         private System.Windows.Forms.RadioButton rd_BookingType_TP;
-        private System.Windows.Forms.Label label1;
     }
 }

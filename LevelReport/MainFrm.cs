@@ -33,8 +33,6 @@ namespace LevelReport
         {
             InitializeComponent();
 
-            this.rd_BookingType_TP.CheckedChanged += new EventHandler(this.radioBtn_CheckedChange);
-            this.rd_BookingType_NONTP.CheckedChanged += new EventHandler(this.radioBtn_CheckedChange);
             this.bookingType = "TP";
 
             InitControl();
@@ -88,12 +86,13 @@ namespace LevelReport
             ArrayList list = new ArrayList();
 
             //list.Add(new DictionaryEntry("", "Default Format"));
-            list.Add(new DictionaryEntry("847", "TBS Booking Advice (Branch)"));
-            list.Add(new DictionaryEntry("908", "Container Level Report"));
+            list.Add(new DictionaryEntry("Carrier Container Level Report", "908"));
+            list.Add(new DictionaryEntry("(NON-TP) Booking Report", "847"));
+            list.Add(new DictionaryEntry("(NON-TP) Loading Report", "908"));
 
             cmb_ReportType.DataSource = list;
-            cmb_ReportType.DisplayMember = "Value";
-            cmb_ReportType.ValueMember = "Key";
+            cmb_ReportType.DisplayMember = "Key";
+            cmb_ReportType.ValueMember = "Value";
 
             //cmb_ReportType.Items.AddRange(new object[] { "Default Format" });
             //cmb_ReportType.Items.AddRange(new object[] { "TBS Booking Advice (Branch)" }); // 847
@@ -230,22 +229,15 @@ namespace LevelReport
             this.reportTypeSelectItemKey = CommonUnit.CheckEmpty(((DictionaryEntry)cmb_ReportType.SelectedItem).Key);
             this.reportTypeSelectItemValue = CommonUnit.CheckEmpty(((DictionaryEntry)cmb_ReportType.SelectedItem).Value);
 
-            if (reportTypeSelectItemKey.Equals("847"))
+            if (reportTypeSelectItemKey.Contains("(NON-TP) Booking Report") || reportTypeSelectItemKey.Contains("(NON-TP) Loading Report"))
             {
-                this.rd_BookingType_NONTP.Checked = true;
-                this.rd_BookingType_TP.Checked = false;
-
-                this.rd_BookingType_NONTP.Visible = false;
-                this.rd_BookingType_TP.Visible = false;
+                this.bookingType = "NON-TP";
             }
             else
             {
-                this.rd_BookingType_NONTP.Checked = false;
-                this.rd_BookingType_TP.Checked = true;
-
-                this.rd_BookingType_NONTP.Visible = true;
-                this.rd_BookingType_TP.Visible = true;
+                this.bookingType = "TP";
             }
+
         }
 
         private void btn_Create_Click(object sender, EventArgs e)
@@ -294,7 +286,7 @@ namespace LevelReport
                     //是否记忆上次打开的目录
                     saveFileDialog.RestoreDirectory = true;
                     //设置默认文件名
-                    saveFileDialog.FileName = "(" + this.bookingType + ")" + reportTypeSelectItemValue + DateTime.Now.ToString("yyyyMMddHHmmss") + DateTime.Now.Millisecond.ToString();
+                    saveFileDialog.FileName = reportTypeSelectItemKey + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + DateTime.Now.Millisecond.ToString();
 
                     //按下确定选择的按钮  
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -302,7 +294,7 @@ namespace LevelReport
                         string localFilePath = saveFileDialog.FileName.ToString();
 
 
-                        NPOIHelper.ExportExcel(dt, "(" + this.bookingType + ")" + reportTypeSelectItemValue, localFilePath, "MM/dd/yyyy");
+                        NPOIHelper.ExportExcel(dt, reportTypeSelectItemKey, localFilePath, "MM/dd/yyyy");
 
                         if (MessageBox.Show("Export Success，Open the File？", "Tips", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                         {
@@ -377,7 +369,7 @@ namespace LevelReport
             this.reportTypeSelectItemKey = CommonUnit.CheckEmpty(((DictionaryEntry)cmb_ReportType.SelectedItem).Key);
             this.reportTypeSelectItemValue = CommonUnit.CheckEmpty(((DictionaryEntry)cmb_ReportType.SelectedItem).Value);
 
-            if (reportTypeSelectItemKey.Equals("847"))
+            if (reportTypeSelectItemValue.Equals("847"))
             {
                 sqlWhere = String.Empty;
 
@@ -633,7 +625,7 @@ namespace LevelReport
 
                 sqlSelect = sql + " LEFT JOIN ( " + RetGetMonthSQL() + " ) tb_week ON tb_week._WEEK = a.Week";
             }
-            else if (reportTypeSelectItemKey.Equals("908"))
+            else if (reportTypeSelectItemValue.Equals("908"))
             {
                 sqlWhere = String.Empty;
                 if (!String.IsNullOrEmpty(carrierList))

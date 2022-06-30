@@ -30,7 +30,7 @@ namespace LevelReport
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
-            this.cmb_Carrier = new ComboBoxTest.BaseComboBox();
+            this.cmb_Carrier = new BaseComboBox();
             this.cmb_ReportType = new System.Windows.Forms.ComboBox();
             this.gb_SearchCondition = new System.Windows.Forms.GroupBox();
             this.rd_BookingType_NONTP = new System.Windows.Forms.RadioButton();
@@ -294,7 +294,7 @@ namespace LevelReport
 
         #endregion
 
-        private ComboBoxTest.BaseComboBox cmb_Carrier;
+        private BaseComboBox cmb_Carrier;
         private System.Windows.Forms.ComboBox cmb_ReportType;
         private System.Windows.Forms.GroupBox gb_SearchCondition;
         private System.Windows.Forms.Label lb_ReportType;

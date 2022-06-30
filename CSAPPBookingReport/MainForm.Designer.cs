@@ -49,109 +49,115 @@ namespace CSAPPBookingReport
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(32, 152);
+            this.label2.Font = new System.Drawing.Font("Arial", 12F);
+            this.label2.Location = new System.Drawing.Point(28, 114);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(109, 20);
+            this.label2.Size = new System.Drawing.Size(109, 23);
             this.label2.TabIndex = 6;
             this.label2.Text = "Year From:";
             // 
             // combYearFrom
             // 
             this.combYearFrom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.combYearFrom.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.combYearFrom.Font = new System.Drawing.Font("Arial", 12F);
             this.combYearFrom.FormattingEnabled = true;
-            this.combYearFrom.Location = new System.Drawing.Point(204, 149);
+            this.combYearFrom.Location = new System.Drawing.Point(181, 112);
+            this.combYearFrom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.combYearFrom.Name = "combYearFrom";
-            this.combYearFrom.Size = new System.Drawing.Size(174, 28);
+            this.combYearFrom.Size = new System.Drawing.Size(155, 31);
             this.combYearFrom.TabIndex = 5;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(32, 203);
+            this.label1.Font = new System.Drawing.Font("Arial", 12F);
+            this.label1.Location = new System.Drawing.Point(28, 152);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(89, 20);
+            this.label1.Size = new System.Drawing.Size(84, 23);
             this.label1.TabIndex = 8;
             this.label1.Text = "Year To:";
             // 
             // combYearTo
             // 
             this.combYearTo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.combYearTo.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.combYearTo.Font = new System.Drawing.Font("Arial", 12F);
             this.combYearTo.FormattingEnabled = true;
-            this.combYearTo.Location = new System.Drawing.Point(204, 200);
+            this.combYearTo.Location = new System.Drawing.Point(181, 150);
+            this.combYearTo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.combYearTo.Name = "combYearTo";
-            this.combYearTo.Size = new System.Drawing.Size(174, 28);
+            this.combYearTo.Size = new System.Drawing.Size(155, 31);
             this.combYearTo.TabIndex = 7;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(396, 149);
+            this.label3.Font = new System.Drawing.Font("Arial", 12F);
+            this.label3.Location = new System.Drawing.Point(352, 112);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(109, 20);
+            this.label3.Size = new System.Drawing.Size(119, 23);
             this.label3.TabIndex = 9;
             this.label3.Text = "Week From:";
             // 
             // combWeekFrom
             // 
             this.combWeekFrom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.combWeekFrom.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.combWeekFrom.Font = new System.Drawing.Font("Arial", 12F);
             this.combWeekFrom.FormattingEnabled = true;
-            this.combWeekFrom.Location = new System.Drawing.Point(531, 149);
+            this.combWeekFrom.Location = new System.Drawing.Point(472, 112);
+            this.combWeekFrom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.combWeekFrom.Name = "combWeekFrom";
-            this.combWeekFrom.Size = new System.Drawing.Size(174, 28);
+            this.combWeekFrom.Size = new System.Drawing.Size(155, 31);
             this.combWeekFrom.TabIndex = 10;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(396, 208);
+            this.label4.Font = new System.Drawing.Font("Arial", 12F);
+            this.label4.Location = new System.Drawing.Point(352, 156);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 20);
+            this.label4.Size = new System.Drawing.Size(94, 23);
             this.label4.TabIndex = 11;
             this.label4.Text = "Week To:";
             // 
             // combWeekTo
             // 
             this.combWeekTo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.combWeekTo.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.combWeekTo.Font = new System.Drawing.Font("Arial", 12F);
             this.combWeekTo.FormattingEnabled = true;
-            this.combWeekTo.Location = new System.Drawing.Point(531, 200);
+            this.combWeekTo.Location = new System.Drawing.Point(472, 150);
+            this.combWeekTo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.combWeekTo.Name = "combWeekTo";
-            this.combWeekTo.Size = new System.Drawing.Size(174, 28);
+            this.combWeekTo.Size = new System.Drawing.Size(155, 31);
             this.combWeekTo.TabIndex = 12;
             // 
             // combRptType
             // 
             this.combRptType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.combRptType.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.combRptType.Font = new System.Drawing.Font("Arial", 12F);
             this.combRptType.FormattingEnabled = true;
-            this.combRptType.Location = new System.Drawing.Point(204, 95);
+            this.combRptType.Location = new System.Drawing.Point(181, 71);
+            this.combRptType.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.combRptType.Name = "combRptType";
-            this.combRptType.Size = new System.Drawing.Size(501, 28);
+            this.combRptType.Size = new System.Drawing.Size(446, 31);
             this.combRptType.TabIndex = 13;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(32, 105);
+            this.label5.Font = new System.Drawing.Font("Arial", 12F);
+            this.label5.Location = new System.Drawing.Point(28, 79);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(129, 20);
+            this.label5.Size = new System.Drawing.Size(125, 23);
             this.label5.TabIndex = 14;
-            this.label5.Text = "Report Type:";            
+            this.label5.Text = "Report Type:";
             // 
             // BtnRun
             // 
-            this.BtnRun.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.BtnRun.Location = new System.Drawing.Point(531, 272);
+            this.BtnRun.Font = new System.Drawing.Font("Arial", 12F);
+            this.BtnRun.Location = new System.Drawing.Point(472, 204);
+            this.BtnRun.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.BtnRun.Name = "BtnRun";
-            this.BtnRun.Size = new System.Drawing.Size(174, 44);
+            this.BtnRun.Size = new System.Drawing.Size(155, 33);
             this.BtnRun.TabIndex = 15;
             this.BtnRun.Text = "Analysis";
             this.BtnRun.UseVisualStyleBackColor = true;
@@ -160,46 +166,44 @@ namespace CSAPPBookingReport
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblStatus.Location = new System.Drawing.Point(44, 247);
+            this.lblStatus.Font = new System.Drawing.Font("Arial", 12F);
+            this.lblStatus.Location = new System.Drawing.Point(39, 185);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(0, 20);
+            this.lblStatus.Size = new System.Drawing.Size(0, 23);
             this.lblStatus.TabIndex = 16;
             // 
             // barStatus
             // 
-            this.barStatus.Location = new System.Drawing.Point(36, 513);
+            this.barStatus.Location = new System.Drawing.Point(21, 526);
+            this.barStatus.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.barStatus.Name = "barStatus";
-            this.barStatus.Size = new System.Drawing.Size(622, 29);
+            this.barStatus.Size = new System.Drawing.Size(606, 22);
             this.barStatus.TabIndex = 17;
-            
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label6.Location = new System.Drawing.Point(32, 47);
+            this.label6.Font = new System.Drawing.Font("Arial", 12F);
+            this.label6.Location = new System.Drawing.Point(28, 35);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(149, 20);
+            this.label6.Size = new System.Drawing.Size(127, 23);
             this.label6.TabIndex = 18;
             this.label6.Text = "Origin Office:";
-            //this.label6.Click += new System.EventHandler(this.label6_Click);
             // 
             // textBox1
             // 
-            this.textBox1.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textBox1.Location = new System.Drawing.Point(204, 43);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.textBox1.Font = new System.Drawing.Font("Arial", 12F);
+            this.textBox1.Location = new System.Drawing.Point(181, 32);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(246, 30);
+            this.textBox1.Size = new System.Drawing.Size(219, 30);
             this.textBox1.TabIndex = 19;
             this.textBox1.Text = "GZO, HKG, SZN, ZHG";
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(752, 349);
+            this.ClientSize = new System.Drawing.Size(655, 254);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.barStatus);
@@ -215,6 +219,7 @@ namespace CSAPPBookingReport
             this.Controls.Add(this.combYearTo);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.combYearFrom);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "MainForm";
             this.Text = "TBS Booking Advice Report - Analysis";
             this.Load += new System.EventHandler(this.MainForm_Load);

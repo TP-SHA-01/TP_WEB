@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CombineReport", "CombineRep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LevelReport", "LevelReport\LevelReport.csproj", "{AD937B8A-0912-48CE-BACD-5A7D69633867}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirShipmentReport", "AirShipmentReport\AirShipmentReport.csproj", "{BF084EBA-6E28-4CDC-BEE8-DCC09CF061E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{AD937B8A-0912-48CE-BACD-5A7D69633867}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD937B8A-0912-48CE-BACD-5A7D69633867}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD937B8A-0912-48CE-BACD-5A7D69633867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF084EBA-6E28-4CDC-BEE8-DCC09CF061E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF084EBA-6E28-4CDC-BEE8-DCC09CF061E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF084EBA-6E28-4CDC-BEE8-DCC09CF061E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF084EBA-6E28-4CDC-BEE8-DCC09CF061E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

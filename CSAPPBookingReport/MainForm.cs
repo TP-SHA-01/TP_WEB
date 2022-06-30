@@ -122,7 +122,7 @@ namespace CSAPPBookingReport
                 }
                 else if (this.combRptType.SelectedIndex == 1)
                 {
-                    DataSet ds = WebApi.Services.BookingAdviceAnalysisRpt_Service.GetzVolumeRptByBranchData(weekfrom, weekto);
+                    DataSet ds = WebApi.Services.BookingAdviceAnalysisRpt_Service.GetVolumeRptByBranchData(weekfrom, weekto);
 
                     if (ds != null && ds.Tables.Count > 0)
                     {
@@ -449,5 +449,9 @@ namespace CSAPPBookingReport
             }
         }
 
+        private void btnConnectDB_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

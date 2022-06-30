@@ -47,6 +47,7 @@ namespace LevelReport
             this.btn_Create = new System.Windows.Forms.Button();
             this.cmb_Status = new LevelReport.BaseComboBox();
             this.cmb_Traffic = new LevelReport.BaseComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.gb_SearchCondition.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -97,7 +98,7 @@ namespace LevelReport
             this.gb_SearchCondition.Controls.Add(this.lb_ReportType);
             this.gb_SearchCondition.Controls.Add(this.cmb_Carrier);
             this.gb_SearchCondition.Controls.Add(this.cmb_ReportType);
-            this.gb_SearchCondition.Location = new System.Drawing.Point(12, 12);
+            this.gb_SearchCondition.Location = new System.Drawing.Point(12, 27);
             this.gb_SearchCondition.Name = "gb_SearchCondition";
             this.gb_SearchCondition.Size = new System.Drawing.Size(881, 192);
             this.gb_SearchCondition.TabIndex = 2;
@@ -205,7 +206,7 @@ namespace LevelReport
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.btn_Create);
-            this.groupBox1.Location = new System.Drawing.Point(12, 201);
+            this.groupBox1.Location = new System.Drawing.Point(12, 225);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(881, 112);
             this.groupBox1.TabIndex = 3;
@@ -261,11 +262,21 @@ namespace LevelReport
             this.cmb_Traffic.ValueMember = null;
             this.cmb_Traffic.SelectedValueChanged += new System.EventHandler(this.cmb_Traffic_SelectedValueChanged);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(838, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(39, 15);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "v1.0";
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(905, 331);
+            this.ClientSize = new System.Drawing.Size(905, 351);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gb_SearchCondition);
             this.Name = "MainFrm";
@@ -275,6 +286,7 @@ namespace LevelReport
             this.gb_SearchCondition.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -297,5 +309,6 @@ namespace LevelReport
         private System.Windows.Forms.Button btn_Create;
         private System.Windows.Forms.RadioButton rd_BookingType_NONTP;
         private System.Windows.Forms.RadioButton rd_BookingType_TP;
+        private System.Windows.Forms.Label label1;
     }
 }

@@ -87,7 +87,7 @@ namespace LevelReport
         {
             ArrayList list = new ArrayList();
 
-            list.Add(new DictionaryEntry("", "Default Format"));
+            //list.Add(new DictionaryEntry("", "Default Format"));
             list.Add(new DictionaryEntry("847", "TBS Booking Advice (Branch)"));
             list.Add(new DictionaryEntry("908", "Container Level Report"));
 
@@ -252,6 +252,8 @@ namespace LevelReport
         {
             try
             {
+                this.btn_Create.Enabled = false;
+
                 string retError = CheckValue();
 
                 if (!String.IsNullOrEmpty(retError))
@@ -261,13 +263,16 @@ namespace LevelReport
                 }
 
                 ExportExcel(GetData());
-
             }
             catch (Exception ex)
             {
                 LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
                 MessageBox.Show("Error Msg:" + ex.Message + " , StackTrace:" + ex.StackTrace, "Error");
                 return;
+            }
+            finally
+            {
+                this.btn_Create.Enabled = true;
             }
         }
 
@@ -289,7 +294,7 @@ namespace LevelReport
                     //是否记忆上次打开的目录
                     saveFileDialog.RestoreDirectory = true;
                     //设置默认文件名
-                    saveFileDialog.FileName = "(" + this.bookingType +")"+ reportTypeSelectItemValue + DateTime.Now.ToString("yyyyMMddHHmmss") + DateTime.Now.Millisecond.ToString();
+                    saveFileDialog.FileName = "(" + this.bookingType + ")" + reportTypeSelectItemValue + DateTime.Now.ToString("yyyyMMddHHmmss") + DateTime.Now.Millisecond.ToString();
 
                     //按下确定选择的按钮  
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -309,7 +314,7 @@ namespace LevelReport
                 {
                     MessageBox.Show("Error Msg: No Data ");
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -331,6 +336,21 @@ namespace LevelReport
             if (DateTime.Compare(etdFromValue, etdToValue) > 0)
             {
                 errMsg += " ETD DateTime ETDFrom > ETDTo \n";
+            }
+
+            if (cmb_Carrier.SelectedValues.Count <= 0)
+            {
+                errMsg += " should select carrier \n";
+            }
+
+            if (cmb_Traffic.SelectedValues.Count <= 0)
+            {
+                errMsg += " should select traffic \n";
+            }
+
+            if (cmb_Status.SelectedValues.Count <= 0)
+            {
+                errMsg += " should select status \n";
             }
 
             return errMsg;
@@ -800,20 +820,20 @@ namespace LevelReport
                          "      , DeliveryType                                        AS [Delivery Type]                                          " +
                          "      , RcvdDate                                            AS [Gate In Date]                                           " +
                          "      , loadPort.PortName                                   AS [POL]                                                    " +
-                         "      , loadPort.Country                                    AS [POL Country]                                            " + 
+                         "      , loadPort.Country                                    AS [POL Country]                                            " +
                          sqlSelect_POL +
                          "      , OriginalP2PETD                                      AS [Original ETD]                                           " +
                          "      , P2PETD                                              AS [Current ETD]                                            " +
                          "      , P2PATD                                              AS [ATD]                                                    " +
                          "      , dischPort.PortName                                  AS [POD]                                                    " +
-                         "      , dischPort.Country                                   AS [POD Country]                                            " + 
+                         "      , dischPort.Country                                   AS [POD Country]                                            " +
                          sqlSelect_POD +
                          "      , OriginalP2PETA                                      AS [Original ETA]                                           " +
                          "      , P2PETA                                              AS [Current ETA]                                            " +
                          "      , DestRamp                                            AS [Dest Ramp]                                              " +
                          "      , ShipmentType                                        AS [Shipment Type]                                          " +
                          "      , ContainerNo                                         AS [Container Number]                                       " +
-                         "      , ContainerType                                       AS [Container Type]                                         " + 
+                         "      , ContainerType                                       AS [Container Type]                                         " +
                          sqlSelectNONTP_TEU +
                          "      , NomName                                             AS [Nomination Office]                                      " +
                          "      , NomSales                                            AS [Nomination Sales]                                       " +
@@ -833,10 +853,10 @@ namespace LevelReport
                          "      , D2DMTYRET                                           AS [Final Empty Return]                                     " +
                          "      , DeliveryNumber                                      AS [Delivery Number]                                        " +
                          sqlSelect_YearAndWeek +
-                         sqlSelect_Year + 
-                         sqlSelect_Week + 
+                         sqlSelect_Year +
+                         sqlSelect_Week +
                          sqlSelect_MONTH +
-                         sqlSelectTP_TEU + 
+                         sqlSelectTP_TEU +
                          sqlSelect_FK_LAT +
                          "      , BookingCreatedBy                                    AS [Booking Created By]                                     " +
                          "      , UserEmail                                           AS [Handling User Email]                                    " +

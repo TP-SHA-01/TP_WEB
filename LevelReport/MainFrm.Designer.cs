@@ -30,7 +30,7 @@ namespace LevelReport
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
-            this.cmb_Carrier = new BaseComboBox();
+            this.cmb_Carrier = new LevelReport.BaseComboBox();
             this.cmb_ReportType = new System.Windows.Forms.ComboBox();
             this.gb_SearchCondition = new System.Windows.Forms.GroupBox();
             this.rd_BookingType_NONTP = new System.Windows.Forms.RadioButton();
@@ -40,14 +40,14 @@ namespace LevelReport
             this.dt_ETDFrom = new System.Windows.Forms.DateTimePicker();
             this.lb_ETD = new System.Windows.Forms.Label();
             this.lb_Status = new System.Windows.Forms.Label();
+            this.cmb_Status = new LevelReport.BaseComboBox();
             this.lb_Traffic = new System.Windows.Forms.Label();
+            this.cmb_Traffic = new LevelReport.BaseComboBox();
             this.lb_Carrier = new System.Windows.Forms.Label();
             this.lb_ReportType = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btn_Create = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.cmb_Status = new LevelReport.BaseComboBox();
-            this.cmb_Traffic = new LevelReport.BaseComboBox();
             this.gb_SearchCondition.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -178,6 +178,26 @@ namespace LevelReport
             this.lb_Status.TabIndex = 7;
             this.lb_Status.Text = "Booking Status :";
             // 
+            // cmb_Status
+            // 
+            this.cmb_Status.ColumnHeaderVisible = true;
+            this.cmb_Status.DisplayMember = null;
+            this.cmb_Status.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmb_Status.FormattingEnabled = true;
+            this.cmb_Status.Items.AddRange(new object[] {
+            ""});
+            this.cmb_Status.Location = new System.Drawing.Point(571, 24);
+            this.cmb_Status.MaxDropDownItems = 10;
+            this.cmb_Status.MultiSelect = false;
+            this.cmb_Status.Name = "cmb_Status";
+            this.cmb_Status.RowHeaderVisible = true;
+            this.cmb_Status.SelectedValue = null;
+            this.cmb_Status.SelectedValues = ((System.Collections.Generic.List<string>)(resources.GetObject("cmb_Status.SelectedValues")));
+            this.cmb_Status.Size = new System.Drawing.Size(276, 23);
+            this.cmb_Status.TabIndex = 6;
+            this.cmb_Status.ValueMember = null;
+            this.cmb_Status.SelectedValueChanged += new System.EventHandler(this.cmb_Status_SelectedValueChanged);
+            // 
             // lb_Traffic
             // 
             this.lb_Traffic.AutoSize = true;
@@ -186,6 +206,26 @@ namespace LevelReport
             this.lb_Traffic.Size = new System.Drawing.Size(79, 15);
             this.lb_Traffic.TabIndex = 5;
             this.lb_Traffic.Text = "Traffic :";
+            // 
+            // cmb_Traffic
+            // 
+            this.cmb_Traffic.ColumnHeaderVisible = true;
+            this.cmb_Traffic.DisplayMember = null;
+            this.cmb_Traffic.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmb_Traffic.FormattingEnabled = true;
+            this.cmb_Traffic.Items.AddRange(new object[] {
+            ""});
+            this.cmb_Traffic.Location = new System.Drawing.Point(571, 63);
+            this.cmb_Traffic.MaxDropDownItems = 10;
+            this.cmb_Traffic.MultiSelect = false;
+            this.cmb_Traffic.Name = "cmb_Traffic";
+            this.cmb_Traffic.RowHeaderVisible = true;
+            this.cmb_Traffic.SelectedValue = null;
+            this.cmb_Traffic.SelectedValues = ((System.Collections.Generic.List<string>)(resources.GetObject("cmb_Traffic.SelectedValues")));
+            this.cmb_Traffic.Size = new System.Drawing.Size(276, 23);
+            this.cmb_Traffic.TabIndex = 4;
+            this.cmb_Traffic.ValueMember = null;
+            this.cmb_Traffic.SelectedValueChanged += new System.EventHandler(this.cmb_Traffic_SelectedValueChanged);
             // 
             // lb_Carrier
             // 
@@ -231,47 +271,7 @@ namespace LevelReport
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(39, 15);
             this.label1.TabIndex = 16;
-            this.label1.Text = "v1.1";
-            // 
-            // cmb_Status
-            // 
-            this.cmb_Status.ColumnHeaderVisible = true;
-            this.cmb_Status.DisplayMember = null;
-            this.cmb_Status.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmb_Status.FormattingEnabled = true;
-            this.cmb_Status.Items.AddRange(new object[] {
-            ""});
-            this.cmb_Status.Location = new System.Drawing.Point(571, 24);
-            this.cmb_Status.MaxDropDownItems = 10;
-            this.cmb_Status.MultiSelect = false;
-            this.cmb_Status.Name = "cmb_Status";
-            this.cmb_Status.RowHeaderVisible = true;
-            this.cmb_Status.SelectedValue = null;
-            this.cmb_Status.SelectedValues = ((System.Collections.Generic.List<string>)(resources.GetObject("cmb_Status.SelectedValues")));
-            this.cmb_Status.Size = new System.Drawing.Size(276, 23);
-            this.cmb_Status.TabIndex = 6;
-            this.cmb_Status.ValueMember = null;
-            this.cmb_Status.SelectedValueChanged += new System.EventHandler(this.cmb_Status_SelectedValueChanged);
-            // 
-            // cmb_Traffic
-            // 
-            this.cmb_Traffic.ColumnHeaderVisible = true;
-            this.cmb_Traffic.DisplayMember = null;
-            this.cmb_Traffic.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmb_Traffic.FormattingEnabled = true;
-            this.cmb_Traffic.Items.AddRange(new object[] {
-            ""});
-            this.cmb_Traffic.Location = new System.Drawing.Point(571, 63);
-            this.cmb_Traffic.MaxDropDownItems = 10;
-            this.cmb_Traffic.MultiSelect = false;
-            this.cmb_Traffic.Name = "cmb_Traffic";
-            this.cmb_Traffic.RowHeaderVisible = true;
-            this.cmb_Traffic.SelectedValue = null;
-            this.cmb_Traffic.SelectedValues = ((System.Collections.Generic.List<string>)(resources.GetObject("cmb_Traffic.SelectedValues")));
-            this.cmb_Traffic.Size = new System.Drawing.Size(276, 23);
-            this.cmb_Traffic.TabIndex = 4;
-            this.cmb_Traffic.ValueMember = null;
-            this.cmb_Traffic.SelectedValueChanged += new System.EventHandler(this.cmb_Traffic_SelectedValueChanged);
+            this.label1.Text = "v1.3";
             // 
             // MainFrm
             // 

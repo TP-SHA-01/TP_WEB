@@ -25,7 +25,7 @@ namespace LevelReport
         private List<string> _selectedValues = new List<string>();
         private List<string> _selectedTexts = new List<string>();
         private int _selectedIndex = -1;
-        private ComboBoxTest.BaseComboBox baseComboBox1;
+        private BaseComboBox baseComboBox1;
         ToolTip tip = new ToolTip();
         #endregion
 
@@ -192,7 +192,7 @@ namespace LevelReport
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BaseComboBox));
-            this.baseComboBox1 = new ComboBoxTest.BaseComboBox();
+            this.baseComboBox1 = new BaseComboBox();
             this.SuspendLayout();
             // 
             // baseComboBox1

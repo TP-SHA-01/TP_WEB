@@ -119,7 +119,51 @@ namespace LevelReport
             tb.Columns.Add(new DataColumn("ID") { Caption = "ID" });
             tb.Columns.Add(new DataColumn("Name") { Caption = "Name" });
             tb.Columns.Add(new DataColumn("Value") { Caption = "Value" });
-            int id = 1;
+
+
+            string allValue = String.Empty;
+            string[] tempCarrierList = new string[] { "CULINES", "CUL LINES", "CRCT CHINA RAILWAY INTERNATIONAL", "SINO CONNECTIONS" };
+            int id = 2;
+
+            string sql = " WITH tempCarrier AS (                                             " +
+                         " 	SELECT SCAC as OptValue                                          " +
+                         "	      ,ROW_NUMBER () OVER (ORDER BY Carrier.UID DESC) AS Number  " +
+                         " 	 FROM Carrier                                                    " +
+                         " 	 WHERE TransportationMode='SEA' and ISNULL(SCAC, '') <> ''       " +
+                         "        AND SCAC in ('MSCU', 'ONEY', 'COSU'                        " +
+                         " 				  , 'OOCL', 'YMLU', 'ZIMU'                           " +
+                         " 				  , 'HDMU', 'HPLU', 'EGLV'                           " +
+                         " 				  , 'CULV', 'CMDU', 'MAEU'                           " +
+                         " 				  , 'WHLC', 'SMLU', 'MATS', 'SJHH')                  " +
+                         " )                                                                 " +
+                         "                                                                   " +
+                         " SELECT CarrierName as OptValue                                    " +
+                         " 	   , UID                                                         " +
+                         "   FROM Carrier ca                                                 " +
+                         "   LEFT JOIN tempCarrier tp ON tp.OptValue = ca.SCAC               " +
+                         "  WHERE TransportationMode = 'SEA' and ISNULL(SCAC, '') <> ''      " +
+                         "  ORDER BY UID ASC                                                 ";
+            DataTable carrierDT = dbHelper.ExecDataTable(sql);
+
+            for (int i = 0; i < carrierDT.Rows.Count; i++)
+            {
+                var rowNew = tb.NewRow();
+                rowNew["ID"] = id++;
+                rowNew["Name"] = carrierDT.Rows[i]["OptValue"];
+                rowNew["Value"] = carrierDT.Rows[i]["OptValue"];
+                allValue += carrierDT.Rows[i]["OptValue"] + ",";
+                tb.Rows.Add(rowNew);
+            }
+
+            for (int i = 0; i < tempCarrierList.Length; i++)
+            {
+                var rowNew = tb.NewRow();
+                rowNew["ID"] = id++;
+                rowNew["Name"] = tempCarrierList[i];
+                rowNew["Value"] = tempCarrierList[i];
+                allValue += tempCarrierList[i] + ",";
+                tb.Rows.Add(rowNew);
+            }
 
             foreach (var item in jsonObj["payload"]["records"])
             {
@@ -135,11 +179,21 @@ namespace LevelReport
                     row["ID"] = id++;
                     row["Name"] = optValue;
                     row["Value"] = optCriteria1;
-
+                    allValue += optValue + ",";
                     tb.Rows.Add(row);
                 }
             }
 
+
+            var rowNew_ALL = tb.NewRow();
+            rowNew_ALL["ID"] = 1;
+            rowNew_ALL["Name"] = "ALL";
+            rowNew_ALL["Value"] = allValue;
+
+
+            tb.Rows.Add(rowNew_ALL);
+            tb.DefaultView.Sort = "ID ASC";
+            
             var views = new List<string>() { "Name", "Value" };
             cmb_Carrier.ValueMember = "Name";
             cmb_Carrier.DisplayMember = "Value";
@@ -355,6 +409,11 @@ namespace LevelReport
             string sqlSelect = String.Empty;
             string sqlWhere = String.Empty;
             string carrierList = String.Join("','", cmb_Carrier.SelectedValues);
+
+            if (cmb_Carrier.SelectedValues[0].Equals("ALL"))
+            {
+                carrierList = String.Join("','", cmb_Carrier.Text.Split(','));
+            }
             string trafficList = String.Join("','", cmb_Traffic.SelectedValues);
             if (cmb_Traffic.SelectedItem.Equals("NON-USA"))
             {

@@ -152,6 +152,7 @@ namespace TB_WEB.CommonLibrary.Helpers
                                     break;
                                 case "System.Decimal":
                                 case "System.Double":
+                                case "System.Single":
                                     double doubV = 0;
                                     double.TryParse(drValue, out doubV);
                                     newCell.SetCellValue(doubV);

@@ -37,12 +37,14 @@ namespace CombineReport
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnCombined = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.combReportType);
             this.groupBox1.Controls.Add(this.lbReportType);
             this.groupBox1.Controls.Add(this.lb_FilePath);
@@ -119,6 +121,15 @@ namespace CombineReport
             this.btnCombined.UseVisualStyleBackColor = true;
             this.btnCombined.Click += new System.EventHandler(this.btnCombined_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(564, 18);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(39, 15);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "v1.2";
+            // 
             // Frm_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -146,6 +157,7 @@ namespace CombineReport
         private System.Windows.Forms.Label lb_FilePath;
         private System.Windows.Forms.ComboBox combReportType;
         private System.Windows.Forms.Label lbReportType;
+        private System.Windows.Forms.Label label1;
     }
 }
 

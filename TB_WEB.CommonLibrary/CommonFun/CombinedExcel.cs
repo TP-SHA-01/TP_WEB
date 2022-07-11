@@ -241,9 +241,9 @@ namespace TB_WEB.CommonLibrary.CommonFun
             {
                 if (ds.Tables.Count > 0)
                 {
-                    List<RetModel> retList = new List<RetModel>();
                     for (int i = 0; i < ds.Tables.Count; i++)
                     {
+                        List<RetModel> retList = new List<RetModel>();
                         DataTable tempDT = ds.Tables[i];
                         DataTable retDT = tempDT.Clone();
                         string tbName = ds.Tables[i].TableName;

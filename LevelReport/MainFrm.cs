@@ -825,12 +825,12 @@ namespace LevelReport
 
                 sqlSelect_POL = "      , CASE                                                                                                            " +
                                 "            WHEN UPPER(loadPort.Country) IN ('THAILAND', 'VIETNAM', 'MALAYSIA', 'SINGAPORE', 'INDONESIA') THEN 'SEA'    " +
-                                "            WHEN UPPER(loadPort.Country) IN ('CHINA', 'TAIWAN', 'KOREA') THEN 'CN'                                      " +
+                                "            WHEN UPPER(loadPort.Country) IN ('CHINA', 'TAIWAN', 'KOREA','SOUTH KOREA') THEN 'CN'                                      " +
                                 "            ELSE 'NO' END                                   AS [POL Region]                                             ";
 
                 sqlSelect_POD = "      , CASE                                                                                                            " +
                                 "            WHEN UPPER(dischPort.Country) IN ('THAILAND', 'VIETNAM', 'MALAYSIA', 'SINGAPORE', 'INDONESIA') THEN 'SEA'   " +
-                                "            WHEN UPPER(dischPort.Country) IN ('CHINA', 'TAIWAN', 'KOREA') THEN 'CN'                                     " +
+                                "            WHEN UPPER(dischPort.Country) IN ('CHINA', 'TAIWAN', 'KOREA','SOUTH KOREA') THEN 'CN'                                     " +
                                 "            ELSE 'NO' END                                   AS [POD Region]                                             ";
 
                 sqlSelect_FK_LAT = "      , CASE                                                                                                            " +

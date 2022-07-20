@@ -8,6 +8,7 @@ namespace TB_WEB.CommonLibrary.Model
 {
     public class RetModel
     {
+        public int sort_id { get; set; }
         public string branch { get; set; }
         public string carrier { get; set; }
         public string lb_carrier { get; set; }

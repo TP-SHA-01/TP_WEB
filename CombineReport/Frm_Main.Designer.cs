@@ -30,6 +30,7 @@ namespace CombineReport
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.combReportType = new System.Windows.Forms.ComboBox();
             this.lbReportType = new System.Windows.Forms.Label();
             this.lb_FilePath = new System.Windows.Forms.Label();
@@ -37,7 +38,6 @@ namespace CombineReport
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnCombined = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -56,6 +56,15 @@ namespace CombineReport
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Setting";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(564, 18);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(55, 15);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "v1.2.1";
             // 
             // combReportType
             // 
@@ -120,15 +129,6 @@ namespace CombineReport
             this.btnCombined.Text = "Combined";
             this.btnCombined.UseVisualStyleBackColor = true;
             this.btnCombined.Click += new System.EventHandler(this.btnCombined_Click);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(564, 18);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(39, 15);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "v1.2";
             // 
             // Frm_Main
             // 

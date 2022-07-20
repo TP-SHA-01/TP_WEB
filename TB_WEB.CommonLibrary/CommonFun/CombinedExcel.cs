@@ -267,6 +267,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
                             {
 
                                 RetModel retModel = new RetModel();
+                                retModel.sort_id = SortByBranch(q.BRANCH);
                                 retModel.branch = q.BRANCH;
                                 retModel.carrier = q.CARRIER;
                                 retModel.lb_carrier = ConvertCarrierName(q.CARRIER);
@@ -275,9 +276,11 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                 retList.Add(retModel);
                             });
 
+                            var sortList = retList.OrderBy(o => o.sort_id).ToList();
+
                             double sum_qty = 0;
                             Dictionary<string, double> dictSumList = new Dictionary<string, double>();
-                            foreach (var item in retList)
+                            foreach (var item in sortList)
                             {
                                 if (!dictModelList.ContainsKey(item.branch))
                                 {
@@ -399,6 +402,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                 {
 
                                     RetModel retModel = new RetModel();
+                                    retModel.sort_id = SortByBranch(q.BRANCH);
                                     retModel.branch = q.BRANCH;
                                     retModel.carrier = q.CARRIER;
                                     retModel.lb_carrier = ConvertCarrierName(q.CARRIER);
@@ -407,9 +411,11 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                     retList.Add(retModel);
                                 });
 
+                                var sortList = retList.OrderBy(o => o.sort_id).ToList();
+
                                 double sum_qty = 0;
                                 Dictionary<string, double> dictSumList = new Dictionary<string, double>();
-                                foreach (var item in retList)
+                                foreach (var item in sortList)
                                 {
                                     if (!dictModelList.ContainsKey(item.branch))
                                     {
@@ -609,6 +615,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
                             {
 
                                 RetModel retModel = new RetModel();
+                                retModel.sort_id = SortByBranch(q.BRANCH);
                                 retModel.branch = q.BRANCH;
                                 retModel.carrier = q.CARRIER;
                                 retModel.lb_carrier = ConvertCarrierName(q.CARRIER);
@@ -617,9 +624,11 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                 retList.Add(retModel);
                             });
 
+                            var sortList = retList.OrderBy(o => o.sort_id).ToList();
+
                             double sum_qty = 0;
                             Dictionary<string, double> dictSumList = new Dictionary<string, double>();
-                            foreach (var item in retList)
+                            foreach (var item in sortList)
                             {
                                 if (!dictModelList.ContainsKey(item.branch))
                                 {
@@ -690,6 +699,68 @@ namespace TB_WEB.CommonLibrary.CommonFun
                 LogHelper.Error("CombineExcel => RenderXSSF :" + ex.Message + " StackTrace: " + ex.StackTrace);
             }
             retFilePath = filePath;
+        }
+
+        private static int SortByBranch(string pBranch)
+        {
+            int ret = 0;
+            switch (pBranch.ToUpper())
+            {
+                case "DALIAN":
+                    ret = 0;
+                    break;
+                case "FUZHOU":
+                    ret = 1;
+                    break;
+                case "HKG/YANTIAN":
+                    ret = 2;
+                    break;
+                case "INDIA":
+                    ret = 3;
+                    break;
+                case "INDONESIA":
+                    ret = 4;
+                    break;
+                case "KOREA":
+                    ret = 5;
+                    break;
+                case "NINGBO":
+                    ret = 6;
+                    break;
+                case "MALAYSIA":
+                    ret = 7;
+                    break;
+                case "QINGDAO":
+                    ret = 8;
+                    break;
+                case "SHANGHAI":
+                    ret = 9;
+                    break;
+                case "SINGAPORE":
+                    ret = 10;
+                    break;
+                case "THAILAND":
+                    ret = 11;
+                    break;
+                case "TIANJIN":
+                    ret = 12;
+                    break;
+                case "TAIWAN":
+                    ret = 13;
+                    break;
+                case "VIETNAM":
+                    ret = 14;
+                    break;
+                case "XIAMEN":
+                    ret = 15;
+                    break;
+                case "PHILIPPINE":
+                    ret = 16;
+                    break;
+            }
+
+            return ret;
+
         }
 
 

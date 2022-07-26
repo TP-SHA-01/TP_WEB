@@ -595,7 +595,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
-        public static string GetHtmlString(DataTable dt,string htmlName="AMS")
+        public static string GetHtmlString(DataTable dt, string htmlName = "AMS")
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("<html><head>");
@@ -646,8 +646,8 @@ namespace TB_WEB.CommonLibrary.CommonFun
             }
             sb.Append("</table>");
             sb.Append("</br>");
-            sb.Append("<div> <i>Authorized "+ htmlName + " monitor can  synchronize remarks in TBS page via below link </i>  </div>");
-            sb.Append("<div> <p><a href='https://www.topocean.com/WebBooking/toTBS.asp?targetPage="+ htmlName +"FilingCheck.aspx'>" + htmlName + " Filing Check</a></p> </div>");
+            sb.Append("<div> <i>Authorized " + htmlName + " monitor can  synchronize remarks in TBS page via below link </i>  </div>");
+            sb.Append("<div> <p><a href='https://www.topocean.com/WebBooking/toTBS.asp?targetPage=" + htmlName + "FilingCheck.aspx'>" + htmlName + " Filing Check</a></p> </div>");
 
             //点击单元格 输出 行和列
             sb.Append("<script src='https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js'></script>");
@@ -724,6 +724,307 @@ namespace TB_WEB.CommonLibrary.CommonFun
 
         }
 
+        public static DataTable GenerateTBSData(string arrMBL)
+        {
+            string sql = String.Format(
+
+                                                 //" IF OBJECT_ID('tempdb..#TEMP_MAPPING_CNEE') IS NOT NULL                                              						" +
+                                                 // //"     BEGIN	                                                                                                                " +
+                                                 // "         DROP TABLE #TEMP_MAPPING_CNEE	                                                                                    " +
+                                                 // //"     END	                                                                                                                " +
+                                                 // " 	                                                                                                                        " +
+                                                 // " CREATE TABLE #TEMP_MAPPING_CNEE	                                                                                        " +
+                                                 // " (	                                                                                                                        " +
+                                                 // "     CNEE  VARCHAR(100),	                                                                                                " +
+                                                 // "     SALES VARCHAR(20)	                                                                                                    " +
+                                                 // " )	                                                                                                                        " +
+                                                 // " 	                                                                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('COMPASS HEALTH BRANDS', 'GLOBAL')	                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('WOODSTREAM CORP', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('DRIVE DEVILBISS HEALTHCARE INC.', 'GLOBAL')	                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('BIOWORLD MERCHANDISING INC', 'GLOBAL')	                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('MONOPRICE, INC.', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('NOLAN ORIGINALS LLC', 'GLOBAL')	                                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('UTC CCS CARLYLE', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('CARRIER CORPORATION', 'GLOBAL')	                                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('LOZIER CORPORATION-IN', 'GLOBAL')	                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('BIOWORLD CANADA', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FELLOWES,INC.', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('DRIVE DEVILBISS HEALTHCARE LTD - UK', 'GLOBAL')	                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('MEDICAL DEPOT INC DBA DRIVE DEVILBISS HEALTHCARE', 'GLOBAL')	                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('SOGESMA', 'GLOBAL')	                                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('PRENATAL RETAIL GROUP SPA', 'GLOBAL')	                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('UTC CARRIER CORP', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FELLOWES,INC. CANADA LTD', 'GLOBAL')	                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('MONOPRICE INC', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('LOZIER CORPORATION', 'GLOBAL')	                                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('SNAVELY INTERNATIONAL', 'GLOBAL')	                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('WOODSTREAM', 'GLOBAL')	                                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('WORLDWIDE ELECTRIC CORPORATION', 'GLOBAL')	                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('DRIVE FRANCE', 'GLOBAL')	                                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FLAMINGO PET PRODUCTS NV', 'GLOBAL')	                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FOX RUN CANADA CORP', 'GLOBAL')	                                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FELLOWES CANADA LTD', 'GLOBAL')	                                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FELLOWES INC.', 'GLOBAL')	                                                                                    " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('JEMELLA AUSTRALIA PTY LTD C/O CEVA LOGISTICS', 'GLOBAL')	                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('GHD NORTH AMERICA LLC', 'GLOBAL')	                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FELLOWES INC DBA ESI', 'GLOBAL')	                                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('TECHNICOLOR DELIVERY TECHNOLOGIES FM POLSKA SP Z O', 'GLOBAL')	                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('BIOWORLD MERCHANDISING LTD', 'GLOBAL')	                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('PRENATAL RETAIL GROUP SPA TEXTILE', 'GLOBAL')	                                                                " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('PIKDARE SPA', 'GLOBAL')	                                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('ARTSANA UK', 'GLOBAL')	                                                                                        " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('ARTSANA SPAIN, S.A.U.', 'GLOBAL')	                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('SPANX', 'GLOBAL')	                                                                                            " +
+                                                 // " INSERT INTO #TEMP_MAPPING_CNEE (CNEE, SALES)	                                                                            " +
+                                                 // " VALUES ('FOX RUN CRAFTSMEN', 'GLOBAL');	                                                                                " +
+                                                 " 	                                                                                                                        " +
+                                                 " 	                                                                                                                        " +
+                                                 " WITH TEMP AS (	                                                                                                        " +
+                                                 "     Select [Week],	                                                                                                    " +
+                                                 "            [Booking ID],	                                                                                                " +
+                                                 "            [Booking Date],	                                                                                            " +
+                                                 "            [Booking Status],	                                                                                            " +
+                                                 "            [Transportation Mode],	                                                                                        " +
+                                                 "            [Created By],	                                                                                                " +
+                                                 "            [Handling User Email],	                                                                                        " +
+                                                 "            [Origin Office],	                                                                                            " +
+                                                 "            [Dest Office],	                                                                                                " +
+                                                 "            Principal,	                                                                                                    " +
+                                                 "            Consignee,	                                                                                                    " +
+                                                 "            Vendor,	                                                                                                    " +
+                                                 "            [Place Of Receipt],	                                                                                        " +
+                                                 "            Carrier,	                                                                                                    " +
+                                                 "            [Contract Type],	                                                                                            " +
+                                                 "            [Carrier Commodity],	                                                                                        " +
+                                                 "            Vessel,	                                                                                                    " +
+                                                 "            Voyage,	                                                                                                    " +
+                                                 "            MBL,	                                                                                                        " +
+                                                 "            HBL,	                                                                                                        " +
+                                                 "            [Delivery Type],	                                                                                            " +
+                                                 "            [PO Ready Date],	                                                                                            " +
+                                                 "            [POL],	                                                                                                        " +
+                                                 "            [Original ETD],	                                                                                            " +
+                                                 "            [Current ETD],	                                                                                                " +
+                                                 "            ATD,	                                                                                                        " +
+                                                 "            [POD],	                                                                                                        " +
+                                                 "            [Original ETA],	                                                                                            " +
+                                                 "            [Current ETA],	                                                                                                " +
+                                                 "            [Final Dest],	                                                                                                " +
+                                                 "            [Final ETA],	                                                                                                " +
+                                                 "            [Dest Ramp],	                                                                                                " +
+                                                 "            [Approval Status],	                                                                                            " +
+                                                 "            [Approval Date],	                                                                                            " +
+                                                 "            [Approval Remark],	                                                                                            " +
+                                                 "            [ISF Sent Date],	                                                                                            " +
+                                                 "            [Customs Response #],	                                                                                        " +
+                                                 "            [Forwarder Remarks],	                                                                                        " +
+                                                 "            [Nomination Office],	                                                                                        " +
+                                                 "            [Nomination Sales],	                                                                                        " +
+                                                 "            [IsTBS]	                                                                                                    " +
+                                                 "     From (Select CASE	                                                                                                    " +
+                                                 "                      WHEN POTracing.ISTBS = 'Y' THEN ISNULL(POTracing.WB_WeekOfYear, 0)	                                " +
+                                                 "                      ELSE [dbo].[udf_GetTBSWeek](POTracing.OriginalVesselETD) END as [Week],	                            " +
+                                                 "                  POTracing.BookingDate                                            as [Booking Date],	                    " +
+                                                 "                  '' + POTracing.BookingReqID + ''                                 as [Booking ID],	                    " +
+                                                 "                  UPPER(POTracing.WB_STATUS)                                       as [Booking Status],	                " +
+                                                 "                  POTracing.TransportationMode                                     As [Transportation Mode],	            " +
+                                                 "                  ISNULL(m.ModifiedBy, '')                                         as [Created By],	                    " +
+                                                 "                  ISNULL(max(lv.UserEmail), '')                                    as [Handling User Email],	            " +
+                                                 "                  ISNULL(POTracing.OriginOffice, '')                               as [Origin Office],	                    " +
+                                                 "                  ISNULL(POTracing.Dest, '')                                       as [Dest Office],	                    " +
+                                                 "                  principal.Company                                                as [Principal],	                        " +
+                                                 "                  POTracing.CNEE                                                   as [Consignee],	                        " +
+                                                 "                  POTracing.Vendor                                                 as [Vendor],	                        " +
+                                                 "                  POTracing.Orig                                                   as [Place Of Receipt],	                " +
+                                                 "                  POTracing.Carrier                                                as [Carrier],	                        " +
+                                                 "                  ISNULL(POTracing.BookingContractType, '')                        As [Contract Type],	                    " +
+                                                 "                  POTracing.Commodity2                                             As [Carrier Commodity],	                " +
+                                                 "                  POTracing.Vessel                                                 as [Vessel],	                        " +
+                                                 "                  POTracing.Voyage                                                 as [Voyage],	                        " +
+                                                 "                  POTracing.MBL                                                    as [MBL],	                            " +
+                                                 "                  POTracing.HBL                                                    as [HBL],	                            " +
+                                                 "                  POTracing.DeliveryType                                           as [Delivery Type],	                    " +
+                                                 "                  POTracing.POReadyDate                                            As [PO Ready Date],	                    " +
+                                                 "                  POTracing.LoadPort                                               as [POL],	                            " +
+                                                 "                  POTracing.OriginalP2PETD                                         As [Original ETD],	                    " +
+                                                 "                  POTracing.P2PETD                                                 As [Current ETD],	                    " +
+                                                 "                  POTracing.P2PATD                                                 As [ATD],	                            " +
+                                                 "                  POTracing.DischPort                                              as [POD],	                            " +
+                                                 "                  POTracing.OriginalP2PETA                                         As [Original ETA],	                    " +
+                                                 "                  POTracing.P2PETA                                                 As [Current ETA],	                    " +
+                                                 "                  POTracing.FinalDest                                              as [Final Dest],	                    " +
+                                                 "                  POTracing.D2DETA                                                 As [Final ETA],	                        " +
+                                                 "                  POTracing.DestRamp                                               as [Dest Ramp],	                        " +
+                                                 "                  POTracing.WBApprovalStatus                                       As [Approval Status],	                " +
+                                                 "                  POTracing.WBApprovalDate                                         As [Approval Date],	                    " +
+                                                 "                  POTracing.WBApprovalRemark                                       As [Approval Remark],	                " +
+                                                 "                  POTracing.ISFSentDate                                            As [ISF Sent Date],	                    " +
+                                                 "                  POTracing.CustomsResponseNo                                      As [Customs Response #],	            " +
+                                                 "                  POTracing.BookingInstruction                                     As [Forwarder Remarks],	                " +
+                                                 "                  ISNULL(principal.NomName, '')                                    as [Nomination Office],	                " +
+                                                 "                  ISNULL(principal.NomSales, '')                                   as [Nomination Sales],	                " +
+                                                 "                  ISNULL(POTracing.IsTBS, 'N')                                     as [IsTBS]	                            " +
+                                                 "           FROM POTracing	                                                                                                " +
+                                                 "                    LEFT JOIN Customer principal ON principal.uID = POTracing.Principle	                                " +
+                                                 "                    LEFT JOIN OptionList agent ON agent.OptValue = POTracing.Dest AND agent.OptType = 'TitanOffice' AND    " +
+                                                 "                                                  agent.IsActive = 'Y' AND Criteria3 = 'Y' AND                             " +
+                                                 "                                                  (Criteria5 <> '' OR Criteria5 IS NOT NULL)                               " +
+                                                 "                    LEFT JOIN Customer non_sea_trans ON non_sea_trans.Company = POTracing.CNEE                             " +
+                                                 "                    LEFT JOIN LoginView lv ON lv.UserLoginName = POTracing.HandlingUser                                    " +
+                                                 "                    LEFT JOIN CNEECarrierContract contract ON contract.uID = POTracing.CNEECarrierContractID               " +
+                                                 "                    OUTER APPLY (Select Top 1 tm.TRAFFIC                                                                   " +
+                                                 "                                 From TrafficMap tm                                                                        " +
+                                                 "                                          Join LocationMgr traffic On tm.Country_code = traffic.CountryCode                " +
+                                                 "                                 Where traffic.Location = POTracing.FinalDest) tm                                          " +
+                                                 "                    OUTER APPLY (Select Top 1 ModifiedBy                                                                   " +
+                                                 "                                 From ModifyRecord m                                                                       " +
+                                                 "                                 Where CargoId = POTracing.uID                                                             " +
+                                                 "                                   and m.modifiedBy <> ''                                                                  " +
+                                                 "                                 Order By ActionDate asc) m                                                                " +
+                                                 "           WHERE 1 = 1                                                                                                     " +
+                                                 "             AND (POTracing.BookingContractType IN ('TOPOCEAN', 'NVO/NON-TOPOCEAN CONTRACT') Or POTracing.IsTBS = 'Y')     " +
+                                                 "             And POTracing.CNEE Not In ('ABC COMPUTER', 'ABC COMPUTER-TBS', 'ABC COMP EU')                                 " +
+                                                 "             And ISNULL(POTracing.WB_Status, '') NOT IN ('REJECTED', 'CANCELLED')                                          " +
+                                                 "             AND POTracing.BookingReqID IS NOT NULL                                                                        " +
+                                                 "             AND POTracing.Traffic In ('-1', 'USA', 'CAN')                                                                 " +
+                                                 //"             AND (POTracing.P2PETD between '06/01/2022' and '07/20/2022')                                                  " +
+                                                 "             AND POTracing.TransportationMode In ('-1', 'SEA')                                                             " +
+                                                 "             AND (POTracing.BookingReqID <> '')                                                                            " +
+                                                 "             AND POTracing.MBL <> ''                                                                                       " +
+                                                 "             AND  POTracing.MBL IN ('{0}')                                                                                   " +
+                                                 "           GROUP BY POTracing.WB_WeekOfYear, POTracing.uid, POTracing.CustomsResponseNo, POTracing.CNTRType,               " +
+                                                 "                    POTracing.CNTRType2, POTracing.CNTRType3, POTracing.CNTRType4, POTracing.CNTRQty, POTracing.CNTRQty2,  " +
+                                                 "                    POTracing.CNTRQty3, POTracing.CNTRQty4, POTracing.TransportationMode, POTracing.OriginOffice,          " +
+                                                 "                    POTracing.Dest, POTracing.CNEE, POTracing.Vendor, m.ModifiedBy, agent.Criteria5, principal.Company,    " +
+                                                 "                    principal.NomName, principal.NomSales, POTracing.BookingContractType, contract.ContractNo,             " +
+                                                 "                    POTracing.BookingConfirmation, POTracing.BookingDate, POTracing.BookingReqID, POTracing.WB_STATUS,     " +
+                                                 "                    POTracing.DeliveryType, POTracing.Carrier, POTracing.MBL, POTracing.HBL, POTracing.Vessel,             " +
+                                                 "                    POTracing.Voyage, POTracing.CarrierDestType, POTracing.CarrierDest, POTracing.LoadPort,                " +
+                                                 "                    POTracing.POReadyDate, POTracing.P2PETD, POTracing.OriginalVesselETD, POTracing.OriginalP2PETD,        " +
+                                                 "                    POTracing.P2PATD, POTracing.DischPort, POTracing.P2PETA, POTracing.D2DETA, POTracing.OriginalP2PETA,   " +
+                                                 "                    POTracing.DestRamp, POTracing.FinalDest, POTracing.Description, POTracing.Commodity2, POTracing.Orig,  " +
+                                                 "                    POTracing.WBApprovalStatus, POTracing.WBApprovalDate, POTracing.WBApprovalRemark,                      " +
+                                                 "                    POTracing.ISFSentDate,                                                                                 " +
+                                                 "                    POTracing.Comments, POTracing.BookingInstruction, POTracing.ISTBS,                                     " +
+                                                 "                    POTracing.loadedOnMotherVesselFlag) a)                                                                 " +
+                                                 "                                                                                                                           " +
+                                                 "                                                                                                                           " +
+                                                 " SELECT DISTINCT MBL                                                                                                       " +
+                                                 "               , [Created By]                                                                                              " +
+                                                 "               , CONVERT(VARCHAR(10), [Current ETD], 111)   AS [ETD]                                                       " +
+                                                 "               , [Handling User Email]                                                                                     " +
+                                                 "               , [Nomination Office]                                                                                       " +
+                                                 "               , CASE WHEN Country = 'CHINA' THEN [Nomination Sales] ELSE 'N/A' END AS [PIC(销售）]           " +
+                                                 "               , [Consignee]                                                                                               " +
+                                                 " FROM TEMP                                                                                                                 " +
+                                                 //"          LEFT JOIN tempdb...#TEMP_MAPPING_CNEE TEMP_CNEE ON TEMP_CNEE.CNEE = TEMP.[Consignee]                                " +
+                                                 "          LEFT JOIN Port ON TEMP.[Nomination Office] = PORTNAME AND IsActive = 'Y' AND ORG = 'Y'                           "
+                                                 , arrMBL);
+
+            DataTable dt = dbHelper.ExecDataTable(sql);
+
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    string cnee = CheckEmpty(dr["Consignee"]);
+                    if (!String.IsNullOrEmpty(cnee))
+                    {
+                        if (getCNEEList().Contains(cnee))
+                        {
+                            dr["PIC(销售）"] = "GLOBAL";
+                        }
+                    }
+                }
+            }
+
+            return dt;
+        }
+
+
+        private static string[] getCNEEList()
+        {
+            string[] cneeList = new string[] {
+                 "WOODSTREAM CORP"
+                ,"DRIVE DEVILBISS HEALTHCARE INC."
+                ,"BIOWORLD MERCHANDISING INC"
+                ,"MONOPRICE, INC."
+                ,"NOLAN ORIGINALS LLC"
+                ,"UTC CCS CARLYLE"
+                ,"CARRIER CORPORATION"
+                ,"LOZIER CORPORATION-IN"
+                ,"BIOWORLD CANADA"
+                ,"FELLOWES,INC."
+                ,"DRIVE DEVILBISS HEALTHCARE LTD - UK"
+                ,"MEDICAL DEPOT INC DBA DRIVE DEVILBISS HEALTHCARE"
+                ,"SOGESMA"
+                ,"PRENATAL RETAIL GROUP SPA"
+                ,"UTC CARRIER CORP"
+                ,"FELLOWES,INC. CANADA LTD"
+                ,"MONOPRICE INC"
+                ,"LOZIER CORPORATION"
+                ,"SNAVELY INTERNATIONAL"
+                ,"WOODSTREAM"
+                ,"WORLDWIDE ELECTRIC CORPORATION"
+                ,"DRIVE FRANCE"
+                ,"WORLDWIDE ELECTRIC CORPORATION"
+                ,"FLAMINGO PET PRODUCTS NV"
+                ,"FOX RUN CANADA CORP"
+                ,"FELLOWES CANADA LTD"
+                ,"FELLOWES INC."
+                ,"JEMELLA AUSTRALIA PTY LTD C/O CEVA LOGISTICS"
+                ,"GHD NORTH AMERICA LLC"
+                ,"FELLOWES INC DBA ESI"
+                ,"TECHNICOLOR DELIVERY TECHNOLOGIES FM POLSKA SP Z O"
+                ,"BIOWORLD MERCHANDISING LTD"
+                ,"PRENATAL RETAIL GROUP SPA TEXTILE"
+                ,"PIKDARE SPA"
+                ,"ARTSANA UK"
+                ,"ARTSANA SPAIN, S.A.U."
+                ,"SPANX"
+                ,"FOX RUN CRAFTSMEN"
+             };
+            return cneeList;
+        }
+
         public static bool IsEmpty(Object str)
         {
             return str != null && !"".Equals(str) && !Convert.IsDBNull(str);
@@ -749,6 +1050,86 @@ namespace TB_WEB.CommonLibrary.CommonFun
             }
 
             return ret;
+        }
+
+        /// <summary>
+        ///     Converts a column in a DataTable to another type using a user-defined converter function.
+        /// </summary>
+        /// <param name="dt">The source table.</param>
+        /// <param name="columnName">The name of the column to convert.</param>
+        /// <param name="valueConverter">Converter function that converts existing values to the new type.</param>
+        /// <typeparam name="TTargetType">The target column type.</typeparam>
+        private static void ConvertColumnTypeTo<TTargetType>(this DataTable dt, string columnName, Func<object, TTargetType> valueConverter)
+        {
+            var newType = typeof(TTargetType);
+
+            DataColumn dc = new DataColumn(columnName + "_new", newType);
+
+            // Add the new column which has the new type, and move it to the ordinal of the old column
+            int ordinal = dt.Columns[columnName].Ordinal;
+            dt.Columns.Add(dc);
+            dc.SetOrdinal(ordinal);
+
+            // Get and convert the values of the old column, and insert them into the new
+            foreach (DataRow dr in dt.Rows)
+            {
+                dr[dc.ColumnName] = valueConverter(dr[columnName]);
+                //dr[dc.ColumnName] = dr[columnName] == DBNull.Value ? DBNull.Value : valueConverter(dr[columnName]);
+            }
+
+            // Remove the old column
+            dt.Columns.Remove(columnName);
+
+            // Give the new column the old column's name
+            dc.ColumnName = columnName;
+        }
+
+        private static void ConvertColumnType(this DataTable dt, string columnName, Type newType)
+        {
+            using (DataColumn dc = new DataColumn(columnName + "_new", newType))
+            {
+                // Add the new column which has the new type, and move it to the ordinal of the old column
+                int ordinal = dt.Columns[columnName].Ordinal;
+                dt.Columns.Add(dc);
+                dc.SetOrdinal(ordinal);
+
+                // Get and convert the values of the old column, and insert them into the new
+                foreach (DataRow dr in dt.Rows)
+                {
+                    dr[dc.ColumnName] = dr[columnName] == DBNull.Value || !IsEmpty(dr[columnName]) ? DBNull.Value : Convert.ChangeType(dr[columnName], newType);
+                }
+                   
+                // Remove the old column
+                dt.Columns.Remove(columnName);
+
+                // Give the new column the old column's name
+                dc.ColumnName = columnName;
+            }
+        }
+
+        public static void RenderColumn(DataTable dt)
+        {
+            dt.ConvertColumnType("ISSUE_DATE", typeof(DateTime));
+            dt.ConvertColumnType("ETA", typeof(DateTime));
+            dt.ConvertColumnType("ETD", typeof(DateTime));
+            dt.ConvertColumnType("ORIGINAL_AMOUNT", typeof(decimal));
+            dt.ConvertColumnType("EQUIVANLENT_AMOUNT", typeof(decimal));
+            dt.ConvertColumnType("OUTSTANDING_AMOUNT", typeof(decimal));
+            dt.ConvertColumnType("WEEK", typeof(int));
+
+            dt.Columns.Remove("EXCHANGE_RATE");
+            dt.Columns["AC_CODE"].ColumnName = "A/C CODE";
+            dt.Columns["BILLNO"].ColumnName = "中國發票號碼.";
+            dt.Columns["INVOICE_NO"].ColumnName = "INVOICE NO.";
+            dt.Columns["HBL"].ColumnName = "HOUSE BL";
+            dt.Columns["MBL"].ColumnName = "MASTER BL";
+            dt.Columns["ORIGINAL_AMOUNT"].ColumnName = "ORIGINAL AMOUNT";
+            dt.Columns["EQUIVANLENT_AMOUNT"].ColumnName = "EQUIVANLENT AMOUNT";
+            //dt.Columns["EXCHANGE_RATE"].ColumnName = "EXCHANGE RATE";
+            dt.Columns["OUTSTANDING_AMOUNT"].ColumnName = "OUTSTANDING AMOUNT";
+            dt.Columns["PAYMENT_TERMS"].ColumnName = "PAYMENT TERMS";
+            dt.Columns["NOMINATION_OFFICE"].ColumnName = "NOMINATION OFFICE";
+            dt.Columns["PCI_SALES"].ColumnName = "PIC(销售）";
         }
     }
 }

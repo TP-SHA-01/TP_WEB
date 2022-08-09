@@ -858,7 +858,8 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                                  "            [Forwarder Remarks],	                                                                                        " +
                                                  "            [Nomination Office],	                                                                                        " +
                                                  "            [Nomination Sales],	                                                                                        " +
-                                                 "            [IsTBS]	                                                                                                    " +
+                                                 "            [IsTBS],	                                                                                                    " +
+                                                 "            [Release Type]                                                                                                " +
                                                  "     From (Select CASE	                                                                                                    " +
                                                  "                      WHEN POTracing.ISTBS = 'Y' THEN ISNULL(POTracing.WB_WeekOfYear, 0)	                                " +
                                                  "                      ELSE [dbo].[udf_GetTBSWeek](POTracing.OriginalVesselETD) END as [Week],	                            " +
@@ -901,7 +902,8 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                                  "                  POTracing.BookingInstruction                                     As [Forwarder Remarks],	                " +
                                                  "                  ISNULL(principal.NomName, '')                                    as [Nomination Office],	                " +
                                                  "                  ISNULL(principal.NomSales, '')                                   as [Nomination Sales],	                " +
-                                                 "                  ISNULL(POTracing.IsTBS, 'N')                                     as [IsTBS]	                            " +
+                                                 "                  ISNULL(POTracing.IsTBS, 'N')                                     as [IsTBS],	                            " +
+                                                 "                  ISNULL(POTracing.ReleaseType, 'N/A')                             as [Release Type]	                            " +
                                                  "           FROM POTracing	                                                                                                " +
                                                  "                    LEFT JOIN Customer principal ON principal.uID = POTracing.Principle	                                " +
                                                  "                    LEFT JOIN OptionList agent ON agent.OptValue = POTracing.Dest AND agent.OptType = 'TitanOffice' AND    " +
@@ -924,9 +926,9 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                                  "             And POTracing.CNEE Not In ('ABC COMPUTER', 'ABC COMPUTER-TBS', 'ABC COMP EU')                                 " +
                                                  "             And ISNULL(POTracing.WB_Status, '') NOT IN ('REJECTED', 'CANCELLED')                                          " +
                                                  "             AND POTracing.BookingReqID IS NOT NULL                                                                        " +
-                                                 "             AND POTracing.Traffic In ('-1', 'USA', 'CAN')                                                                 " +
+                                                 //"             AND POTracing.Traffic In ('-1', 'USA', 'CAN')                                                                 " +
                                                  //"             AND (POTracing.P2PETD between '06/01/2022' and '07/20/2022')                                                  " +
-                                                 "             AND POTracing.TransportationMode In ('-1', 'SEA')                                                             " +
+                                                 //"             AND POTracing.TransportationMode In ('-1', 'SEA')                                                             " +
                                                  "             AND (POTracing.BookingReqID <> '')                                                                            " +
                                                  "             AND POTracing.MBL <> ''                                                                                       " +
                                                  "             AND  POTracing.MBL IN ('{0}')                                                                                   " +
@@ -944,43 +946,30 @@ namespace TB_WEB.CommonLibrary.CommonFun
                                                  "                    POTracing.WBApprovalStatus, POTracing.WBApprovalDate, POTracing.WBApprovalRemark,                      " +
                                                  "                    POTracing.ISFSentDate,                                                                                 " +
                                                  "                    POTracing.Comments, POTracing.BookingInstruction, POTracing.ISTBS,                                     " +
-                                                 "                    POTracing.loadedOnMotherVesselFlag) a)                                                                 " +
+                                                 "                    POTracing.loadedOnMotherVesselFlag,POTracing.ReleaseType) a)                                                                 " +
                                                  "                                                                                                                           " +
                                                  "                                                                                                                           " +
-                                                 " SELECT DISTINCT MBL                                                                                                       " +
-                                                 "               , [Created By]                                                                                              " +
+                                                 " SELECT   DISTINCT    MBL                                                                                                  " +
+                                                 "               , MAX([Created By]) AS [Created By]                                                                         " +
                                                  "               , CONVERT(VARCHAR(10), [Current ETD], 111)   AS [ETD]                                                       " +
-                                                 "               , [Handling User Email]                                                                                     " +
-                                                 "               , [Nomination Office]                                                                                       " +
-                                                 "               , CASE WHEN Country = 'CHINA' THEN [Nomination Sales] ELSE 'N/A' END AS [PIC(销售）]           " +
-                                                 "               , [Consignee]                                                                                               " +
+                                                 "               , MAX([Handling User Email]) AS [Handling User Email]                                                       " +
+                                                 "               , MAX([Nomination Office]) AS [Nomination Office]                                                           " +
+                                                 "               , CASE WHEN MAX(Country) = 'CHINA' THEN MAX([Nomination Sales]) ELSE 'N/A' END AS [PIC(销售）]              " +
+                                                 "               , MAX([Consignee]) AS [Consignee]                                                                           " +
+                                                 "               , MAX([Release Type]) AS [Release Type]                                                                           " +
                                                  " FROM TEMP                                                                                                                 " +
                                                  //"          LEFT JOIN tempdb...#TEMP_MAPPING_CNEE TEMP_CNEE ON TEMP_CNEE.CNEE = TEMP.[Consignee]                                " +
-                                                 "          LEFT JOIN Port ON TEMP.[Nomination Office] = PORTNAME AND IsActive = 'Y' AND ORG = 'Y'                           "
+                                                 " LEFT JOIN Port ON TEMP.[Nomination Office] = PORTNAME AND IsActive = 'Y' AND ORG = 'Y'                                     " +
+                                                 "  GROUP BY MBL,[Current ETD]                          "
                                                  , arrMBL);
 
             DataTable dt = dbHelper.ExecDataTable(sql);
-
-            if (dt.Rows.Count > 0)
-            {
-                foreach (DataRow dr in dt.Rows)
-                {
-                    string cnee = CheckEmpty(dr["Consignee"]);
-                    if (!String.IsNullOrEmpty(cnee))
-                    {
-                        if (getCNEEList().Contains(cnee))
-                        {
-                            dr["PIC(销售）"] = "GLOBAL";
-                        }
-                    }
-                }
-            }
 
             return dt;
         }
 
 
-        private static string[] getCNEEList()
+        public static string[] getCNEEList()
         {
             string[] cneeList = new string[] {
                  "WOODSTREAM CORP"
@@ -994,6 +983,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
                 ,"BIOWORLD CANADA"
                 ,"FELLOWES,INC."
                 ,"DRIVE DEVILBISS HEALTHCARE LTD - UK"
+                ,"DRIVE DEVILBISS HEALTHCARE"
                 ,"MEDICAL DEPOT INC DBA DRIVE DEVILBISS HEALTHCARE"
                 ,"SOGESMA"
                 ,"PRENATAL RETAIL GROUP SPA"
@@ -1109,13 +1099,7 @@ namespace TB_WEB.CommonLibrary.CommonFun
 
         public static void RenderColumn(DataTable dt)
         {
-            dt.ConvertColumnType("ISSUE_DATE", typeof(DateTime));
-            dt.ConvertColumnType("ETA", typeof(DateTime));
-            dt.ConvertColumnType("ETD", typeof(DateTime));
-            dt.ConvertColumnType("ORIGINAL_AMOUNT", typeof(decimal));
-            dt.ConvertColumnType("EQUIVANLENT_AMOUNT", typeof(decimal));
-            dt.ConvertColumnType("OUTSTANDING_AMOUNT", typeof(decimal));
-            dt.ConvertColumnType("WEEK", typeof(int));
+            
 
             dt.Columns.Remove("EXCHANGE_RATE");
             dt.Columns["AC_CODE"].ColumnName = "A/C CODE";
@@ -1124,12 +1108,139 @@ namespace TB_WEB.CommonLibrary.CommonFun
             dt.Columns["HBL"].ColumnName = "HOUSE BL";
             dt.Columns["MBL"].ColumnName = "MASTER BL";
             dt.Columns["ORIGINAL_AMOUNT"].ColumnName = "ORIGINAL AMOUNT";
+            dt.Columns["ISSUE_DATE"].ColumnName = "ISSUE DATE";
             dt.Columns["EQUIVANLENT_AMOUNT"].ColumnName = "EQUIVANLENT AMOUNT";
             //dt.Columns["EXCHANGE_RATE"].ColumnName = "EXCHANGE RATE";
             dt.Columns["OUTSTANDING_AMOUNT"].ColumnName = "OUTSTANDING AMOUNT";
             dt.Columns["PAYMENT_TERMS"].ColumnName = "PAYMENT TERMS";
             dt.Columns["NOMINATION_OFFICE"].ColumnName = "NOMINATION OFFICE";
             dt.Columns["PCI_SALES"].ColumnName = "PIC(销售）";
+            dt.Columns["TIP"].ColumnName = "是否有协议";
+            dt.Columns["Release_Type"].ColumnName = "Release Type";
+
+        }
+
+        public static void changeColumnType(DataTable dt)
+        {
+            dt.ConvertColumnType("ISSUE_DATE", typeof(DateTime));
+            dt.ConvertColumnType("ETA", typeof(DateTime));
+            dt.ConvertColumnType("ETD", typeof(DateTime));
+            dt.ConvertColumnType("ORIGINAL_AMOUNT", typeof(decimal));
+            dt.ConvertColumnType("EQUIVANLENT_AMOUNT", typeof(decimal));
+            dt.ConvertColumnType("OUTSTANDING_AMOUNT", typeof(decimal));
+            dt.ConvertColumnType("WEEK", typeof(int));
+        }
+
+        /// <summary>
+        /// 建立两内存表的链接
+        /// </summary>
+        /// <param name="dt1">左表（主表）</param>
+        /// <param name="dt2">右表</param>
+        /// <param name="FJC">左表中关联的字段名（字符串）</param>
+        /// <param name="SJC">右表中关联的字段名（字符串）</param>
+        /// <returns></returns>
+        public static DataTable Join(DataTable dt1, DataTable dt2, DataColumn[] FJC, DataColumn[] SJC)
+        {
+            //创建一个新的DataTable
+            DataTable table = new DataTable("Join");
+
+            // Use a DataSet to leverage DataRelation
+            using (DataSet ds = new DataSet())
+            {
+                //把DataTable Copy到DataSet中
+                ds.Tables.AddRange(new DataTable[] { dt1.Copy(), dt2.Copy() });
+
+                DataColumn[] First_columns = new DataColumn[FJC.Length];
+                for (int i = 0; i < First_columns.Length; i++)
+                {
+                    First_columns[i] = ds.Tables[0].Columns[FJC[i].ColumnName];
+                }
+
+                DataColumn[] Second_columns = new DataColumn[SJC.Length];
+                for (int i = 0; i < Second_columns.Length; i++)
+                {
+                    Second_columns[i] = ds.Tables[1].Columns[SJC[i].ColumnName];
+                }
+
+                //创建关联
+                DataRelation r = new DataRelation(string.Empty, First_columns, Second_columns, false);
+                ds.Relations.Add(r);
+
+                //为关联表创建列
+                for (int i = 0; i < dt1.Columns.Count; i++)
+                {
+                    table.Columns.Add(dt1.Columns[i].ColumnName, dt1.Columns[i].DataType);
+                }
+
+                for (int i = 0; i < dt2.Columns.Count; i++)
+                {
+                    //看看有没有重复的列，如果有在第二个DataTable的Column的列明后加_Second
+                    if (!table.Columns.Contains(dt2.Columns[i].ColumnName))
+                        table.Columns.Add(dt2.Columns[i].ColumnName, dt2.Columns[i].DataType);
+                    else
+                        table.Columns.Add(dt2.Columns[i].ColumnName + "_Second", dt2.Columns[i].DataType);
+                }
+
+                table.BeginLoadData();
+                int itable2Colomns = ds.Tables[1].Rows[0].ItemArray.Length;
+                foreach (DataRow firstrow in ds.Tables[0].Rows)
+                {
+                    //得到行的数据
+                    DataRow[] childrows = firstrow.GetChildRows(r);//第二个表关联的行
+                    if (childrows != null && childrows.Length > 0)
+                    {
+                        object[] parentarray = firstrow.ItemArray;
+                        foreach (DataRow secondrow in childrows)
+                        {
+                            object[] secondarray = secondrow.ItemArray;
+                            object[] joinarray = new object[parentarray.Length + secondarray.Length];
+                            Array.Copy(parentarray, 0, joinarray, 0, parentarray.Length);
+                            Array.Copy(secondarray, 0, joinarray, parentarray.Length, secondarray.Length);
+                            table.LoadDataRow(joinarray, true);
+                        }
+
+                    }
+                    else//如果有外连接(Left Join)添加这部分代码
+                    {
+                        object[] table1array = firstrow.ItemArray;//Table1
+                        object[] table2array = new object[itable2Colomns];
+                        object[] joinarray = new object[table1array.Length + itable2Colomns];
+                        Array.Copy(table1array, 0, joinarray, 0, table1array.Length);
+                        Array.Copy(table2array, 0, joinarray, table1array.Length, itable2Colomns);
+                        table.LoadDataRow(joinarray, true);
+                        DataColumn[] dc = new DataColumn[2];
+                        dc[0] = new DataColumn("");
+                    }
+                }
+                table.EndLoadData();
+            }
+            return table;//***在此处打断点，程序运行后点击查看即可观察到结果
+        }
+
+        /// <summary>
+        /// 重载1
+        /// </summary>
+        /// <param name="dt1"></param>
+        /// <param name="dt2"></param>
+        /// <param name="FJC"></param>
+        /// <param name="SJC"></param>
+        /// <returns></returns>
+        public static DataTable Join(DataTable dt1, DataTable dt2, DataColumn FJC, DataColumn SJC)
+        {
+            return Join(dt1, dt2, new DataColumn[] { FJC }, new DataColumn[] { SJC });
+        }
+
+        /// <summary>
+        /// 重载2
+        /// </summary>
+        /// <param name="dt1"></param>
+        /// <param name="dt2"></param>
+        /// <param name="FJC"></param>
+        /// <param name="SJC"></param>
+        /// <returns></returns>
+        public static DataTable Join(DataTable dt1, DataTable dt2, string FJC, string SJC)
+        {
+            return Join(dt1, dt2, new DataColumn[] { dt1.Columns[FJC] }, new DataColumn[] { dt1.Columns[SJC] });
         }
     }
 }

@@ -1141,9 +1141,16 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
-        public static void ExportExcel_VolumeAnalysisReport(DataSet ds,string file_name)
+        public class AmountModel
         {
-            using (MemoryStream ms = RenderToVolumeAnalysisReport(ds))
+            public double ORIGINAL_AMOUNT { get; set; }
+            public double EQUIVANLENT_AMOUNT { get; set; }
+            public double OUTSTANDING_AMOUNT { get; set; }
+        }
+
+        public static void ExportExcel_VolumeAnalysisReport(DataSet ds,string file_name, Dictionary<string, AmountModel> dicAmount)
+        {
+            using (MemoryStream ms = RenderToVolumeAnalysisReport(ds,dicAmount))
             //using (MemoryStream ms = RenderToExcel_AMS(dtSource, strHeaderText))
             {
                 using (FileStream fs = new FileStream(file_name, FileMode.Create, FileAccess.Write))
@@ -1155,7 +1162,7 @@ namespace TB_WEB.CommonLibrary.Helpers
             }
         }
 
-        private static MemoryStream RenderToVolumeAnalysisReport(DataSet ds)
+        private static MemoryStream RenderToVolumeAnalysisReport(DataSet ds, Dictionary<string, AmountModel> dicAmount)
         {
             MemoryStreamHelper ms = new MemoryStreamHelper();
             try
@@ -1175,14 +1182,26 @@ namespace TB_WEB.CommonLibrary.Helpers
                     ICellStyle dateStyle = workbook.CreateCellStyle();
 
                     ICellStyle numberStyle = workbook.CreateCellStyle();
+                    numberStyle.BorderBottom = BorderStyle.Thin;
+                    numberStyle.BorderLeft = BorderStyle.Thin;
+                    numberStyle.BorderRight = BorderStyle.Thin;
+                    numberStyle.BorderTop = BorderStyle.Thin;
                     numberStyle.DataFormat = HSSFDataFormat.GetBuiltinFormat("0.00");
 
                     ICellStyle numberStyle_3 = workbook.CreateCellStyle();
+                    numberStyle_3.BorderBottom = BorderStyle.Thin;
+                    numberStyle_3.BorderLeft = BorderStyle.Thin;
+                    numberStyle_3.BorderRight = BorderStyle.Thin;
+                    numberStyle_3.BorderTop = BorderStyle.Thin;
                     numberStyle_3.DataFormat = HSSFDataFormat.GetBuiltinFormat("0.000000");
 
                     XSSFDataFormat dataformat = (XSSFDataFormat)workbook.CreateDataFormat();
                     ICellStyle cellDateFormatStyle = workbook.CreateCellStyle();
-                    cellDateFormatStyle.DataFormat = dataformat.GetFormat("yyyy-mm-dd");
+                    cellDateFormatStyle.BorderBottom = BorderStyle.Thin;
+                    cellDateFormatStyle.BorderLeft = BorderStyle.Thin;
+                    cellDateFormatStyle.BorderRight = BorderStyle.Thin;
+                    cellDateFormatStyle.BorderTop = BorderStyle.Thin;
+                    cellDateFormatStyle.DataFormat = dataformat.GetFormat("yyyy/MM/dd");
 
                     dateStyle.Alignment = HorizontalAlignment.Center;
                     IFont font = workbook.CreateFont();
@@ -1276,9 +1295,10 @@ namespace TB_WEB.CommonLibrary.Helpers
                                     }
                                     else
                                     {
-                                        newCell.SetCellValue(dateV.ToString("yyyy/MM/dd"));
+                                        //newCell.SetCellValue(Convert.ToDateTime(dateV.ToString("yyyy/MM/dd")));
+                                        newCell.SetCellValue(dateV);
                                     }
-                                    //newCell.CellStyle = cellDateFormatStyle;//格式化显示
+                                    newCell.CellStyle = cellDateFormatStyle;//格式化显示
                                     break;
                                 case "System.Boolean"://布尔型
                                     bool boolV = false;
@@ -1292,20 +1312,13 @@ namespace TB_WEB.CommonLibrary.Helpers
                                     int intV = 0;
                                     int.TryParse(drValue, out intV);
                                     newCell.SetCellValue(intV);
+                                    newCell.CellStyle = dataStyle;
                                     break;
                                 case "System.Decimal":
                                 case "System.Double":
                                     double doubV = 0;
                                     double.TryParse(drValue, out doubV);
-                                    if (doubV > 0)
-                                    {
-                                        newCell.SetCellValue(doubV);
-                                    }
-                                    else
-                                    {
-                                        newCell.SetCellValue("");
-                                    }
-
+                                    newCell.SetCellValue(doubV);
                                     if (column.ColumnName == "EXCHANGE RATE")
                                     {
                                         newCell.CellStyle = numberStyle_3;
@@ -1335,6 +1348,33 @@ namespace TB_WEB.CommonLibrary.Helpers
 
                         }
                         //dataRow.GetCell(0).CellStyle = headStyle;
+                        ICellStyle newCellStyle = workbook.CreateCellStyle();
+                        newCellStyle.Alignment = HorizontalAlignment.Right;
+                        newCellStyle.BorderBottom = BorderStyle.Double;
+                        IFont font2 = workbook.CreateFont();
+                        font2.Boldweight = 700;
+                        newCellStyle.SetFont(font2);
+
+                        AmountModel amountModel = dicAmount[dt.TableName];
+                        ICell sheetNewCell = sheet.CreateRow(table.Rows.Count + 2).CreateCell(10);
+                        ICell sheetNewCell_ORIGINAL_AMOUNT =    sheet.GetRow(table.Rows.Count + 2).CreateCell(11);
+                        ICell sheetNewCell_EQUIVANLENT_AMOUNT = sheet.GetRow(table.Rows.Count + 2).CreateCell(12);
+                        ICell sheetNewCell_OUTSTANDING_AMOUNT = sheet.GetRow(table.Rows.Count + 2).CreateCell(13);
+
+                        sheetNewCell.SetCellValue("TOTAL AMOUNT : ");
+                        sheetNewCell_ORIGINAL_AMOUNT.SetCellValue(String.Format("{0:N2}", amountModel.ORIGINAL_AMOUNT));
+                        sheetNewCell_EQUIVANLENT_AMOUNT.SetCellValue(String.Format("{0:N2}", amountModel.EQUIVANLENT_AMOUNT));
+                        sheetNewCell_OUTSTANDING_AMOUNT.SetCellValue(String.Format("{0:N2}", amountModel.OUTSTANDING_AMOUNT));
+
+                        sheetNewCell.CellStyle = newCellStyle;
+                        sheetNewCell_ORIGINAL_AMOUNT.CellStyle = newCellStyle;
+                        sheetNewCell_EQUIVANLENT_AMOUNT.CellStyle = newCellStyle;
+                        sheetNewCell_OUTSTANDING_AMOUNT.CellStyle = newCellStyle;
+
+                        //sheet.CreateRow(table.Rows.Count+1).CreateCell(10).SetCellValue("TOTAL : ");
+                        //sheet.GetRow(table.Rows.Count + 1).CreateCell(11).SetCellValue(String.Format("{0:N2}", amountModel.ORIGINAL_AMOUNT));
+                        //sheet.GetRow(table.Rows.Count + 1).CreateCell(12).SetCellValue(String.Format("{0:N2}", amountModel.EQUIVANLENT_AMOUNT));
+                        //sheet.GetRow(table.Rows.Count + 1).CreateCell(13).SetCellValue(String.Format("{0:N2}", amountModel.OUTSTANDING_AMOUNT));
                         rowIndex++;
                     }
                 }

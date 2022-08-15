@@ -1,5 +1,6 @@
 ﻿using NPOI.HPSF;
 using NPOI.HSSF.UserModel;
+using NPOI.HSSF.Util;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
@@ -1370,6 +1371,257 @@ namespace TB_WEB.CommonLibrary.Helpers
                         sheetNewCell_ORIGINAL_AMOUNT.CellStyle = newCellStyle;
                         sheetNewCell_EQUIVANLENT_AMOUNT.CellStyle = newCellStyle;
                         sheetNewCell_OUTSTANDING_AMOUNT.CellStyle = newCellStyle;
+
+                        //sheet.CreateRow(table.Rows.Count+1).CreateCell(10).SetCellValue("TOTAL : ");
+                        //sheet.GetRow(table.Rows.Count + 1).CreateCell(11).SetCellValue(String.Format("{0:N2}", amountModel.ORIGINAL_AMOUNT));
+                        //sheet.GetRow(table.Rows.Count + 1).CreateCell(12).SetCellValue(String.Format("{0:N2}", amountModel.EQUIVANLENT_AMOUNT));
+                        //sheet.GetRow(table.Rows.Count + 1).CreateCell(13).SetCellValue(String.Format("{0:N2}", amountModel.OUTSTANDING_AMOUNT));
+                        rowIndex++;
+                    }
+                }
+
+                ms.AllowClose = false;
+                workbook.Write(ms);
+                workbook.Close();
+                ms.Flush();
+                ms.Position = 0;
+                ms.AllowClose = true;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error("NPOI Helper Error RenderToExcel :" + ex.Message + " StackTrace: " + ex.StackTrace);
+            }
+
+            return ms;
+        }
+
+        public static void ExportExcel_MissingData(DataSet ds, string strFileName)
+        {
+            using (MemoryStream ms = RenderToMissingDataReport(ds))
+            {
+                using (FileStream fs = new FileStream(strFileName, FileMode.Create, FileAccess.Write))
+                {
+                    byte[] data = ms.ToArray();
+                    fs.Write(data, 0, data.Length);
+                    fs.Flush();
+                }
+            }
+        }
+
+        public static MemoryStream RenderToMissingDataReport(DataSet ds)
+        {
+            MemoryStreamHelper ms = new MemoryStreamHelper();
+            try
+            {
+                IWorkbook workbook;
+
+                workbook = new XSSFWorkbook();
+
+                int sheetIndex = 0;
+
+                foreach (DataTable dt in ds.Tables)
+                {
+                    DataTable table = dt;
+                    //RenderXSSF(workbook, sheetName[i] + "_Summery", table.Tables[sheetName[i]], sheetIndex);
+                    ISheet sheet = workbook.CreateSheet(dt.TableName);
+                    IDataFormat format = workbook.CreateDataFormat();
+                    ICellStyle dateStyle = workbook.CreateCellStyle();
+
+                    ICellStyle numberStyle = workbook.CreateCellStyle();
+                    numberStyle.BorderBottom = BorderStyle.Thin;
+                    numberStyle.BorderLeft = BorderStyle.Thin;
+                    numberStyle.BorderRight = BorderStyle.Thin;
+                    numberStyle.BorderTop = BorderStyle.Thin;
+                    numberStyle.DataFormat = HSSFDataFormat.GetBuiltinFormat("0.00");
+
+                    ICellStyle numberStyle_3 = workbook.CreateCellStyle();
+                    numberStyle_3.BorderBottom = BorderStyle.Thin;
+                    numberStyle_3.BorderLeft = BorderStyle.Thin;
+                    numberStyle_3.BorderRight = BorderStyle.Thin;
+                    numberStyle_3.BorderTop = BorderStyle.Thin;
+                    numberStyle_3.DataFormat = HSSFDataFormat.GetBuiltinFormat("0.000000");
+
+                    XSSFDataFormat dataformat = (XSSFDataFormat)workbook.CreateDataFormat();
+                    ICellStyle cellDateFormatStyle = workbook.CreateCellStyle();
+                    cellDateFormatStyle.BorderBottom = BorderStyle.Thin;
+                    cellDateFormatStyle.BorderLeft = BorderStyle.Thin;
+                    cellDateFormatStyle.BorderRight = BorderStyle.Thin;
+                    cellDateFormatStyle.BorderTop = BorderStyle.Thin;
+                    cellDateFormatStyle.DataFormat = dataformat.GetFormat("yyyy/MM/dd");
+
+                    dateStyle.Alignment = HorizontalAlignment.Center;
+                    IFont font = workbook.CreateFont();
+                    font.Boldweight = 700;
+                    dateStyle.SetFont(font);
+
+                    ICellStyle dataStyle = workbook.CreateCellStyle();
+                    dataStyle.BorderBottom = BorderStyle.Thin;
+                    dataStyle.BorderLeft = BorderStyle.Thin;
+                    dataStyle.BorderRight = BorderStyle.Thin;
+                    dataStyle.BorderTop = BorderStyle.Thin;
+
+                    //workbook.SetSheetName(sheetIndex, sheetName[x] + "_Summery");
+                    ICellStyle headStyle = workbook.CreateCellStyle();
+                    headStyle.FillPattern = FillPattern.SolidForeground;
+                    headStyle.FillForegroundColor = HSSFColor.Grey25Percent.Index;
+                    headStyle.BorderBottom = BorderStyle.Thin;
+                    headStyle.BorderLeft = BorderStyle.Thin;
+                    headStyle.BorderRight = BorderStyle.Thin;
+                    headStyle.BorderTop = BorderStyle.Thin;
+                    IRow headerRow = sheet.CreateRow(0);
+                    // handling header.
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+                    }
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        headerRow.GetCell(i).CellStyle = headStyle;
+                    }
+
+
+                    sheet.ForceFormulaRecalculation = true;
+
+                    int[] arrColWidth = new int[table.Columns.Count];
+                    foreach (DataColumn item in table.Columns)
+                    {
+                        if (arrColWidth[item.Ordinal] >= 255)
+                        {
+                            arrColWidth[item.Ordinal] = 120;
+                        }
+                        else
+                        {
+                            arrColWidth[item.Ordinal] = Encoding.GetEncoding("UTF-8").GetBytes(item.ColumnName.ToString().Trim()).Length;
+                        }
+                    }
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        for (int j = 0; j < table.Columns.Count; j++)
+                        {
+                            int intTemp = Encoding.GetEncoding("UTF-8").GetBytes(table.Rows[i][j].ToString().Trim()).Length;
+                            if (intTemp > arrColWidth[j])
+                            {
+                                if (arrColWidth[j] >= 255)
+                                {
+                                    arrColWidth[j] = 120;
+                                }
+                                else
+                                {
+                                    arrColWidth[j] = intTemp;
+                                }
+
+                            }
+                        }
+                    }
+
+                    // handling value.
+                    int rowIndex = 1;
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        IRow dataRow = sheet.CreateRow(rowIndex);
+
+                        foreach (DataColumn column in table.Columns)
+                        {
+                            ICell newCell = dataRow.CreateCell(column.Ordinal);
+                            string drValue = row[column].ToString();
+                            switch (column.DataType.ToString())
+                            {
+                                case "System.String"://字符串类型
+                                    if (column.ColumnName == "Booking ID")
+                                    {
+                                        newCell.SetCellValue(drValue);
+                                        XSSFHyperlink link = new XSSFHyperlink(HyperlinkType.Url);
+                                        link.Address = "https://topocean.com/WebBooking/BookingDetail.asp?BookingReqID=" + drValue;
+                                        newCell.Hyperlink = link;
+                                        
+
+                                        ICellStyle linkCell = workbook.CreateCellStyle();
+                                        linkCell.BorderBottom = BorderStyle.Thin;
+                                        linkCell.BorderLeft = BorderStyle.Thin;
+                                        linkCell.BorderRight = BorderStyle.Thin;
+                                        linkCell.BorderTop = BorderStyle.Thin;
+
+                                        linkCell.Alignment = HorizontalAlignment.Center;
+                                        IFont fontLink = workbook.CreateFont();
+                                        fontLink.Boldweight = 700;
+                                        fontLink.Color = HSSFColor.Blue.Index;
+
+                                        linkCell.SetFont(fontLink);
+
+                                        newCell.CellStyle = linkCell;
+                                    }
+                                    else
+                                    {
+                                        newCell.SetCellValue(drValue);
+                                        newCell.CellStyle = dataStyle;
+                                    }
+                                        
+                                    break;
+                                case "System.DateTime"://日期类型
+                                    DateTime dateV;
+                                    DateTime.TryParse(drValue, out dateV);
+                                    if (String.IsNullOrEmpty(drValue))
+                                    {
+                                        newCell.SetCellValue("");
+                                    }
+                                    else
+                                    {
+                                        //newCell.SetCellValue(Convert.ToDateTime(dateV.ToString("yyyy/MM/dd")));
+                                        newCell.SetCellValue(dateV);
+                                    }
+                                    newCell.CellStyle = cellDateFormatStyle;//格式化显示
+                                    break;
+                                case "System.Boolean"://布尔型
+                                    bool boolV = false;
+                                    bool.TryParse(drValue, out boolV);
+                                    newCell.SetCellValue(boolV);
+                                    break;
+                                case "System.Int16":
+                                case "System.Int32":
+                                case "System.Int64":
+                                case "System.Byte":
+                                    int intV = 0;
+                                    int.TryParse(drValue, out intV);
+                                    newCell.SetCellValue(intV);
+                                    newCell.CellStyle = dataStyle;
+                                    break;
+                                case "System.Decimal":
+                                case "System.Double":
+                                    double doubV = 0;
+                                    double.TryParse(drValue, out doubV);
+                                    newCell.SetCellValue(doubV);
+                                    if (column.ColumnName == "EXCHANGE RATE")
+                                    {
+                                        newCell.CellStyle = numberStyle_3;
+                                    }
+                                    else
+                                    {
+                                        newCell.CellStyle = numberStyle;
+                                    }
+
+                                    break;
+                                case "System.DBNull"://空值处理
+                                    newCell.SetCellValue("");
+                                    break;
+                                default:
+                                    newCell.SetCellValue("");
+                                    break;
+                            }
+
+                            if (arrColWidth[column.Ordinal] >= 255)
+                            {
+                                sheet.SetColumnWidth(column.Ordinal, 120);
+                            }
+                            else
+                            {
+                                sheet.SetColumnWidth(column.Ordinal, (arrColWidth[column.Ordinal] + 1) * 256);
+                            }
+
+                        }
+                        //dataRow.GetCell(0).CellStyle = headStyle;
+                        
 
                         //sheet.CreateRow(table.Rows.Count+1).CreateCell(10).SetCellValue("TOTAL : ");
                         //sheet.GetRow(table.Rows.Count + 1).CreateCell(11).SetCellValue(String.Format("{0:N2}", amountModel.ORIGINAL_AMOUNT));

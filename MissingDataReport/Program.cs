@@ -70,25 +70,24 @@ namespace MissingDataReport
 
             Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
             MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
-            string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "OCEAN_WEEKLY_REPORT";
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            string originPath = path + "\\" + "OCEAN_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-            NPOIHelper.ExportExcel_MissingData(ds, originPath);
-
-
+            
             string fileName = "OCEAN_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
             string title = String.Empty;
 
             if (env == "DEV")
             {
+                string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "OCEAN_WEEKLY_REPORT";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string originPath = path + "\\" + "OCEAN_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                NPOIHelper.ExportExcel_MissingData(ds, originPath);
                 title = "[Test] OCEAN WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
             }
             else
             {
-                title = "[Test] OCEAN WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                title = "OCEAN WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
             }
 
             string msg = " <div>To whom it may concern </div>" +
@@ -103,11 +102,75 @@ namespace MissingDataReport
         }
         private static void AIR_WEEKLY_REPORT()
         {
+            DataSet ds = new DataSet();
+            ds.Tables.Add(MISSING_CHARGEBLE_WEIGHT());
+            ds.Tables.Add(MISSING_ATD_AIR());
+
+            Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
+            MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
+
+            string fileName = "AIR_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string title = String.Empty;
+
+            if (env == "DEV")
+            {
+                string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "AIR_WEEKLY_REPORT";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string originPath = path + "\\" + "AIR_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                NPOIHelper.ExportExcel_MissingData(ds, originPath);
+                title = "[Test] AIR WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+            }
+            else
+            {
+                title = "AIR WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+            }
+
+            string msg = " <div>To whom it may concern </div>" +
+                         " <div>AIR WEEKLY REPORT - (" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
+                         " <div>Please review attachment file(" + fileName + "). </div>";
+            keyValues.Add(fileName, stream);
+            //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
+            emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), "ethanshen@topocean.com.cn;lindama@topocean.com.cn", keyValues);
 
         }
+
+
         private static void MISSING_TRAFFIC_WEEKLY_REPORT()
         {
+            DataSet ds = new DataSet();
+            ds.Tables.Add(MISSING_TRAFFIC());
 
+            Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
+            MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
+
+            string fileName = "MISSING_TRAFFIC_MONTHLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+            string title = String.Empty;
+
+            if (env == "DEV")
+            {
+                string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "MISSING_TRAFFIC_MONTHLY_REPORT";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string originPath = path + "\\" + "MISSING_TRAFFIC_MONTHLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                NPOIHelper.ExportExcel_MissingData(ds, originPath);
+                title = "[Test] MISSING TRAFFIC MONTHLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+            }
+            else
+            {
+                title = "MISSING TRAFFIC MONTHLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+            }
+
+            string msg = " <div>To whom it may concern </div>" +
+                         " <div>MISSING TRAFFIC MONTHLY REPORT - (" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
+                         " <div>Please review attachment file(" + fileName + "). </div>";
+            keyValues.Add(fileName, stream);
+            //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
+            emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), "ethanshen@topocean.com.cn;lindama@topocean.com.cn", keyValues);
         }
 
         private static DataTable PO_NOT_ASSIGNED()
@@ -211,17 +274,46 @@ namespace MissingDataReport
             return dt;
         }
 
-        private static DataTable CONTRACT_TYPE_OR_NUMBER_DISCREPANCY()
+        private static DataTable MISSING_CHARGEBLE_WEIGHT()
         {
-            DataTable dt = new DataTable("CONTRACT TYPE/NUMBER DISCREPANCY");
+            DataTable dt = new DataTable();
 
-            string sqlWhere = " AND POTracing.BookingContractType IN ('Topocean')" +
-                              " AND contract.ContractNo = 'AGENT CONTRACT' ";
+            string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " + 
+                              " AND WB_CNTR.ChargeableWeight IS NULL " ;
 
-            string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
+            string sql = AIR_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
             dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "CONTRACT_TYPE_DISCREPANCY";
+            dt.TableName = "MISSING CHARGEBLE WEIGHT";
+            return dt;
+        }
+
+        private static DataTable MISSING_ATD_AIR()
+        {
+            DataTable dt = new DataTable();
+
+            string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
+                              " AND CYCutOffDate IS NOT NULL " + 
+                              " AND P2PATD IS NULL";
+
+            string sql = AIR_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
+
+            dt = dbHelper.ExecDataTable(sql);
+            dt.TableName = "MISSING ATD AIR";
+            return dt;
+        }
+
+        private static DataTable MISSING_TRAFFIC()
+        {
+            DataTable dt = new DataTable();
+
+            string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
+                              " AND ISNULL(tm.TRAFFIC,'') = '' ";
+
+            string sql = MISSING_TRAFFIC_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
+
+            dt = dbHelper.ExecDataTable(sql);
+            dt.TableName = "MISSING TRAFFIC";
             return dt;
         }
 
@@ -303,7 +395,7 @@ namespace MissingDataReport
                         "    AND (POTracing.BookingReqID <> '')                             " +
                         "    AND (BookingDate > '8/13/2021 3:49:53 PM')                     " +
                         "    AND (DATEDIFF(Day,P2PETD,@UDate) <= 2)                         " +
-                        "    AND (DATEDIFF(Day,P2PETD,@UDate) >0)                           " +
+                        "    AND (DATEDIFF(Day,P2PETD,@UDate) >= 0)                         " +
                         "    AND (BookingDate >= DateAdd(yy, -1, GetDate()))                " +
                         "    AND POTracing.TransportationMode IN ('-1', 'SEA') @SQL_WHERE   ";
 
@@ -351,6 +443,7 @@ namespace MissingDataReport
                          " 	    [Container#],                                                                                                                           " +
                          " 	    [Principal],                                                                                                                            " +
                          " 	    [Nomination Sales],                                                                                                                     " +
+                         " 	    [Chargeable Weight]                                                                                                                     " +
                          //" 	    [Contract Type],                                                                                                                        " +
                          //" 	    [Contract#]                                                                                                                             " +
                          " From (Select [dbo].[fun_WBIBrhMapping_v5](POTracing.OriginOffice, POTracing.FinalDest,POTracing.TransportationMode)  AS [BRANCH],	        " +
@@ -367,7 +460,8 @@ namespace MissingDataReport
                          " 			   ISNULL(CASE                                                                                                                      " +
                          "                           WHEN POTracing.TransportationMode = 'SEA' THEN principal.NomSales                                                  " +
                          "                           ELSE non_sea_trans.NomSales END," +
-                         "                       '')                                                                                                                                                                              AS [Nomination Sales],   " +
+                         "                       '')                                                                                            AS [Nomination Sales],   " +
+                         "              WB_CNTR.ChargeableWeight                                                                                AS [Chargeable Weight]   " +
                          //" 			   ISNULL(POTracing.BookingContractType, '')                                                               AS [Contract Type],      " +
                          //" 			   ISNULL(contract.ContractNo, '')                                                                         AS [Contract#]           " +
                          "           FROM POTracing                                                                                                                     " +
@@ -387,13 +481,12 @@ namespace MissingDataReport
                         "    AND (POTracing.BookingReqID <> '')                             " +
                         "    AND (BookingDate > '8/13/2021 3:49:53 PM')                     " +
                         "    AND (DATEDIFF(Day,P2PETD,@UDate) <= 2)                         " +
-                        "    AND (DATEDIFF(Day,P2PETD,@UDate) >0)                           " +
+                        "    AND (DATEDIFF(Day,P2PETD,@UDate) >= 0)                         " +
                         "    AND (BookingDate >= DateAdd(yy, -1, GetDate()))                " +
-                        "    AND POTracing.TransportationMode IN ('-1', 'SEA') @SQL_WHERE   ";
+                        "    AND POTracing.TransportationMode IN ('-1', 'AIR') @SQL_WHERE   ";
 
-            sql_group = " GROUP BY POTracing.WB_WeekOfYear, POTracing.uid, POTracing.CustomsResponseNo, POTracing.CNTRType,                  " +
-                        "          POTracing.CNTRType2, POTracing.CNTRType3, POTracing.CNTRType4, POTracing.CNTRQty, POTracing.CNTRQty2,     " +
-                        "          POTracing.CNTRQty3, POTracing.CNTRQty4, POTracing.TransportationMode, POTracing.OriginOffice,             " +
+            sql_group = " GROUP BY POTracing.WB_WeekOfYear, POTracing.uid, POTracing.CustomsResponseNo,WB_CNTR.ContainerNo                   " +
+                        "          , POTracing.TransportationMode, POTracing.OriginOffice,             " +
                         "          POTracing.Dest, POTracing.CNEE, POTracing.Vendor, m.ModifiedBy, agent.Criteria5, principal.Company,       " +
                         "          CASE WHEN POTracing.TransportationMode = 'SEA' THEN principal.NomName ELSE non_sea_trans.NomName END,     " +
                         "          CASE WHEN POTracing.TransportationMode = 'SEA' THEN principal.NomSales ELSE non_sea_trans.NomSales END,   " +
@@ -405,7 +498,72 @@ namespace MissingDataReport
                         "          POTracing.OriginalP2PETA, POTracing.DestRamp, POTracing.FinalDest, POTracing.Description,                 " +
                         "          POTracing.Commodity2, POTracing.Orig, POTracing.WBApprovalStatus, POTracing.WBApprovalDate,               " +
                         "          POTracing.WBApprovalRemark, POTracing.ISFSentDate, POTracing.Comments, POTracing.BookingInstruction,      " +
-                        "          POTracing.ISTBS, SICutoffDate, CYCutoffDate) a                                                            ";
+                        "          POTracing.ISTBS, SICutoffDate, CYCutoffDate, WB_CNTR.ChargeableWeight) a                                                            ";
+
+
+            sql = sql_select + sql_where + sql_group;
+
+            return sql;
+        }
+
+        private static string MISSING_TRAFFIC_WEEKLY_REPORT_SQL()
+        {
+            string sql = String.Empty;
+            string sql_select = String.Empty;
+            string sql_where = String.Empty;
+            string sql_group = String.Empty;
+
+            sql_select = String.Format(" Declare @UDate DATETIME;                                                                                                       " +
+                         " SET @UDate = dbo.fun_GetDateAsUserTimeZone('sha_lindama');                                                                                   " +
+                         " Select                                                                                                                                       " +
+                         "      [Booking ID],                                                                                                                           " +
+                         "      [Place of Delivery],                                                                                                                    " +
+                         "      [Traffic],                                                                                                                              " +
+                         " 	    [Principal],                                                                                                                            " +
+                         "      [CNEE]                                                                                                                           " +
+                         
+                         " From (Select [dbo].[fun_WBIBrhMapping_v5](POTracing.OriginOffice, POTracing.FinalDest,POTracing.TransportationMode)  AS [BRANCH],	        " +
+                         "             POTracing.BookingReqID                                                                                  AS [Booking ID],         " +
+                         "             POTracing.FinalDest                                                                                     AS [Place of Delivery],  " +
+                         " 			   principal.Company                                                                                       AS [Principal],          " +
+                         " 			   tm.TRAFFIC                                                                                              AS [Traffic],            " +
+                         " 			   POTracing.CNEE                                                                                          AS [CNEE]                " +
+                         "           FROM POTracing                                                                                                                     " +
+                         "     LEFT  JOIN LoginView lv ON lv.UserLoginName = POTracing.HandlingUser                                                                     " +
+                         "     INNER JOIN WB_CNTR_POLine ON WB_CNTR_POLine.bookingreqid = POTracing.bookingreqid                                                        " +
+                         "     LEFT  JOIN WB_CNTR ON WB_CNTR_POLine.ContainerNo = WB_CNTR.ContainerNo and WB_CNTR_POLine.BookingReqID = WB_CNTR.BookingReqID            " +
+                         "     LEFT  JOIN Customer principal ON principal.uID = POTracing.Principle                                                                     " +
+                         "     LEFT  JOIN OptionList agent ON agent.OptValue = POTracing.Dest AND agent.OptType = 'TitanOffice' AND agent.IsActive = 'Y' AND Criteria3 = 'Y' AND (Criteria5 <> '' OR Criteria5 IS NOT NULL) " +
+                         "     LEFT  JOIN Customer non_sea_trans ON non_sea_trans.Company = POTracing.CNEE " +
+                         "     LEFT  JOIN CNEECarrierContract contract ON contract.uID = POTracing.CNEECarrierContractID " +
+                         "     OUTER APPLY (Select Top 1 tm.TRAFFIC From TrafficMap tm Join LocationMgr traffic On tm.Country_code = traffic.CountryCode Where traffic.Location = POTracing.FinalDest) tm "  +
+                         "     OUTER APPLY (Select Top 1 ModifiedBy From ModifyRecord m Where CargoId = POTracing.uID and m.modifiedBy <> '' Order By ActionDate asc) m  "
+                         );
+
+            sql_where = "  WHERE (1 = 1)                                                    " +
+                        "    AND (POTracing.BookingContractType in ('TOPOCEAN' , 'NVO/Non-Topocean Contract') Or (POTracing.ISTBS = 'Y' and POTracing.ISTBS is not null) )    " +
+                        "    AND (POTracing.BookingReqID <> '')                             " +
+                        "    AND (BookingDate > '8/13/2021 3:49:53 PM')                     " +
+                        "    AND (DATEDIFF(MONTH,P2PETD,@UDate) <= 1)                       " +
+                        "    AND (DATEDIFF(MONTH,P2PETD,@UDate) >=0)                        " +
+                        "    AND (BookingDate >= DateAdd(yy, -1, GetDate()))                " +
+                        "    @SQL_WHERE   ";
+
+            sql_group = " GROUP BY POTracing.WB_WeekOfYear, POTracing.uid, POTracing.CustomsResponseNo, POTracing.CNTRType,                  " +
+                        "          POTracing.CNTRType2, POTracing.CNTRType3, POTracing.CNTRType4, POTracing.CNTRQty, POTracing.CNTRQty2,     " +
+                        "          POTracing.CNTRQty3, POTracing.CNTRQty4, POTracing.TransportationMode, POTracing.OriginOffice,             " +
+                        "          POTracing.Dest, POTracing.CNEE, POTracing.Vendor, m.ModifiedBy, agent.Criteria5, principal.Company,       " +
+                        "          CASE WHEN POTracing.TransportationMode = 'SEA' THEN principal.NomName ELSE non_sea_trans.NomName END,     " +
+                        "          CASE WHEN POTracing.TransportationMode = 'SEA' THEN principal.NomSales ELSE non_sea_trans.NomSales END,   " +
+                        "          POTracing.BookingContractType, contract.ContractNo, POTracing.BookingConfirmation, POTracing.BookingDate, " +
+                        "          POTracing.BookingReqID, POTracing.WB_STATUS, POTracing.DeliveryType, POTracing.Carrier,                   " +
+                        "          POTracing.FreightForwarder, POTracing.MBL, POTracing.HBL, POTracing.Vessel, POTracing.Voyage,             " +
+                        "          POTracing.CarrierDest, POTracing.LoadPort, POTracing.POReadyDate, POTracing.P2PETD,                       " +
+                        "          POTracing.OriginalP2PETD, POTracing.P2PATD, POTracing.DischPort, POTracing.P2PETA, POTracing.D2DETA,      " +
+                        "          POTracing.OriginalP2PETA, POTracing.DestRamp, POTracing.FinalDest, POTracing.Description,                 " +
+                        "          POTracing.Commodity2, POTracing.Orig, POTracing.WBApprovalStatus, POTracing.WBApprovalDate,               " +
+                        "          POTracing.WBApprovalRemark, POTracing.ISFSentDate, POTracing.Comments, POTracing.BookingInstruction,      " +
+                        "          POTracing.ISTBS, SICutoffDate, CYCutoffDate,tm.TRAFFIC) a                                                 ";
 
 
             sql = sql_select + sql_where + sql_group;

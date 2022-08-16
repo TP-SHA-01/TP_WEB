@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TB_WEB.CommonLibrary.CommonFun;
 using TB_WEB.CommonLibrary.Helpers;
@@ -18,6 +19,8 @@ namespace MissingDataReport
     {
         static private string pRptValue { get; set; }
         static private string pOfficeList_OCEAN { get; set; }
+        static private string pOfficeList_AIR { get; set; }
+        static private string pOfficeList_TRAFFIC { get; set; }
         static DBHelper dbHelper = new DBHelper();
         static string env = BaseCont.ENVIRONMENT;
         static EmailHelper emailHelper = new EmailHelper();
@@ -75,16 +78,53 @@ namespace MissingDataReport
                                     LogHelper.Debug("Sent Success Office:" + strOffice);
                                     Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
                                 }
+
+                                Thread.Sleep(180000);
                             }
 
 
                             Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
                             break;
                         case "AIR_WEEKLY_REPORT":
-                            AIR_WEEKLY_REPORT("");
+                            for (int i = 0; i < list.Length; i++)
+                            {
+                                string strOffice = list[i];
+                                if (!AIR_WEEKLY_REPORT(strOffice))
+                                {
+                                    LogHelper.Debug("Sent Error Office:" + strOffice);
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Fail"));
+                                }
+                                else
+                                {
+                                    LogHelper.Debug("Sent Success Office:" + strOffice);
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
+                                }
+
+                                Thread.Sleep(180000);
+                            }
+
+
+                            Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
                             break;
                         case "MISSING_TRAFFIC_MOTHLY_REPORT":
-                            MISSING_TRAFFIC_MOTHLY_REPORT("");
+                            for (int i = 0; i < list.Length; i++)
+                            {
+                                string strOffice = list[i];
+                                if (!MISSING_TRAFFIC_MOTHLY_REPORT(strOffice))
+                                {
+                                    LogHelper.Debug("Sent Error Office:" + strOffice);
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Fail"));
+                                }
+                                else
+                                {
+                                    LogHelper.Debug("Sent Success Office:" + strOffice);
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
+                                }
+
+                                Thread.Sleep(180000);
+                            }
+
+                            Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
                             break;
                         default:
                             break;
@@ -106,7 +146,7 @@ namespace MissingDataReport
         {
             DataSet ds = new DataSet();
             bool ret = true;
-            string officeList = String.Empty;
+            string pOffice = String.Empty;
 
             try
             {
@@ -118,36 +158,25 @@ namespace MissingDataReport
                 switch (originOffice)
                 {
                     case "SPRC":
-                        officeList = String.Join("','", arrSPRC_Office.ToArray());
+                        pOffice = String.Join("','", arrSPRC_Office.ToArray());
                         break;
                     case "AMSCenter":
-                        officeList = String.Join("','", arrAMSCenter_Office.ToArray());
+                        pOffice = String.Join("','", arrAMSCenter_Office.ToArray());
                         break;
                     case "SHA":
-                        officeList = "SHA";
+                        pOffice = "SHA";
                         break;
                     case "MAL":
-                        officeList = String.Join("','", arrMAL_Office.ToArray());
+                        pOffice = String.Join("','", arrMAL_Office.ToArray());
                         break;
                     default:
-                        officeList = originOffice;
+                        pOffice = originOffice;
                         break;
                 }
 
-                pOfficeList_OCEAN = officeList;
+                pOfficeList_OCEAN = pOffice;
 
-                ds.Tables.Add(PO_NOT_ASSIGNED());
-                ds.Tables.Add(MISSING_ATD());
-                ds.Tables.Add(MISSING_MBL());
-                ds.Tables.Add(MISSING_CONTAINERNO());
-                ds.Tables.Add(MISSING_NOMINATION_SALES());
-                ds.Tables.Add(OUTSTANDING_BOOKING_STATUS());
-                ds.Tables.Add(CONTRACT_TYPE_OR_NUMBER_DISCREPANCY());
-
-                Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
-                MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
-
-                string fileName = "OCEAN_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+                string fileName = "OCEAN_WEEKLY_REPORT_" + pOfficeList_OCEAN + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
                 string title = String.Empty;
 
                 if (env == "DEV")
@@ -159,21 +188,69 @@ namespace MissingDataReport
                     }
                     string originPath = path + "\\" + "OCEAN_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
                     NPOIHelper.ExportExcel_MissingData(ds, originPath);
-                    title = "[Test] OCEAN WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                    title = "[Test] OCEAN WEEKLY REPORT - " + pOfficeList_OCEAN + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
                 }
                 else
                 {
-                    title = "OCEAN WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                    title = "OCEAN WEEKLY REPORT - " + pOfficeList_OCEAN + " - " + DateTime.Now.ToString("MM /dd/yyyy/ HH:mm:ss");
                 }
 
                 string msg = " <div>To whom it may concern </div>" +
-                             " <div>OCEAN WEEKLY REPORT - (" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
+                             " <div>OCEAN WEEKLY REPORT - " + pOfficeList_OCEAN + " (" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
                              " <div>Please review attachment file(" + fileName + "). </div>";
-                keyValues.Add(fileName, stream);
-                //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
-                emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
 
-                //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : End");
+                if (PO_NOT_ASSIGNED() != null )
+                {
+                    ds.Tables.Add(PO_NOT_ASSIGNED());
+                }
+
+                if (MISSING_ATD() != null )
+                {
+                    ds.Tables.Add(MISSING_ATD());
+                }
+
+                if (MISSING_MBL() != null)
+                {
+                    ds.Tables.Add(MISSING_MBL());
+                }
+
+                if (MISSING_CONTAINERNO() != null )
+                {
+                    ds.Tables.Add(MISSING_CONTAINERNO());
+                }
+
+                if (MISSING_NOMINATION_SALES() != null)
+                {
+                    ds.Tables.Add(MISSING_NOMINATION_SALES());
+                }
+
+                if (OUTSTANDING_BOOKING_STATUS() != null)
+                {
+                    ds.Tables.Add(OUTSTANDING_BOOKING_STATUS());
+                }
+
+                if (CONTRACT_TYPE_OR_NUMBER_DISCREPANCY() != null)
+                {
+                    ds.Tables.Add(CONTRACT_TYPE_OR_NUMBER_DISCREPANCY());
+                }
+
+                if (ds.Tables.Count > 0)
+                {
+                    Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
+                    MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
+
+
+                    keyValues.Add(fileName, stream);
+                    //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
+                    emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
+
+                    //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : End");
+                }
+                else
+                {
+                    msg = "No Data";
+                    emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList);
+                }
             }
             catch (Exception ex)
             {
@@ -184,98 +261,207 @@ namespace MissingDataReport
 
             return ret;
         }
-        private static void AIR_WEEKLY_REPORT(string mailList)
+        private static bool AIR_WEEKLY_REPORT(string originOffice)
         {
             DataSet ds = new DataSet();
-            ds.Tables.Add(MISSING_CHARGEBLE_WEIGHT());
-            ds.Tables.Add(MISSING_ATD_AIR());
+            bool ret = true;
+            string pOffice = String.Empty;
 
-            Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
-            MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
-
-            string fileName = "AIR_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
-            string title = String.Empty;
-
-            if (env == "DEV")
+            try
             {
-                string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "AIR_WEEKLY_REPORT";
-                if (!Directory.Exists(path))
+                string[] arrMAL_Office = new string[] { "PEN", "TSB", "JOH" };
+                string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
+                string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
+                string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+
+                switch (originOffice)
                 {
-                    Directory.CreateDirectory(path);
+                    case "SPRC":
+                        pOffice = String.Join("','", arrSPRC_Office.ToArray());
+                        break;
+                    case "AMSCenter":
+                        pOffice = String.Join("','", arrAMSCenter_Office.ToArray());
+                        break;
+                    case "SHA":
+                        pOffice = "SHA";
+                        break;
+                    case "MAL":
+                        pOffice = String.Join("','", arrMAL_Office.ToArray());
+                        break;
+                    default:
+                        pOffice = originOffice;
+                        break;
                 }
-                string originPath = path + "\\" + "AIR_WEEKLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-                NPOIHelper.ExportExcel_MissingData(ds, originPath);
-                title = "[Test] AIR WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+
+                pOfficeList_AIR = pOffice;
+                string fileName = "AIR_WEEKLY_REPORT_" + pOfficeList_AIR + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+                string title = String.Empty;
+
+                if (env == "DEV")
+                {
+                    string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "AIR_WEEKLY_REPORT";
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string originPath = path + "\\" + "AIR_WEEKLY_REPORT_" + pOfficeList_AIR + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                    NPOIHelper.ExportExcel_MissingData(ds, originPath);
+                    title = "[Test] AIR WEEKLY REPORT - " + pOfficeList_AIR + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                }
+                else
+                {
+                    title = "AIR WEEKLY REPORT - " + pOfficeList_AIR + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                }
+
+                string msg = " <div>To whom it may concern </div>" +
+                             " <div>AIR WEEKLY REPORT - " + pOfficeList_AIR + "(" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
+                             " <div>Please review attachment file(" + fileName + "). </div>";
+
+                if (MISSING_CHARGEBLE_WEIGHT() != null)
+                {
+                    ds.Tables.Add(MISSING_CHARGEBLE_WEIGHT());
+                }
+
+                if (MISSING_ATD_AIR() != null)
+                {
+                    ds.Tables.Add(MISSING_ATD_AIR());
+                }
+
+                if (ds.Tables.Count > 0)
+                {
+                    Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
+                    MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
+
+
+                    keyValues.Add(fileName, stream);
+                    //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
+                    emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
+                }
+                else
+                {
+                    msg = "No Data";
+                    emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList);
+                }
+                
+
             }
-            else
+            catch (Exception ex)
             {
-                title = "AIR WEEKLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                ret = false;
+                LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
 
-            string msg = " <div>To whom it may concern </div>" +
-                         " <div>AIR WEEKLY REPORT - (" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
-                         " <div>Please review attachment file(" + fileName + "). </div>";
-            keyValues.Add(fileName, stream);
-            //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
-            emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
-
+            return ret;
         }
 
 
-        private static void MISSING_TRAFFIC_MOTHLY_REPORT(string mailList)
+        private static bool MISSING_TRAFFIC_MOTHLY_REPORT(string originOffice)
         {
             DataSet ds = new DataSet();
-            ds.Tables.Add(MISSING_TRAFFIC());
+            bool ret = true;
+            string pOffice = String.Empty;
 
-            Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
-            MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
-
-            string fileName = "MISSING_TRAFFIC_MONTHLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
-            string title = String.Empty;
-
-            if (env == "DEV")
+            try
             {
-                string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "MISSING_TRAFFIC_MONTHLY_REPORT";
-                if (!Directory.Exists(path))
+                string[] arrMAL_Office = new string[] { "PEN", "TSB", "JOH" };
+                string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
+                string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
+                string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+
+                switch (originOffice)
                 {
-                    Directory.CreateDirectory(path);
+                    case "SPRC":
+                        pOffice = String.Join("','", arrSPRC_Office.ToArray());
+                        break;
+                    case "AMSCenter":
+                        pOffice = String.Join("','", arrAMSCenter_Office.ToArray());
+                        break;
+                    case "SHA":
+                        pOffice = "SHA";
+                        break;
+                    case "MAL":
+                        pOffice = String.Join("','", arrMAL_Office.ToArray());
+                        break;
+                    default:
+                        pOffice = originOffice;
+                        break;
                 }
-                string originPath = path + "\\" + "MISSING_TRAFFIC_MONTHLY_REPORT_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-                NPOIHelper.ExportExcel_MissingData(ds, originPath);
-                title = "[Test] MISSING TRAFFIC MONTHLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+
+                pOfficeList_TRAFFIC = pOffice;
+
+                string fileName = "MISSING_TRAFFIC_MONTHLY_REPORT_" + pOfficeList_TRAFFIC + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
+                string title = String.Empty;
+
+                if (env == "DEV")
+                {
+                    string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "MISSING_TRAFFIC_MONTHLY_REPORT";
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string originPath = path + "\\" + "MISSING_TRAFFIC_MONTHLY_REPORT_" + pOfficeList_TRAFFIC + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                    NPOIHelper.ExportExcel_MissingData(ds, originPath);
+                    title = "[Test] MISSING TRAFFIC MONTHLY REPORT - " + pOfficeList_TRAFFIC + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                }
+                else
+                {
+                    title = "MISSING TRAFFIC MONTHLY REPORT - " + pOfficeList_TRAFFIC + " - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                }
+
+                string msg = " <div>To whom it may concern </div>" +
+                             " <div>MISSING TRAFFIC MONTHLY REPORT - " + pOfficeList_TRAFFIC + " (" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
+                             " <div>Please review attachment file(" + fileName + "). </div>";
+
+                if (MISSING_TRAFFIC() != null)
+                {
+                    ds.Tables.Add(MISSING_TRAFFIC());
+
+                    Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
+                    MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
+
+                    
+                    keyValues.Add(fileName, stream);
+                    //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
+                    emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
+                }
+                else
+                {
+                    msg = "No Data";
+                    emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                title = "MISSING TRAFFIC MONTHLY REPORT - " + DateTime.Now.ToString("MM/dd/yyyy/ HH:mm:ss");
+                ret = false;
+                LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
 
-            string msg = " <div>To whom it may concern </div>" +
-                         " <div>MISSING TRAFFIC MONTHLY REPORT - (" + DateTime.Now.ToString("MM/dd/yyyy") + ") is ready for you to download. </div>" +
-                         " <div>Please review attachment file(" + fileName + "). </div>";
-            keyValues.Add(fileName, stream);
-            //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
-            emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
+            return ret;
+
         }
 
         private static DataTable PO_NOT_ASSIGNED()
         {
-            DataTable dt = new DataTable("PO NOT ASSIGNED");
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND (ISNULL(WB_CNTR_POLine.ContainerNo, '') IN ('TBA', '')) ";
 
 
             string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "PO NOT ASSIGNED";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+
+            if (dt != null)
+            {
+                dt.TableName = "PO NOT ASSIGNED";
+            }
+
             return dt;
         }
 
         private static DataTable MISSING_ATD()
         {
-            DataTable dt = new DataTable("MISSING ATD");
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND CYCutOffDate IS NOT NULL " +
                               " AND P2PATD IS NULL ";
@@ -283,121 +469,144 @@ namespace MissingDataReport
 
             string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "MISSING ATD";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+            if (dt != null)
+            {
+                dt.TableName = "MISSING ATD";
+            }
+
             return dt;
         }
 
         private static DataTable MISSING_MBL()
         {
-            DataTable dt = new DataTable("MISSING MBL");
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND ISNULL(MBL,'') = '' ";
 
 
             string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "MISSING MBL";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+
+            if (dt != null)
+            {
+                dt.TableName = "MISSING MBL";
+            }
+
             return dt;
         }
 
         private static DataTable MISSING_CONTAINERNO()
         {
-            DataTable dt = new DataTable("MISSING CONTAINERNO");
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND (ISNULL(WB_CNTR_POLine.ContainerNo, '') IN ('TBA', '')) ";
 
             string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "MISSING CONTAINERNO";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+
+            if (dt != null)
+            {
+                dt.TableName = "MISSING CONTAINERNO";
+            }
+
             return dt;
         }
 
         private static DataTable MISSING_NOMINATION_SALES()
         {
-            DataTable dt = new DataTable("MISSING NOMINATION SALES");
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND ISNULL(principal.NomSales,'') = '' ";
 
             string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "MISSING NOMINATION SALES";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+            if (dt != null)
+            {
+                dt.TableName = "MISSING NOMINATION SALES";
+            }
+
             return dt;
         }
 
         private static DataTable OUTSTANDING_BOOKING_STATUS()
         {
-            DataTable dt = new DataTable("OUTSTANDING_BOOKING_STATUS");
-
             string sqlWhere = " AND WB_STATUS IN ('PENDING','NEW') ";
 
             string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "OUTSTANDING BOOKING STATUS";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+
+            if (dt != null)
+            {
+                dt.TableName = "OUTSTANDING BOOKING STATUS";
+            }
             return dt;
         }
 
         private static DataTable CONTRACT_TYPE_OR_NUMBER_DISCREPANCY()
         {
-            DataTable dt = new DataTable("CONTRACT TYPE/NUMBER DISCREPANCY");
-
             string sqlWhere = " AND POTracing.BookingContractType IN ('Topocean')" +
                               " AND contract.ContractNo = 'AGENT CONTRACT' ";
 
             string sql = OCEAN_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "CONTRACT_TYPE_DISCREPANCY";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+            if (dt != null)
+            {
+                dt.TableName = "CONTRACT_TYPE_DISCREPANCY";
+            }
+
             return dt;
         }
 
         private static DataTable MISSING_CHARGEBLE_WEIGHT()
         {
-            DataTable dt = new DataTable();
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND WB_CNTR.ChargeableWeight IS NULL ";
 
             string sql = AIR_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "MISSING CHARGEBLE WEIGHT";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+            if (dt != null)
+            {
+                dt.TableName = "MISSING CHARGEBLE WEIGHT";
+            }
+
             return dt;
         }
 
         private static DataTable MISSING_ATD_AIR()
         {
-            DataTable dt = new DataTable();
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND CYCutOffDate IS NOT NULL " +
                               " AND P2PATD IS NULL";
 
             string sql = AIR_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "MISSING ATD AIR";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+
+            if (dt != null)
+            {
+                dt.TableName = "MISSING ATD AIR";
+            }
+
             return dt;
         }
 
         private static DataTable MISSING_TRAFFIC()
         {
-            DataTable dt = new DataTable();
-
             string sqlWhere = " AND ISNULL(WB_Status, '') IN ('CONFIRMED') " +
                               " AND ISNULL(tm.TRAFFIC,'') = '' ";
 
             string sql = MISSING_TRAFFIC_WEEKLY_REPORT_SQL().Replace("@SQL_WHERE", sqlWhere);
 
-            dt = dbHelper.ExecDataTable(sql);
-            dt.TableName = "MISSING TRAFFIC";
+            DataTable dt = dbHelper.ExecDataTable(sql);
+            if (dt != null)
+            {
+                dt.TableName = "MISSING TRAFFIC";
+            }
+
             return dt;
         }
 
@@ -483,7 +692,7 @@ namespace MissingDataReport
                         "    AND (BookingDate >= DateAdd(yy, -1, GetDate()))                " +
                         "    AND POTracing.TransportationMode IN ('-1', 'SEA') " +
                         "    AND POTracing.OriginOffice IN ({0}) " +
-                        "    @SQL_WHERE   " ,CommonUnit.retDBStr(CommonUnit.CheckEmpty(pOfficeList_OCEAN)));
+                        "    @SQL_WHERE   ", CommonUnit.retDBStr(CommonUnit.CheckEmpty(pOfficeList_OCEAN)));
 
             sql_group = " GROUP BY POTracing.WB_WeekOfYear, POTracing.uid, POTracing.CustomsResponseNo, POTracing.CNTRType,                  " +
                         "          POTracing.CNTRType2, POTracing.CNTRType3, POTracing.CNTRType4, POTracing.CNTRQty, POTracing.CNTRQty2,     " +
@@ -626,14 +835,15 @@ namespace MissingDataReport
                          "     OUTER APPLY (Select Top 1 ModifiedBy From ModifyRecord m Where CargoId = POTracing.uID and m.modifiedBy <> '' Order By ActionDate asc) m  "
                          );
 
-            sql_where = "  WHERE (1 = 1)                                                    " +
+            sql_where = string.Format("  WHERE (1 = 1)                                                    " +
                         "    AND (POTracing.BookingContractType in ('TOPOCEAN' , 'NVO/Non-Topocean Contract') Or (POTracing.ISTBS = 'Y' and POTracing.ISTBS is not null) )    " +
                         "    AND (POTracing.BookingReqID <> '')                             " +
                         "    AND (BookingDate > '8/13/2021 3:49:53 PM')                     " +
                         "    AND (DATEDIFF(MONTH,P2PETD,@UDate) <= 1)                       " +
                         "    AND (DATEDIFF(MONTH,P2PETD,@UDate) >=0)                        " +
                         "    AND (BookingDate >= DateAdd(yy, -1, GetDate()))                " +
-                        "    @SQL_WHERE   ";
+                        "    AND POTracing.OriginOffice IN ({0}) " +
+                        "    @SQL_WHERE   ", CommonUnit.retDBStr(CommonUnit.CheckEmpty(pOfficeList_TRAFFIC)));
 
             sql_group = " GROUP BY POTracing.WB_WeekOfYear, POTracing.uid, POTracing.CustomsResponseNo, POTracing.CNTRType,                  " +
                         "          POTracing.CNTRType2, POTracing.CNTRType3, POTracing.CNTRType4, POTracing.CNTRQty, POTracing.CNTRQty2,     " +

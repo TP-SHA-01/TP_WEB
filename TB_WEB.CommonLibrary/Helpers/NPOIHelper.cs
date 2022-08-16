@@ -1629,6 +1629,13 @@ namespace TB_WEB.CommonLibrary.Helpers
                         //sheet.GetRow(table.Rows.Count + 1).CreateCell(13).SetCellValue(String.Format("{0:N2}", amountModel.OUTSTANDING_AMOUNT));
                         rowIndex++;
                     }
+
+                    if (table.Rows.Count == 0)
+                    {
+                        sheet.ShiftRows(0, sheet.LastRowNum, 3, true, false);
+
+                        sheet.CreateRow(0).CreateCell(0).SetCellValue(" there is outstanding shipment this week ");
+                    }
                 }
 
                 ms.AllowClose = false;

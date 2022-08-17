@@ -23,6 +23,7 @@ using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 
+using System.Configuration;
 
 namespace AirShipmentReport
 {
@@ -39,6 +40,8 @@ namespace AirShipmentReport
             int intDateYear = Convert.ToInt32(DateTime.Now.Year.ToString());
 
             combYearFrom.Items.Add((intDateYear - 3).ToString());
+
+
             combYearFrom.Items.Add((intDateYear - 2).ToString());
             combYearFrom.Items.Add((intDateYear - 1).ToString());
             combYearFrom.Items.Add((intDateYear - 0).ToString());
@@ -169,12 +172,11 @@ namespace AirShipmentReport
 
                     ICellStyle style_header = workbook.CreateCellStyle();
                     IFont font = workbook.CreateFont();
-                    font.FontHeightInPoints = 12;
+                    font.FontHeightInPoints = 11;
                     font.FontName = "Comic Sans MS";
+                    font.Color = NPOI.HSSF.Util.HSSFColor.Blue.Index;
                     style_header.SetFont(font);//HEAD 样式 
-                    style_header.FillForegroundColor = 0;
-                    style_header.FillPattern = FillPattern.SolidForeground;
-                    ((XSSFColor)style_header.FillForegroundColorColor).SetRgb(new byte[] { 188, 210, 238 });
+                    style_header.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
                     style_header.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_header.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_header.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
@@ -182,9 +184,10 @@ namespace AirShipmentReport
 
                     ICellStyle style_row = workbook.CreateCellStyle();
                     IFont font1 = workbook.CreateFont();
-                    font1.FontHeightInPoints = 10;
+                    font1.FontHeightInPoints = 11;
                     font1.FontName = "Comic Sans MS";
                     style_row.SetFont(font1);//row 样式 
+                    style_row.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
                     style_row.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_row.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_row.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
@@ -193,6 +196,7 @@ namespace AirShipmentReport
 
                     ICellStyle style_Money = workbook.CreateCellStyle();
                     style_Money.SetFont(font1);//row 样式 
+                    style_Money.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
                     style_Money.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_Money.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_Money.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
@@ -203,11 +207,13 @@ namespace AirShipmentReport
 
                     ICellStyle style_Date = workbook.CreateCellStyle();
                     style_Date.SetFont(font1);//row 样式 
+                    style_Date.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
                     style_Date.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_Date.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_Date.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_Date.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
                     format = workbook.CreateDataFormat();
+
                     style_Date.DataFormat = format.GetFormat("yyyy/m/d");
 
                     for (int k = 0; k < rowscount; k++)
@@ -232,27 +238,39 @@ namespace AirShipmentReport
                             //Item No.	TP/Non      TP	 Shipper 	 Cnee 	 MAWB 	 Hawb 	 Origin 	 Dest. 	 Airline 	Flt No.	Package	G.W.	C.W.	Volume	 S/R 	 B/R 	 Co-loader 	Cost	ETD	ATD	ETA	ATA	 Remark 	 Result 
 
 
-                            if (TableName.Columns[i].ColumnName.Trim().ToLower()== "shipper" || TableName.Columns[i].ColumnName.Trim().ToLower() == "cnee" || TableName.Columns[i].ColumnName.Trim().ToLower() == "remark" || TableName.Columns[i].ColumnName.Trim().ToLower() == "airline")
+                            if (TableName.Columns[i].ColumnName.Trim().ToLower() == "shipper" || TableName.Columns[i].ColumnName.Trim().ToLower() == "cnee" || TableName.Columns[i].ColumnName.Trim().ToLower() == "remark")
                             {
-                                sheet.SetColumnWidth(i, 40 * 256);
+                                sheet.SetColumnWidth(i, 30 * 256);
                             }
-                            else if(TableName.Columns[i].ColumnName.Length==3 || TableName.Columns[i].ColumnName.Trim().ToLower() == "flt no.") //eta,ted,ata,atd
+                            else if (TableName.Columns[i].ColumnName.Length == 3 ) //eta,ted,ata,atd
                             {
-                                sheet.SetColumnWidth(i, 20 * 256);
+                                if (TableName.Columns[i].ColumnName.Trim().ToLower() == "s/r" || TableName.Columns[i].ColumnName.Trim().ToLower() == "b/r")
+                                {
+                                    sheet.SetColumnWidth(i, 10 * 256);
+                                }
+                                else
+                                {
+                                    sheet.SetColumnWidth(i, 20 * 256);
+                                }
                             }
-                            else if (TableName.Columns[i].ColumnName.ToLower().Contains("awb")) //mawb,hawb
+                            else if (TableName.Columns[i].ColumnName.ToLower().Contains("awb")|| TableName.Columns[i].ColumnName.ToLower().Contains("booking")) //mawb,hawb
                             {
-                                sheet.SetColumnWidth(i, 12 * 256);
+                                sheet.SetColumnWidth(i, 15 * 256);
+                            }
+                            else if (TableName.Columns[i].ColumnName.Trim().ToLower() == "airline" || TableName.Columns[i].ColumnName.Trim().ToLower() == "flt no.")
+                            {
+                                sheet.SetColumnWidth(i, 6 * 256);
+                            }
+                            else if (TableName.Columns[i].ColumnName.Trim().ToLower() == "item no.")
+                            {
+                                sheet.SetColumnWidth(i, 5 * 256);
                             }
                             else
                             {
                                 sheet.AutoSizeColumn(i);
                             }
 
-                            //G.W.	Volume
-
                         }
-
 
                         //k第几张表
                         for (int i = 0; i < TableName.Rows.Count; i++)
@@ -270,50 +288,42 @@ namespace AirShipmentReport
                                 }
                                 else
                                 {
-                                    if (j == 0 || j == 11 || j == 12 || j == 13) //itemno,flight no,package,gw,volume
+                                    try
                                     {
-                                        try
+                                        string strValue = TableName.Rows[i][j].ToString();
+                                        //13,14,15,16 Num
+                                        //18,19,20, 21 DTE
+                                        if (strValue == "")
                                         {
-                                            cell.SetCellValue(double.Parse(TableName.Rows[i][j].ToString()));
+                                            cell.SetCellValue(strValue);
+                                            cell.CellStyle = style_row;
                                         }
-                                        catch (Exception ex)
+                                        else
                                         {
-                                            MessageBox.Show(ex.Message, "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                        }
-                                    }
-                                    else
-                                    { 
-                                        cell.SetCellValue(TableName.Rows[i][j].ToString()); 
-                                    }
+                                            if (j == 12 || j == 13 || j == 14 || j == 15)
+                                            {
+                                                cell.SetCellValue(double.Parse(strValue));
+                                                cell.CellStyle = style_row;
+                                            }
+                                            else if (j == 17 || j == 18 || j == 19 || j == 20)
+                                            {
+                                                strValue = strValue.Replace("0:00:00", "");
+                                                cell.SetCellValue(strValue);
+                                                cell.CellStyle = style_Date;
 
-                                    //cellStyle.setDataFormat(format.getFormat("_ ¥* #,##0.00_ ;_ ¥* -#,##0.00_ ;_ ¥* "-"??_ ;_ @_ "));
-                                    if(j==14 || j ==15 || j==17)
-                                    {
-                                        try
-                                        {
-                                            cell.CellStyle = style_Money;
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            MessageBox.Show(ex.Message, "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                        }
-                                    }else if (j >= 18 && j <= 21) //etd,eta,atd,ata
-                                    {
-                                        try
-                                        {
-                                            cell.CellStyle = style_Date;
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            MessageBox.Show(ex.Message, "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                            }
+                                            else
+                                            {
+                                                cell.SetCellValue(strValue);
+                                                cell.CellStyle = style_row;
+                                            }
                                         }
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        cell.CellStyle = style_row;
+                                        MessageBox.Show(ex.Message, "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                     }
                                 }
-
                             }
                             Application.DoEvents();
                         }
@@ -363,12 +373,29 @@ namespace AirShipmentReport
             }
         }
 
+        public bool IsNumberic(string strNum)
+        {
+            try
+            {
+                System.Decimal i = System.Convert.ToDecimal(strNum);
+                return true;
+            }
+            catch(System.Exception ex)
+            {
+                return false;
+            }
+        }
+
         private void btnExportColoaderPO_Click(object sender, EventArgs e)
         {
+
             if (this.txtSelReport.Text != "")
             {
                 string path = this.txtSelReport.Text.ToString();
                  DataSet ds = ExcelToDataSet(path, true);
+
+                string Coloader_ENG = WebApi.Services.BookingAdviceAnalysisRpt_Service.GetColoader("Coloader_ENG");
+                string Coloader_CHN = WebApi.Services.BookingAdviceAnalysisRpt_Service.GetColoader("Coloader_CHN");
 
                 if (ds != null)
                 {
@@ -462,7 +489,13 @@ namespace AirShipmentReport
                         AllTotalGW = Math.Round(AllTotalGW + TotalGW,2);
                         AllTotalVolume = Math.Round(AllTotalVolume + TotalVolume, 2);
 
-                        strLastLine = strLastLine + "," + TotalGW + "," + TotalVolume + ",100%";
+                        string Present = ",100%";
+                        if (eachTable.Rows.Count ==0)
+                        {
+                            Present = ",0%";
+                        }
+
+                        strLastLine = strLastLine + "," + TotalGW + "," + TotalVolume + Present;
                         MonthTotalGW = MonthTotalGW + TotalGW + ",";
                     }
 
@@ -487,7 +520,64 @@ namespace AirShipmentReport
                             }
                             else
                             {
-                                strline = strline + item + "," + item;
+                                //Coloader ENG / Coloader CHN
+                                string ItemColoader_ENG = "";
+                                string ItemColoader_CHN = "";
+                                string text = item;
+
+                                //('/APEX/','/TCI/','/YY/','/CTS/','/PCS/','/ALL/','/WFF/','/EFD/','/AWOT/','/EPE/','/ECL/','/LHG/','/GOJ/','/GT/','/AAF/','/XFT/','/ADS/','/YS/','/FVS/','/XTF/','/LY/','/DYB/','/SJ/','/CB/','/HY/','/TJ/','/LW/','/YH/','/JX/','/LFF/','/ZY/','/HL/')"
+                                //('/ 爱派克斯 /','/ 腾隆 /','/ 鹰扬 /','/ 华茂 /','/ 圆欣 /','/ 传盛 /','/ 唯凯 /','/ 东方富达 /','/ 欧华 /','/ 弘致 /','/ 翊捷 /','/ 北京洛豪 /','/ 高捷 /','/ 鑫鼎 /','/ 上海崴仕 /','/ 雪伏特 /','/ 安达顺 /','/ 江苏奕舜 /','/ 瀚钰通 /','/ 轩泰 /','/ 霖元 /','/ 递一步 /','/ 宿杰 /','/ 承邦 /','/ 瀚阳 /','/ 添玖 /','/ 朗崴 /','/ 盈恒 /','/ 经信 /','/ 联飞 /','/ 宁波中远 /','/ 汇力 /')"
+
+                                Coloader_CHN = Coloader_CHN.Replace("(", "").Replace(")", "");
+                                Coloader_ENG = Coloader_ENG.Replace("(", "").Replace(")", "");
+
+                                string[] strCHN = Coloader_CHN.Split(',');
+                                string[] strENG = Coloader_ENG.Split(',');
+                                bool IsChinese = false;
+
+                                for (int i = 0; i < text.Length; i++)
+                                {
+                                    if ((int)text[i] > 127) //Chinese char
+                                    {
+                                        IsChinese = true;
+                                    }
+                                }
+
+                                if(IsChinese)
+                                {
+                                    for (int k = 0; k < strCHN.Length; k++)
+                                    {
+                                        if (strCHN[k].Contains("/" + item + "/"))
+                                        {
+                                            ItemColoader_CHN = strCHN[k].Replace("/", "").Replace("'", "");
+                                            ItemColoader_ENG = strENG[k].Replace("/", "").Replace("'", "");
+                                        }
+                                    }
+
+                                    if (ItemColoader_CHN == "" && ItemColoader_ENG == "")
+                                    {
+                                        ItemColoader_CHN = item;
+                                        ItemColoader_ENG = "";
+                                    }
+                                }
+                                else
+                                {
+                                    for (int k = 0; k < strENG.Length; k++)
+                                    {
+                                        if (strENG[k].Contains("/" + item + "/"))
+                                        {
+                                            ItemColoader_CHN = strCHN[k].Replace("/", "").Replace("'", "");
+                                            ItemColoader_ENG = strENG[k].Replace("/", "").Replace("'", "");
+                                        }
+                                    }
+
+                                    if (ItemColoader_CHN == "" && ItemColoader_ENG == "")
+                                    {
+                                        ItemColoader_CHN = "";
+                                        ItemColoader_ENG = item;
+                                    }
+                                }
+                                strline = strline + ItemColoader_ENG + "," + ItemColoader_CHN;
                             }
                             
                             double RowTotalGW = 0.00;
@@ -655,7 +745,7 @@ namespace AirShipmentReport
                                     if (rowCount > 0)
                                     {
                                         IRow firstRow = sheet.GetRow(0);//获取第一行
-                                        int cellCount = 25; //firstRow.LastCellNum;//获取总列数
+                                        int cellCount = 24; //firstRow.LastCellNum;//获取总列数
 
                                         //构建datatable的列
                                         if (isFirstLineColumnName)
@@ -730,6 +820,7 @@ namespace AirShipmentReport
 
                     }
                 }
+
                 return dataSet;
             }
             catch (Exception ex)
@@ -744,19 +835,6 @@ namespace AirShipmentReport
         {
             DataSet dataSet = new DataSet();
             string filePath = this.txtSelReport.Text.Trim();
-
-            //using (FileStream fs = File.OpenWrite(filePath))
-
-            //string fileName = @"f:\2015光盘内容一览.xls";
-            //HSSFWorkbook workbook;
-            //using (FileStream stream = File.OpenRead(fileName))
-            //    workbook = new HSSFWorkbook(stream);
-            //ISheet sheet = workbook.CreateSheet("菜鸟");
-            //using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-            //    workbook.Write(fs);
-
-            string FileName_PO = "PO";
-
             using (FileStream fs = File.OpenRead(filePath))
             {
 
@@ -796,17 +874,7 @@ namespace AirShipmentReport
                         FileName = "Master Loader Compare(" + System.DateTime.Now.ToString("MMddHHmm")+")";
                     }
                 }
-                //PO
-                //Item No.	 TP/Non TP 	 Shipper 	 Cnee 	 Mawb 	 Hawb 	 Origin 	 Dest. 	 Airline 	Flt No.	Package	G.W.	C.W.	Volume	 S/R 	 B/R 	 Co-loader 	Cost	ETD	ATD	ETA	ATA	 Remark 	 Result 
-                for (int k = 0; k < SheetName.Length; k++)
-                {
-                    if (SheetName[k].Trim() == FileName_PO)
-                    {
-                        FileName_PO = "PO_(" + System.DateTime.Now.ToString("MMddHHmm")+")";
-                    }
-                }
-
-                //秒钟
+               
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
 
@@ -928,6 +996,7 @@ namespace AirShipmentReport
                     //headerRow.CreateCell(0).SetCellValue("XXX");
                     //headerRow.GetCell(0).CellStyle = headStyle;
                     //sheet.AddMergedRegion(new CellRangeAddress(1, 1, 0, 1)); //合并
+
                     IRow rowHeader0 = sheet.CreateRow(0);
                     for (int i = 0; i < TableName.Columns.Count; i++)
                     {
@@ -1111,22 +1180,6 @@ namespace AirShipmentReport
 
                     Application.DoEvents();
 
-                    //第二张表
-                    ISheet sheet1 = workbook.CreateSheet(FileName_PO);
-                    string POCell = "Item No.,TP/Non TP,Shipper,Cnee,Mawb,Hawb,Origin,Dest.,Airline,Flt No.,Package,G.W.,C.W.,Volume,S/R,B/R,Co-loader,Cost,ETD,ATD,ETA,ATA,Remark,Result,PO";
-                    string[] POCell_S = POCell.Split(',');
-                    IRow rowHeader2 = sheet1.CreateRow(0);
-
-                    for (int k = 0; k < POCell_S.Length; k++)
-                    {
-                        ICell cell_PO = rowHeader2.CreateCell(k);
-                        cell_PO.SetCellValue(POCell_S[k].Trim());
-                        cell_PO.CellStyle = style_row_Old;
-
-                        sheet.SetColumnWidth(k, 15 * 256);
-                    }
-
-                    Application.DoEvents();
                     fs.Close();
 
                     using (FileStream fs1 = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Write))
@@ -1171,5 +1224,6 @@ namespace AirShipmentReport
             }
            
         }
+
     }
 }

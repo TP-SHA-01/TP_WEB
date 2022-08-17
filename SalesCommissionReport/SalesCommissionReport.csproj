@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BF084EBA-6E28-4CDC-BEE8-DCC09CF061E6}</ProjectGuid>
+    <ProjectGuid>{640438F1-7C19-4CA7-9BC4-36A7391D1A54}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>AirShipmentReport</RootNamespace>
-    <AssemblyName>AirShipmentReport</AssemblyName>
+    <RootNamespace>SalesCommissionReport</RootNamespace>
+    <AssemblyName>SalesCommissionReport</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,10 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>AirShipmentReport.Program</StartupObject>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>DatabaseProject.ico</ApplicationIcon>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NPOI">
@@ -55,7 +52,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -67,53 +63,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainForm.cs">
+    <Compile Include="MainPage.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <Compile Include="MainPage.Designer.cs">
+      <DependentUpon>MainPage.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Testing.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Testing.Designer.cs">
-      <DependentUpon>Testing.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <EmbeddedResource Include="MainPage.resx">
+      <DependentUpon>MainPage.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Testing.resx">
-      <DependentUpon>Testing.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\WebApi\WebApi.csproj">
-      <Project>{7a4dd17e-1262-4981-a795-d31c7abd329a}</Project>
-      <Name>WebApi</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="DatabaseProject.ico" />
-    <Content Include="HTML_Test.html" />
-    <Content Include="JS\echarts.common.js" />
-    <Content Include="JS\echarts.common.min.js" />
-    <Content Include="JS\echarts.esm.js" />
-    <Content Include="JS\echarts.esm.min.js" />
-    <Content Include="JS\echarts.js" />
-    <Content Include="JS\echarts.min.js" />
-    <Content Include="JS\echarts.simple.js" />
-    <Content Include="JS\echarts.simple.min.js" />
-    <Content Include="pie-simple.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

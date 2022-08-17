@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace AirShipmentReport
+
+namespace OceanTrackingRateAnalysisReport
 {
     class Program
     {
@@ -15,7 +16,8 @@ namespace AirShipmentReport
             //Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Testing());
+          
+            Application.Run(new TrackingRateReport());
         }
     }
 }

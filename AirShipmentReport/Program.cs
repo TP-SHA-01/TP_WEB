@@ -15,7 +15,7 @@ namespace AirShipmentReport
             //Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Testing());
+            Application.Run(new MainForm());
         }
     }
 }

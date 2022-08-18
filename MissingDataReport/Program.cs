@@ -70,24 +70,27 @@ namespace MissingDataReport
                     startDay = DateTime.Now.AddMonths(-4).AddDays(-3).ToString("yyyy-MM-dd HH:mm:ss");
                     endDay = DateTime.Today.AddDays(-3).ToString("yyyy-MM-dd HH:mm:ss");
 
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), pRpt ));
+
                     switch (CommonUnit.CheckEmpty(pRpt).ToUpper())
                     {
                         case "OCEAN_WEEKLY_REPORT":
                             for (int i = 0; i < list.Length; i++)
                             {
                                 string strOffice = list[i];
+                                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice + " Action "));
                                 if (!OCEAN_WEEKLY_REPORT(strOffice))
                                 {
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice));
                                     LogHelper.Debug("Sent Error Office:" + strOffice);
                                     Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Fail"));
                                 }
                                 else
                                 {
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice));
                                     LogHelper.Debug("Sent Success Office:" + strOffice);
-                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
+                                    
                                 }
-
-                                Thread.Sleep(180000);
                             }
 
                             Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
@@ -96,18 +99,19 @@ namespace MissingDataReport
                             for (int i = 0; i < list.Length; i++)
                             {
                                 string strOffice = list[i];
+                                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice + " Action "));
                                 if (!AIR_WEEKLY_REPORT(strOffice))
                                 {
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice));
                                     LogHelper.Debug("Sent Error Office:" + strOffice);
                                     Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Fail"));
                                 }
                                 else
                                 {
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice));
                                     LogHelper.Debug("Sent Success Office:" + strOffice);
-                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
+                                    //Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
                                 }
-
-                                Thread.Sleep(180000);
                             }
 
                             Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
@@ -116,18 +120,19 @@ namespace MissingDataReport
                             for (int i = 0; i < list.Length; i++)
                             {
                                 string strOffice = list[i];
+                                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice + " Action "));
                                 if (!MISSING_TRAFFIC_MOTHLY_REPORT(strOffice))
                                 {
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice));
                                     LogHelper.Debug("Sent Error Office:" + strOffice);
                                     Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Fail"));
                                 }
                                 else
                                 {
+                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), strOffice));
                                     LogHelper.Debug("Sent Success Office:" + strOffice);
-                                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
+                                    //Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
                                 }
-
-                                Thread.Sleep(180000);
                             }
 
                             Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
@@ -146,6 +151,8 @@ namespace MissingDataReport
                 LogHelper.Error("Main => Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Main => Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
+
+            Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "End Program"));
         }
 
         private static bool OCEAN_WEEKLY_REPORT(string originOffice)
@@ -160,7 +167,7 @@ namespace MissingDataReport
                 string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
                 string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
                 string[] arrSEA_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "MNL", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSU", "VNM" };
-                string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+                string mailList = ConfigurationManager.AppSettings["OCEAN_" + originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
 
                 switch (originOffice)
                 {
@@ -185,10 +192,10 @@ namespace MissingDataReport
                 }
 
                 pOfficeList_OCEAN = pOffice;
-
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), pOffice + " Action "));
                 string fileName = "OCEAN_WEEKLY_REPORT_" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
                 string title = String.Empty;
-
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), " Env Mode : " + env ));
                 if (env == "DEV")
                 {
                     string path = AppDomain.CurrentDomain.BaseDirectory + "\\" + "OCEAN_WEEKLY_REPORT";
@@ -244,6 +251,8 @@ namespace MissingDataReport
                     ds.Tables.Add(CONTRACT_TYPE_OR_NUMBER_DISCREPANCY());
                 }
 
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), " Get Data Count : " + ds.Tables.Count));
+
                 if (ds.Tables.Count > 0)
                 {
                     Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
@@ -253,14 +262,17 @@ namespace MissingDataReport
                     keyValues.Add(fileName, stream);
                     //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
                     emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
-
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Send Mail OK"));
                     //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : End");
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
                 }
                 else
                 {
                     msg = "No Data";
                     emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList);
                 }
+
+                
             }
             catch (Exception ex)
             {
@@ -268,7 +280,7 @@ namespace MissingDataReport
                 LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
-
+            Thread.Sleep(60000);
             return ret;
         }
 
@@ -284,7 +296,7 @@ namespace MissingDataReport
                 string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
                 string[] arrSEA_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "MNL", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSU", "VNM" };
                 string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
-                string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+                string mailList = ConfigurationManager.AppSettings["AIR_" + originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
 
                 switch (originOffice)
                 {
@@ -309,8 +321,10 @@ namespace MissingDataReport
                 }
 
                 pOfficeList_AIR = pOffice;
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), pOffice + " Action "));
                 string fileName = "AIR_WEEKLY_REPORT_" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
                 string title = String.Empty;
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), " Env Mode : " + env));
 
                 if (env == "DEV")
                 {
@@ -341,7 +355,7 @@ namespace MissingDataReport
                 {
                     ds.Tables.Add(MISSING_ATD_AIR());
                 }
-
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), " Get Data Count : " + ds.Tables.Count));
                 if (ds.Tables.Count > 0)
                 {
                     Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
@@ -351,14 +365,14 @@ namespace MissingDataReport
                     keyValues.Add(fileName, stream);
                     //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
                     emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Send Mail OK"));
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
                 }
                 else
                 {
                     msg = "No Data";
                     emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList);
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -366,7 +380,7 @@ namespace MissingDataReport
                 LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
-
+            Thread.Sleep(60000);
             return ret;
         }
 
@@ -382,7 +396,7 @@ namespace MissingDataReport
                 string[] arrSPRC_Office = new string[] { "ZHG", "GZO", "SZN" };
                 string[] arrSEA_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "MNL", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSU", "VNM" };
                 string[] arrAMSCenter_Office = new string[] { "BAL", "BAW", "HKK", "JKT", "JOH", "MNL", "PEN", "SIN", "SMG", "SPL", "SUR", "THI", "TJN", "TLK", "TSB", "TSU", "VNM" };
-                string mailList = ConfigurationManager.AppSettings[originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
+                string mailList = ConfigurationManager.AppSettings["MISSING_TRAFFIC_" + originOffice + "_MAIL"] + "," + ConfigurationManager.AppSettings["Default_MAIL"];
 
                 switch (originOffice)
                 {
@@ -407,9 +421,10 @@ namespace MissingDataReport
                 }
 
                 pOfficeList_TRAFFIC = pOffice;
-
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), pOffice + " Action "));
                 string fileName = "MISSING_TRAFFIC_MONTHLY_REPORT_" + originOffice + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx";
                 string title = String.Empty;
+                Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), " Env Mode : " + env));
 
                 if (env == "DEV")
                 {
@@ -434,7 +449,7 @@ namespace MissingDataReport
                 if (MISSING_TRAFFIC() != null)
                 {
                     ds.Tables.Add(MISSING_TRAFFIC());
-
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), " Get Data Count : " + ds.Tables.Count));
                     Dictionary<string, MemoryStream> keyValues = new Dictionary<string, MemoryStream>();
                     MemoryStream stream = NPOIHelper.RenderToMissingDataReport(ds);
 
@@ -442,6 +457,9 @@ namespace MissingDataReport
                     keyValues.Add(fileName, stream);
                     //LogHelper.Debug("GetAMSFilingData => SendMailViaAPI : Start");
                     emailHelper.SendMailViaAPI(title, CommonFun.GetHtmlString(msg), mailList, keyValues);
+
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Send Mail OK"));
+                    Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Program Success"));
                 }
                 else
                 {
@@ -455,7 +473,7 @@ namespace MissingDataReport
                 LogHelper.Error("Message: " + ex.Message + ",StackTrace: " + ex.StackTrace);
                 Console.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Message: " + ex.Message + ",StackTrace: " + ex.StackTrace));
             }
-
+            Thread.Sleep(60000);
             return ret;
 
         }

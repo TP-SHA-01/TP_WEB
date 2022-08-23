@@ -310,8 +310,6 @@ namespace SalesCommissionReport
                                             #region Ren Open
                                             string str_TransType = "OTHER"; //LATE PAYMENT/LOST ACCOUNT/CREDIT OVER/SALE LEAD/NORMAL/OTHER
                                             string str_NO = "";
-
-                                            string str_Month = "";
                                             string str_Week = "";
                                             string str_bAndl = "";
                                             string str_Profit= "";
@@ -724,7 +722,7 @@ namespace SalesCommissionReport
 
                     int strweek = Convert.ToInt32(dtTable.Rows[0]["Week"].ToString());
 
-                    int strMonth = GetMonthByWeek(strweek);
+                    string strMonth = GetMonthByWeek(strweek);
 
                     int strYear = Convert.ToInt32(dtTable.Rows[0]["Year"].ToString());
 
@@ -1099,7 +1097,7 @@ namespace SalesCommissionReport
                     dtsales.Rows.Add(dataEmpty);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = "LATE PAYMENT FROM CLIENT - 10"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[0] = "LATE PAYMENT FROM CLIENT - 10%"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
                     dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
                     dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
                     dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
@@ -1296,58 +1294,59 @@ namespace SalesCommissionReport
             return TempFromno;
         }
 
-        public static int GetMonthByWeek(int IntWeek)
+        public static string GetMonthByWeek(int IntWeek)
         {
+            //“2021年有52个周,分别是: 1月五周、2月四周、3月四周、4月四周、5月五周、6月四周、
+            //7月五周、8月四周、9月四周、10月五周、11月四周、12月四周,共计52周。” 
+            string IntMonth = "Jan";
 
-            int IntMonth = 1;
-
-            if(IntWeek>0 && IntWeek<5) //1-4
+            if(IntWeek>0 && IntWeek<6) //1-5
             {
-                IntMonth = 1;
+                IntMonth = "Jan.";
             }
-            else if (IntWeek > 5 && IntWeek < 11) //6-10
+            else if (IntWeek > 5 && IntWeek < 10) //6-9
             {
-                IntMonth = 2;
+                IntMonth = "Feb.";
             }
-            else if (IntWeek > 10 && IntWeek < 15) //11-14
+            else if (IntWeek > 9 && IntWeek < 14) //10-13
             {
-                IntMonth = 3;
+                IntMonth = "Mar.";
             }
-            else if (IntWeek > 14 && IntWeek < 20) //15-19
+            else if (IntWeek > 13 && IntWeek < 18) //14-17
             {
-                IntMonth = 4;
+                IntMonth = "Apr.";
             }
-            else if (IntWeek > 19 && IntWeek < 24) //20-23
+            else if (IntWeek > 17 && IntWeek < 23) //18-22
             {
-                IntMonth = 5;
+                IntMonth = "May.";
             }
-            else if (IntWeek > 23 && IntWeek < 28) //24-27
+            else if (IntWeek > 22 && IntWeek < 27) //23-26
             {
-                IntMonth = 6;
+                IntMonth = "Jun";
             }
-            else if (IntWeek > 27 && IntWeek < 33) //28-32
+            else if (IntWeek > 26 && IntWeek < 32) //27-31
             {
-                IntMonth = 7;
+                IntMonth = "Jul.";
             }
-            else if (IntWeek > 32 && IntWeek < 37) //33-36
+            else if (IntWeek > 31 && IntWeek < 36) //32-35
             {
-                IntMonth = 8;
+                IntMonth = "Aug.";
             }
-            else if (IntWeek > 36 && IntWeek < 42) //37-40
+            else if (IntWeek > 35 && IntWeek < 40) //36-39
             {
-                IntMonth = 9;
+                IntMonth = "Sep.";
             }
-            else if (IntWeek > 40 && IntWeek < 46) //41-45
+            else if (IntWeek > 39 && IntWeek < 45) //40-44
             {
-                IntMonth = 10;
+                IntMonth = "Oct.";
             }
-            else if (IntWeek > 45 && IntWeek < 50) //46-49
+            else if (IntWeek > 44 && IntWeek < 49) //45-48
             {
-                IntMonth = 11;
+                IntMonth = "Nov.";
             }
-            else if (IntWeek > 49 && IntWeek < 54) //50-53
+            else if (IntWeek > 48 && IntWeek < 53) //49-52
             {
-                IntMonth = 12;
+                IntMonth = "Dec.";
             }
 
             return IntMonth;

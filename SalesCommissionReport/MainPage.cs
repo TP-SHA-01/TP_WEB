@@ -102,7 +102,7 @@ namespace SalesCommissionReport
             string Path3 = this.txtFilePath3.Text.ToString();
             DateTime dtAnalysisDate = this.dateTimePicker1.Value;
 
-            if(dtAnalysisDate.ToString()=="")
+            if(dtAnalysisDate.ToString()=="" && Path3 !="")
             {
                 MessageBox.Show("Please inout the Analysis Date.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -124,7 +124,7 @@ namespace SalesCommissionReport
             }
         }
 
-        public static DataSet ExcelToDataSet(string Path1, string Path2, string Path3, DateTime oldDate)
+        public static DataSet ExcelToDataSet(string Path1, string Path2, string Path3, DateTime dtAnalysisDate)
         {
             int startRow = 0;
             DataSet dsTable = new DataSet();
@@ -178,8 +178,8 @@ namespace SalesCommissionReport
                 if (workbook_salesreport != null && workbook_salesCommissionreport!=null)
                 {
                     string strColumn = @"Month,Week,b/l,Profit(RMB),Empty1,Consignee,Shipper,Principal,NoofCtns,LotNo,Income,
-                                        Cost,Profit/(loss)RMB,%,Exchdiff,Empty2,Whicheverislower,>RMB20000,>RMB50000,>RMB120000,>RMB120001,
-                                        Empty3,(X)-RMB9000,30%,Type,No";
+                                        Cost,RMB,%,Exchdiff,Empty2,islower,>RMB20000,>RMB50000,>RMB120000,>RMB120001,
+                                        Empty3,(X)-RMB9000,30%,Type,No,Year,sales";
 
                     //income='C:\FLXOLE\FLXACC.XLA'!FlxAcc("leg("&$K$5&")val(cya)pri("&$K$6&")a/c(4000..59999)rdc(1)ana(1:"&J10&")bch(00..ZZ)")
                     //Cost='C:\FLXOLE\FLXACC.XLA'!FlxAcc("leg("&$K$5&")val(cya)pri("&$K$6&")a/c(6000..69999)rdc(1)ana(1:"&J10&")bch(00..ZZ)")
@@ -300,11 +300,17 @@ namespace SalesCommissionReport
                                             //int SheetsalesCommissionreportCount = workbook_salesCommissionreport.NumberOfSheets;
                                             //int SheetARreportCount = workbook_ARreport.NumberOfSheets;
                                             bool FindAR = false;
+                                            string strTypeFromCommission = "";
+                                            string strRemarkFromCommission = "";
+                                            string strFirstCommissionDateWeek = "0";
+                                            string strFirstShipmentDateWeek = "0";
 
                                             DataRow dataRow = dataTable.NewRow();
+
                                             #region Ren Open
                                             string str_TransType = "OTHER"; //LATE PAYMENT/LOST ACCOUNT/CREDIT OVER/SALE LEAD/NORMAL/OTHER
                                             string str_NO = "";
+
                                             string str_Month = "";
                                             string str_Week = "";
                                             string str_bAndl = "";
@@ -322,10 +328,11 @@ namespace SalesCommissionReport
                                             string str_islower = "";
                                             string str_X9000 = "";
                                             string str_30 = "";
+                                            string str_year = "";
+                                            string str_sales = "";
 
                                             str_LotNo = row.GetCell(13).ToString();
                                             str_NO = row.GetCell(0).ToString();
-                                            str_Month = row.GetCell(1).ToString();
                                             str_Week = row.GetCell(2).ToString();
                                             str_bAndl = row.GetCell(3).ToString();
                                             str_Profit = row.GetCell(4).ToString();
@@ -333,7 +340,8 @@ namespace SalesCommissionReport
                                             str_Shipper = row.GetCell(5).ToString();
                                             str_Principal = row.GetCell(7).ToString();
                                             str_NoofCtns = row.GetCell(11).ToString();
-
+                                            str_year = row.GetCell(1).ToString();
+                                            str_sales = row.GetCell(9).ToString();
 
                                             try
                                             {
@@ -353,10 +361,12 @@ namespace SalesCommissionReport
                                                     //查找数据在第几行
                                                     
                                                     int FindRowR = 0;
-                                                    for (int r = 1; r < SheetARreportCount; r++)
-                                                    {   //xia
-                                                        ISheet sheetR = workbook_ARreport.GetSheetAt(r);
-                                                        int rowCountR = sheetR.LastRowNum;//获取总行数
+                                                    int rowCountR = 0;
+
+                                                    if (SheetARreportCount > 0)
+                                                    {
+                                                        ISheet sheetR = workbook_ARreport.GetSheetAt(0);
+                                                        rowCountR = sheetR.LastRowNum;//获取总行数
                                                         string ErrorSheetNameR = sheetR.SheetName.ToString();
                                                         if (sheetR != null)
                                                         {
@@ -385,24 +395,46 @@ namespace SalesCommissionReport
 
                                                             }
                                                         }
-                                                    }
 
-                                                    for(int rrr=FindRowR;rrr<SheetARreportCount;rrr++)
-                                                    {
 
-                                                        if (row.GetCell(9).CellType == CellType.Numeric || row.GetCell(9).CellType == CellType.Formula)
+                                                        //LATE PAYMENT FROM CLIENT -10 %
+                                                        //(1.Run Date > ETD )
+                                                        //(2.并存在于AR Report 中的数据。)
+
+                                                        for (int rrr = FindRowR; rrr < SheetARreportCount; rrr++)
                                                         {
-                                                            strAnalysis = row.GetCell(9).NumericCellValue.ToString();
-                                                        }
-                                                        else if (row.GetCell(0).CellType == CellType.String)
-                                                            strAnalysis = row.GetCell(9).StringCellValue.ToString();
-                                                        else
-                                                            strAnalysis = "";
+                                                            IRow rowR = sheetR.GetRow(rrr);
 
-                                                        if(str_LotNo == strAnalysis)
-                                                        {
-                                                            FindAR = true;
-                                                            break;
+                                                            string strETDDate = "";
+
+                                                            if (rowR.GetCell(9).CellType == CellType.Numeric || rowR.GetCell(9).CellType == CellType.Formula)
+                                                            {
+                                                                strAnalysis = rowR.GetCell(9).NumericCellValue.ToString();
+                                                            }
+                                                            else if (rowR.GetCell(9).CellType == CellType.String)
+                                                                strAnalysis = rowR.GetCell(9).StringCellValue.ToString();
+                                                            else
+                                                                strAnalysis = "";
+
+
+                                                            if (rowR.GetCell(4).CellType == CellType.Numeric || rowR.GetCell(4).CellType == CellType.Formula)
+                                                            {
+                                                                strETDDate = rowR.GetCell(4).NumericCellValue.ToString();
+                                                            }
+                                                            else if (rowR.GetCell(4).CellType == CellType.String)
+                                                                strETDDate = rowR.GetCell(4).StringCellValue.ToString();
+                                                            else
+                                                                strETDDate = "";
+
+
+                                                            if (str_LotNo == strAnalysis)
+                                                            {
+                                                                if (Convert.ToDateTime(dtAnalysisDate) > Convert.ToDateTime(strETDDate))
+                                                                {
+                                                                    FindAR = true;
+                                                                    break;
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                   
@@ -417,22 +449,18 @@ namespace SalesCommissionReport
                                                 return null;
                                             }
 
-                                            string strTypeFromCommission = "";
-                                            string strRemarkFromCommission = "";
-                                            string strFirstCommissionDateWeek = "";
-                                            string strFirstShipmentDateWeek = "";
+                                            dataRow[0] = GetMonthByWeek(Convert.ToInt32(str_Week)).ToString(); //Month,
+                                            dataRow[1] = str_Week.Trim();//Week,
+                                            dataRow[2] = str_bAndl.Trim();//b/l,
+                                            dataRow[3] = str_Profit.Trim(); //Profit(RMB),
+                                            dataRow[4] = "";                //Empty1,
+                                            dataRow[5] = str_Consignee.Trim();//Consignee,
+                                            dataRow[6] = str_Shipper.Trim();//Shipper,
+                                            dataRow[7] = str_Principal.Trim();//Principal,
+                                            dataRow[8] = str_NoofCtns.Trim();//NoofCtns,
+                                            dataRow[9] = str_LotNo.Trim();//LotNo,
 
-                                            
-                                            dataRow[0] = str_Month.Trim();
-                                            dataRow[1] = str_Week.Trim();
-                                            dataRow[2] = str_bAndl.Trim();
-                                            dataRow[3] = "";
-                                            dataRow[4] = str_Profit.Trim();     
-                                            dataRow[5] = str_Consignee.Trim();
-                                            dataRow[6] = str_Shipper.Trim();
-                                            dataRow[7] = str_Principal.Trim();
-                                            dataRow[8] = str_NoofCtns.Trim();
-                                            dataRow[9] = str_LotNo.Trim();
+                                            #region
 
                                             try
                                             {
@@ -444,11 +472,16 @@ namespace SalesCommissionReport
                                                     //CommissionList Total Sales
 
                                                     int FindRowS = 0;
-                                                    for (int r = 1; r < SheetsalesCommissionreportCount; r++)
+                                                    int CommissionSheet = 0;
+                                                    int rowCountS = 0;
+                                                    for (int r = 0; r < SheetsalesCommissionreportCount; r++)
                                                     {
                                                         ISheet sheetS = workbook_salesCommissionreport.GetSheetAt(r);
-                                                        int rowCountS = sheetS.LastRowNum;//获取总行数
+                                                        rowCountS  = sheetS.LastRowNum;//获取总行数
                                                         string ErrorSheetNameR = sheetS.SheetName.ToString();
+
+                                                        CommissionSheet = r;
+
                                                         if (sheetS != null)
                                                         {
                                                             if (rowCountS > 0)
@@ -457,14 +490,14 @@ namespace SalesCommissionReport
                                                                 {
                                                                     FindRowS = 0;
 
-                                                                    IRow FindFirstRowR = sheet.GetRow(rr);//获取第r行
+                                                                    IRow FindFirstRowR = sheetS.GetRow(rr);//获取第r行
 
                                                                     if (FindFirstRowR != null)
                                                                     {
                                                                         if (FindFirstRowR.LastCellNum > 1 && FindFirstRowR.GetCell(1) != null)
                                                                         {
 
-                                                                            if (FindFirstRowR.GetCell(0).ToString().ToLower().Trim() == "RefId" && FindFirstRowR.GetCell(1).ToString().ToLower().Contains("ConCd"))
+                                                                            if (FindFirstRowR.GetCell(0).ToString().Trim() == "RefId" && FindFirstRowR.GetCell(1).ToString().Contains("ConCd"))
                                                                             {
                                                                                 FindRowS = rr + 1;//找到数据开始的位置
                                                                                 break;
@@ -472,46 +505,81 @@ namespace SalesCommissionReport
                                                                         }
                                                                     }
                                                                 }
-
+                                                                if(FindRowS>0)
+                                                                {
+                                                                    break;
+                                                                }
 
                                                             }
                                                         }
                                                     }
 
-                                                    for (int rrr = FindRowS; rrr < SheetsalesCommissionreportCount; rrr++)
+                                                    for (int rrr = FindRowS; rrr <= rowCountS; rrr++)
                                                     {
+
+                                                        ISheet sheetS = workbook_salesCommissionreport.GetSheetAt(CommissionSheet);
+                                                        IRow rowS = sheetS.GetRow(rrr);
 
                                                         string CNEES = "";
                                                         string SHPRS = "";
 
-                                                       if (row.GetCell(2).CellType == CellType.Numeric || row.GetCell(2).CellType == CellType.Formula)
+                                                       if (rowS.GetCell(2).CellType == CellType.Numeric || rowS.GetCell(2).CellType == CellType.Formula)
                                                         {
-                                                            CNEES = row.GetCell(2).NumericCellValue.ToString();
+                                                            CNEES = rowS.GetCell(2).NumericCellValue.ToString();
                                                         }
-                                                        else if (row.GetCell(2).CellType == CellType.String)
-                                                            CNEES = row.GetCell(2).StringCellValue.ToString();
+                                                        else if (rowS.GetCell(2).CellType == CellType.String)
+                                                            CNEES = rowS.GetCell(2).StringCellValue.ToString();
                                                         else
                                                             CNEES = "";
 
-                                                        if (row.GetCell(4).CellType == CellType.Numeric || row.GetCell(4).CellType == CellType.Formula)
+                                                        if (rowS.GetCell(4).CellType == CellType.Numeric || rowS.GetCell(4).CellType == CellType.Formula)
                                                         {
-                                                            SHPRS = row.GetCell(4).NumericCellValue.ToString();
+                                                            SHPRS = rowS.GetCell(4).NumericCellValue.ToString();
                                                         }
-                                                        else if (row.GetCell(4).CellType == CellType.String)
-                                                            SHPRS = row.GetCell(4).StringCellValue.ToString();
+                                                        else if (rowS.GetCell(4).CellType == CellType.String)
+                                                            SHPRS = rowS.GetCell(4).StringCellValue.ToString();
                                                         else
                                                             SHPRS = "";
 
-                                                        if(str_Consignee==CNEES && str_Shipper==SHPRS)
-                                                        {
-                                                            strTypeFromCommission = row.GetCell(9).StringCellValue.ToString();
-                                                            strRemarkFromCommission = row.GetCell(19).StringCellValue.ToString();
-                                                            
-                                                            strFirstCommissionDateWeek = row.GetCell(16).StringCellValue.ToString();
-                                                            strFirstShipmentDateWeek = row.GetCell(12).StringCellValue.ToString();
+                                                        if(str_Consignee.ToLower().Trim()==CNEES.ToLower().Trim() && str_Shipper.ToLower().Trim() == SHPRS.ToLower().Trim())
+                                                        {                                                 
 
-                                                            strRemarkFromCommission = row.GetCell(16).StringCellValue.ToString();
-                                                            break;
+                                                            if (rowS.GetCell(9).CellType == CellType.Numeric || rowS.GetCell(9).CellType == CellType.Formula)
+                                                            {
+                                                                strTypeFromCommission = rowS.GetCell(9).NumericCellValue.ToString();
+                                                            }
+                                                            else if (rowS.GetCell(9).CellType == CellType.String)
+                                                                strTypeFromCommission = rowS.GetCell(9).StringCellValue.ToString();
+                                                            else
+                                                                strTypeFromCommission = "";
+
+                                                            if (rowS.GetCell(19).CellType == CellType.Numeric || rowS.GetCell(19).CellType == CellType.Formula)
+                                                            {
+                                                                strRemarkFromCommission = rowS.GetCell(19).NumericCellValue.ToString();
+                                                            }
+                                                            else if (rowS.GetCell(19).CellType == CellType.String)
+                                                                strRemarkFromCommission = rowS.GetCell(19).StringCellValue.ToString();
+                                                            else
+                                                                strRemarkFromCommission = "";
+
+                                                            if (rowS.GetCell(16).CellType == CellType.Numeric || rowS.GetCell(16).CellType == CellType.Formula)
+                                                            {
+                                                                strFirstCommissionDateWeek = rowS.GetCell(16).NumericCellValue.ToString();
+                                                            }
+                                                            else if (rowS.GetCell(16).CellType == CellType.String)
+                                                                strFirstCommissionDateWeek = rowS.GetCell(16).StringCellValue.ToString();
+                                                            else
+                                                                strFirstCommissionDateWeek = "";
+
+                                                            if (rowS.GetCell(12).CellType == CellType.Numeric || rowS.GetCell(12).CellType == CellType.Formula)
+                                                            {
+                                                                strFirstShipmentDateWeek = rowS.GetCell(12).NumericCellValue.ToString();
+                                                            }
+                                                            else if (rowS.GetCell(12).CellType == CellType.String)
+                                                                strFirstShipmentDateWeek = rowS.GetCell(12).StringCellValue.ToString();
+                                                            else
+                                                                strFirstShipmentDateWeek = "";
+
                                                         }
                                                     }
                                                 }
@@ -522,21 +590,22 @@ namespace SalesCommissionReport
                                                 MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                                 return null;
                                             }
+                                            #endregion
 
-                                            dataRow[10] = str_Income.Trim();
-                                            dataRow[11] = str_Cost.Trim();
-                                            dataRow[12] = str_RMB.Trim();
-                                            dataRow[13] = str_Procent.Trim();
-                                            dataRow[14] = "";
-                                            dataRow[15] = str_Exchdiff.Trim();
-                                            dataRow[16] = str_islower.Trim();
-                                            dataRow[17] = "";
-                                            dataRow[18] = "";
-                                            dataRow[19] = "";
-                                            dataRow[20] = "";
-                                            dataRow[21] = "";
-                                            dataRow[22] = str_X9000.Trim();
-                                            dataRow[23] = str_30.Trim();
+                                            dataRow[10] = str_Income.Trim();//Income, 
+                                            dataRow[11] = str_Cost.Trim();//Cost,
+                                            dataRow[12] = str_RMB.Trim();//RMB,
+                                            dataRow[13] = str_Procent.Trim();//%
+                                            dataRow[14] = str_Exchdiff.Trim(); //Exchdiff,
+                                            dataRow[15] = "";//Empty2
+                                            dataRow[16] = str_islower.Trim();//islower,
+                                            dataRow[17] = "";//>RMB20000,
+                                            dataRow[18] = "";//>RMB50000,
+                                            dataRow[19] = "";//>RMB120000,
+                                            dataRow[20] = "";//>RMB120001,
+                                            dataRow[21] = "";//Empty3,
+                                            dataRow[22] = str_X9000.Trim();//(X) - RMB9,000
+                                            dataRow[23] = str_30.Trim();//30%,
 
                                             if (FindAR)
                                             {
@@ -556,7 +625,7 @@ namespace SalesCommissionReport
                                                     }
                                                     else
                                                     {
-                                                        if(Convert.ToInt32(strFirstShipmentDateWeek)<=52)
+                                                        if(Convert.ToInt32(strFirstShipmentDateWeek)<=52 && Convert.ToInt32(strFirstShipmentDateWeek) >0)
                                                         {
                                                             str_TransType = "NORMAL";
                                                         }else if (30 < Convert.ToInt32(strFirstCommissionDateWeek) && Convert.ToInt32(strFirstCommissionDateWeek) <= 5 * 52)
@@ -571,12 +640,47 @@ namespace SalesCommissionReport
                                                 }
                                             }
 
-                                            dataRow[24] = str_TransType;
-                                            dataRow[25] = str_NO;
+                                            dataRow[24] = str_TransType;//Type,
+                                            dataRow[25] = str_NO;//No,
+                                            dataRow[26] = str_year;//Year,
+                                            dataRow[27] = str_sales;//sales
 
                                             //,DIF,REGION,CHANGE,QUESTION,DELIVERY TO,PICKUP
-                                            if (str_TransType=="OTHER")
-                                                otherTable.Rows.Add(dataRow);
+                                            if (str_TransType == "OTHER")
+                                            {
+                                                DataRow dataRow_Other = otherTable.NewRow();
+
+                                                dataRow_Other[0] = dataRow[0];
+                                                dataRow_Other[1] = dataRow[1];
+                                                dataRow_Other[2] = dataRow[2];
+                                                dataRow_Other[3] = dataRow[3];
+                                                dataRow_Other[4] = dataRow[4];
+                                                dataRow_Other[5] = dataRow[5];
+                                                dataRow_Other[6] = dataRow[6];
+                                                dataRow_Other[7] = dataRow[7];
+                                                dataRow_Other[8] = dataRow[8];
+                                                dataRow_Other[9] = dataRow[9];
+                                                dataRow_Other[10] = dataRow[10];
+                                                dataRow_Other[11] = dataRow[11];
+                                                dataRow_Other[12] = dataRow[12];
+                                                dataRow_Other[13] = dataRow[13];
+                                                dataRow_Other[14] = dataRow[14];
+                                                dataRow_Other[15] = dataRow[15];
+                                                dataRow_Other[16] = dataRow[16];
+                                                dataRow_Other[17] = dataRow[17];
+                                                dataRow_Other[18] = dataRow[18];
+                                                dataRow_Other[19] = dataRow[19];
+                                                dataRow_Other[20] = dataRow[20];
+                                                dataRow_Other[21] = dataRow[21];
+                                                dataRow_Other[22] = dataRow[22];
+                                                dataRow_Other[23] = dataRow[23];
+                                                dataRow_Other[24] = dataRow[24];
+                                                dataRow_Other[25] = dataRow[25];
+                                                dataRow_Other[26] = dataRow[26];
+                                                dataRow_Other[27] = dataRow[27];
+
+                                                otherTable.Rows.Add(dataRow_Other);
+                                            }
                                             else
                                                 dataTable.Rows.Add(dataRow);
                                         }
@@ -608,50 +712,63 @@ namespace SalesCommissionReport
             DataSet ds = new DataSet();
 
 
-            for (int k = 0; k < dsData.Tables.Count; k++)
+            for (int ta = 0; ta < dsData.Tables.Count; ta++)
             {
-                DataTable dtTable = dsData.Tables[k];
+                DataTable dtTable = dsData.Tables[ta];
 
                 if(dtTable.TableName!="OTHER")
                 {
 
-                    //string strColumn = @"Month,Week,b/l,Profit(RMB),Empty1,Consignee,Shipper,Principal,NoofCtns,LotNo,Income,Cost,Profit/(loss)RMB,%,Exchdiff,Empty2,Whicheverislower,(X)-RMB9000,30%,Type,No";
-
+                    //string strColumn = @"Month,Week,b/l,Profit(RMB),Empty1,Consignee,Shipper,Principal,NoofCtns,LotNo,Income,Cost,Profit/(loss)RMB,%,Exchdiff,Empty2,Whicheverislower,
+                    //'(X)-RMB9000,30%,Type,No";
 
                     int strweek = Convert.ToInt32(dtTable.Rows[0]["Week"].ToString());
-                    int strYEAR = Convert.ToInt32(dtTable.Rows[0]["Year"].ToString());
+
+                    int strMonth = GetMonthByWeek(strweek);
+
+                    int strYear = Convert.ToInt32(dtTable.Rows[0]["Year"].ToString());
+
                     string strUserName = dtTable.TableName.ToString();
 
                     string strRow1 = strUserName + "'s Performance" + 
-                        " for commission for " + GetMonthWeekFrom(strweek).ToString() +" "+ strYEAR.ToString();
+                        " for commission for " + strMonth + " "+ strYear.ToString();
+
+                    #region  Define the column
+
+                    //string strColumn = @"Month,Week,b/l,Profit(RMB),Empty1,Consignee,Shipper,Principal,NoofCtns,LotNo,Income,
+                    //Cost,Profit/(loss)RMB,%,Exchdiff,Empty2,Whicheverislower,>RMB20000,>RMB50000,>RMB120000,>RMB120001,
+                    //Empty3,(X)-RMB9000,30%,Type,No,Year,sales";
+
 
                     //XXX's Performance for commission for Jun 2022  0-15column
-                    DataColumn dc0 = new DataColumn(strRow1, Type.GetType("System.String"));
-                    DataColumn dc1 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc2 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc3 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc4 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc5 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc6 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc7 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc8 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc9 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc10 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc11 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc12 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc13 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc14 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc15 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc16 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc17 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc18 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc19 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc20 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc21 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc22 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc23 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc24 = new DataColumn("", Type.GetType("System.String"));
-                    DataColumn dc25 = new DataColumn("", Type.GetType("System.String"));
+                    DataColumn dc0 = new DataColumn("Month", Type.GetType("System.String"));
+                    DataColumn dc1 = new DataColumn("Week", Type.GetType("System.String"));
+                    DataColumn dc2 = new DataColumn("b/l", Type.GetType("System.String"));
+                    DataColumn dc3 = new DataColumn("Profit(RMB)", Type.GetType("System.String"));
+                    DataColumn dc4 = new DataColumn("Empty1", Type.GetType("System.String"));
+                    DataColumn dc5 = new DataColumn("Consignee", Type.GetType("System.String"));
+                    DataColumn dc6 = new DataColumn("Shipper", Type.GetType("System.String"));
+                    DataColumn dc7 = new DataColumn("Principal", Type.GetType("System.String"));
+                    DataColumn dc8 = new DataColumn("NoofCtns", Type.GetType("System.String"));
+                    DataColumn dc9 = new DataColumn("LotNo", Type.GetType("System.String"));
+                    DataColumn dc10 = new DataColumn("Income", Type.GetType("System.String"));
+                    DataColumn dc11 = new DataColumn("Cost", Type.GetType("System.String"));
+                    DataColumn dc12 = new DataColumn("RMB", Type.GetType("System.String"));
+                    DataColumn dc13 = new DataColumn("%", Type.GetType("System.String"));
+                    DataColumn dc14 = new DataColumn("Exchdiff", Type.GetType("System.String"));
+                    DataColumn dc15 = new DataColumn("Empty2", Type.GetType("System.String"));
+                    DataColumn dc16 = new DataColumn("islower", Type.GetType("System.String"));
+                    DataColumn dc17 = new DataColumn(">RMB20000", Type.GetType("System.String"));
+                    DataColumn dc18 = new DataColumn(">RMB50000", Type.GetType("System.String"));
+                    DataColumn dc19 = new DataColumn(">RMB120000", Type.GetType("System.String"));
+                    DataColumn dc20 = new DataColumn(">RMB120001", Type.GetType("System.String"));
+                    DataColumn dc21 = new DataColumn("Empty3", Type.GetType("System.String"));
+                    DataColumn dc22 = new DataColumn("(X)-RMB9000", Type.GetType("System.String"));
+                    DataColumn dc23 = new DataColumn("30%", Type.GetType("System.String"));
+                    DataColumn dc24 = new DataColumn("Type", Type.GetType("System.String"));
+                    DataColumn dc25 = new DataColumn("No", Type.GetType("System.String"));
+                    //DataColumn dc26 = new DataColumn("Year", Type.GetType("System.String"));
+                    //DataColumn dc27 = new DataColumn("sales", Type.GetType("System.String"));
 
 
                     DataTable dtsales = new DataTable();
@@ -666,7 +783,6 @@ namespace SalesCommissionReport
                     dtsales.Columns.Add(dc8);//I
                     dtsales.Columns.Add(dc9); //J
                     dtsales.Columns.Add(dc10);//K
-
                     dtsales.Columns.Add(dc11);//L  //Cost
                     dtsales.Columns.Add(dc12);//M
                     dtsales.Columns.Add(dc13);//N
@@ -677,214 +793,279 @@ namespace SalesCommissionReport
                     dtsales.Columns.Add(dc18);//S
                     dtsales.Columns.Add(dc19);//T
                     dtsales.Columns.Add(dc20);//U
-
                     dtsales.Columns.Add(dc21);//V
                     dtsales.Columns.Add(dc22);//W
                     dtsales.Columns.Add(dc23);//X
+                    dtsales.Columns.Add(dc24);//Y
+                    dtsales.Columns.Add(dc25);//Z
 
-                    dtsales.Columns.Add(dc24);//
-                    dtsales.Columns.Add(dc25);//
+
+
+                    #endregion
+
+
+                    DataRow dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = strRow1; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+
 
                     Double ALLTotalProfit = 0.00;
 
                     #region Two empty lines
-                    DataRow dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = " "; dataEmpty[1] = " "; dataEmpty[2] = " ";dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " "; 
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = "";dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = ""; 
                     dtsales.Rows.Add(dataEmpty);
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
-                    #endregion
+                    
 
                     DataRow dataNewline = dtsales.NewRow();
-                    dataNewline[0] = " "; dataNewline[1] = " "; dataNewline[2] = "From Sales department"; dataNewline[3] = " "; dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = "Accounts Department"; dataNewline[11] = " ";
-                    dataNewline[12] = " "; dataNewline[13] = " "; dataNewline[14] = " "; dataNewline[15] = " "; dataNewline[16] = " "; dataNewline[17] = " ";
-                    dataNewline[18] = " "; dataNewline[19] = " "; dataNewline[20] = "Commission"; dataNewline[21] = " "; dataNewline[22] = " "; dataNewline[23] = " ";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[0] = "From Sales department"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = ""; dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = "Accounts Department"; dataNewline[11] = "";
+                    dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = ""; dataNewline[17] = "Commission";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = " "; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = " "; dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = "SHG"; dataNewline[11] = " ";
-                    dataNewline[12] = " "; dataNewline[13] = " "; dataNewline[14] = " "; dataNewline[15] = " "; dataNewline[16] = "Y"; dataNewline[17] = " ";
-                    dataNewline[18] = "20000"; dataNewline[19] = "50000"; dataNewline[20] = "120000"; dataNewline[21] = "200000"; dataNewline[22] = " "; dataNewline[23] = " ";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[0] = ""; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = ""; dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = "SHG"; dataNewline[11] = "";
+                    dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = "Y"; dataNewline[17] = "";
+                    dataNewline[18] = "20000"; dataNewline[19] = "50000"; dataNewline[20] = "120000"; dataNewline[21] = "200000"; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = " "; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = " "; dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = GetMonthWeekFrom(strweek).ToString() + "/" + strYEAR.ToString(); dataNewline[11] = "3000";
-                    dataNewline[12] = " "; dataNewline[13] = " "; dataNewline[14] = " "; dataNewline[15] = " "; dataNewline[16] = "N"; dataNewline[17] = " ";
-                    dataNewline[18] = "15%"; dataNewline[19] = "20%"; dataNewline[20] = "25%"; dataNewline[21] = "30%"; dataNewline[22] = " "; dataNewline[23] = " ";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[0] = ""; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = ""; dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = strMonth + "/" + strYear.ToString(); dataNewline[11] = "3000";
+                    dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = "N"; dataNewline[17] = "";
+                    dataNewline[18] = "15%"; dataNewline[19] = "20%"; dataNewline[20] = "25%"; dataNewline[21] = "30%"; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = " "; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = "X"; dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = " "; dataNewline[11] = " ";
-                    dataNewline[12] = "Profit/(loss)"; dataNewline[13] = " "; dataNewline[14] = " "; dataNewline[15] = " "; dataNewline[16] = "Whichever"; dataNewline[17] = " ";
-                    dataNewline[18] = " "; dataNewline[19] = " "; dataNewline[20] = " "; dataNewline[21] = " "; dataNewline[22] = " "; dataNewline[23] = " ";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[0] = ""; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = ""; dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = ""; dataNewline[11] = "";
+                    dataNewline[12] = "Profit/(loss)"; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = "Whichever"; dataNewline[17] = "";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
-
+                    #endregion
 
                     dataNewline = dtsales.NewRow();
-                    for (int m = 0; k < dtsales.Columns.Count; k++)
+                    for (int m = 0; m < dtsales.Columns.Count; m++)
                     {
-                        dataNewline[m] = dtsales.Columns[m];
+                        dataNewline[m] = dtsales.Columns[m].ColumnName.Trim();
                     }
                     dtsales.Rows.Add(dataNewline);
 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = " "; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = " "; dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] ="a"; dataNewline[11] = "b";
+                    dataNewline[0] = ""; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = "X"; dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] ="a"; dataNewline[11] = "b";
                     dataNewline[12] = "a-b=c"; dataNewline[13] = "on sales"; dataNewline[14] = "d-x : RMB"; dataNewline[15] = "RMB (X)"; dataNewline[16] = "N/Y"; dataNewline[17] = "N/Y";
-                    dataNewline[18] = "N/Y"; dataNewline[19] = "N/Y"; dataNewline[20] = " "; dataNewline[21] = " "; dataNewline[22] = "'(Z)"; dataNewline[23] = "RMB";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[18] = "N/Y"; dataNewline[19] = "N/Y"; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = "'(Z)"; dataNewline[23] = "RMB";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
-
-
-                    //str_TransType = "CREDIT OVER";
-                    //str_TransType = "LOSS ACCOUNT";
-                    //str_TransType = "NORMAL";
-                    //str_TransType = "SALES LEAD";
-                    //str_TransType = "OTHER";
 
                     double TotalProfit = 0.00;
 
                     for (int n =0;n< dtTable.Rows.Count;n++)
                     {
-                        DataRow dr = dtsales.Rows[n];
+                        DataRow dr = dtTable.Rows[n];
 
-                        if (dr[26].ToString() == "NORMAL")
+                        if (dr["Type"].ToString() == "NORMAL")
                         {
-                            dtsales.Rows.Add(dr);
+                            dataNewline = dtsales.NewRow();
+                            for (int o = 0; o < 10; o++)
+                            {
+                                dataNewline[o] = dr[o];
+                            }
+                            dtsales.Rows.Add(dataNewline);
 
                             TotalProfit = TotalProfit + Convert.ToDouble(dr[3]);
                         }
                     }
                     ALLTotalProfit = ALLTotalProfit + TotalProfit;
 
+                    #region 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = "S.TTL"; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = ""; dataNewline[11] = "";
+                    dataNewline[0] = "S.TTL"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = ""; dataNewline[11] = "";
                     dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = ""; dataNewline[17] = "";
-                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = " "; dataNewline[21] = " "; dataNewline[22] = ""; dataNewline[23] = "";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = " "; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
-                    dtsales.Rows.Add(dataEmpty);
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = "SALE LEAD - OVER ONE YEAR (fm 2nd yr to 5th yr) - 7%"; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
+
+
+                    #region Sales lead begin 
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = "SALE LEAD - OVER ONE YEAR (fm 2nd yr to 5th yr) - 7%"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+                    
 
                     TotalProfit = 0.00;
 
                     for (int n = 0; n < dtTable.Rows.Count; n++)
                     {
-                        DataRow dr = dtsales.Rows[n];
+                        DataRow dr = dtTable.Rows[n];
 
-                        if (dr[26].ToString() == "SALES LEAD")
+                        if (dr["Type"].ToString() == "SALES LEAD")
                         {
-                            dtsales.Rows.Add(dr);
+                            dataNewline = dtsales.NewRow();
+                            for (int o = 0; o < 10; o++)
+                            {
+                                dataNewline[o] = dr[o];
+                            }
+                            dtsales.Rows.Add(dataNewline);
 
                             TotalProfit = TotalProfit + Convert.ToDouble(dr[3]);
                         }
                     }
                     ALLTotalProfit = ALLTotalProfit + TotalProfit;
-
+                   
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = "S.TTL"; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = ""; dataNewline[11] = "";
+                    dataNewline[0] = "S.TTL"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = ""; dataNewline[11] = "";
                     dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = ""; dataNewline[17] = "";
-                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = " "; dataNewline[21] = " "; dataNewline[22] = ""; dataNewline[23] = "";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
+                    #endregion
+
+
+                    #region LOST ACCOUNT
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = " "; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
-                    dtsales.Rows.Add(dataEmpty);
-                 
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = "CREDIT OVER 30 DAYS - 10%"; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
+                    dataEmpty[0] = "LOST ACCOUNT - 10%"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
+                    #endregion
 
                     //CREDIT OVER 30 DAYS - 10%
                     TotalProfit = 0.00;
 
                     for (int n = 0; n < dtTable.Rows.Count; n++)
                     {
-                        DataRow dr = dtsales.Rows[n];
+                        DataRow dr = dtTable.Rows[n];
 
-                        if (dr[26].ToString() == "CREDIT OVER")
+                        if (dr["Type"].ToString() == "LOST ACCOUNT")
                         {
-                            dtsales.Rows.Add(dr);
+                            dataNewline = dtsales.NewRow();
+                            for (int o = 0; o < 10; o++)
+                            {
+                                dataNewline[o] = dr[o];
+                            }
+                            dtsales.Rows.Add(dataNewline);
 
                             TotalProfit = TotalProfit + Convert.ToDouble(dr[3]);
                         }
                     }
 
                     ALLTotalProfit = ALLTotalProfit + TotalProfit;
+                   
 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = "S.TTL"; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = ""; dataNewline[11] = "";
+                    dataNewline[0] = "S.TTL"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = ""; dataNewline[11] = "";
                     dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = ""; dataNewline[17] = "";
-                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = " "; dataNewline[21] = " "; dataNewline[22] = ""; dataNewline[23] = "";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
 
+                    #endregion
+
+                    #region
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = " "; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = "LATE PAYMENT FROM CLIENT - 10%"; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
+                    dataEmpty[0] = "CREDIT OVER 30 DAYS - 10%"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
+                   
 
                     TotalProfit = 0.00;
 
                     for (int n = 0; n < dtTable.Rows.Count; n++)
                     {
-                        DataRow dr = dtsales.Rows[n];
+                        DataRow dr = dtTable.Rows[n];
 
-                        if (dr[26].ToString() == "LOSS ACCOUNT")
+                        if (dr["Type"].ToString() == "CREDIT OVER")
                         {
-                            dtsales.Rows.Add(dr);
+                            dataNewline = dtsales.NewRow();
+                            for (int o = 0; o < 10; o++)
+                            {
+                                dataNewline[o] = dr[o];
+                            }
+                            dtsales.Rows.Add(dataNewline);
 
                             TotalProfit = TotalProfit + Convert.ToDouble(dr[3]);
                         }
@@ -893,65 +1074,175 @@ namespace SalesCommissionReport
                     ALLTotalProfit = ALLTotalProfit + TotalProfit;
 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = "S.TTL"; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = ""; dataNewline[11] = "";
+                    dataNewline[0] = "S.TTL"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = ""; dataNewline[11] = "";
                     dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = ""; dataNewline[17] = "";
-                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = " "; dataNewline[21] = " "; dataNewline[22] = ""; dataNewline[23] = "";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
+                    #endregion
+
+                    #region
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = "LATE PAYMENT FROM CLIENT - 10"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+
+
+                    TotalProfit = 0.00;
+
+                    for (int n = 0; n < dtTable.Rows.Count; n++)
+                    {
+                        DataRow dr = dtTable.Rows[n];
+
+                        if (dr["Type"].ToString() == "LATE PAYMENT")
+                        {
+                            dataNewline = dtsales.NewRow();
+                            for (int o = 0; o < 10; o++)
+                            {
+                                dataNewline[o] = dr[o];
+                            }
+                            dtsales.Rows.Add(dataNewline);
+
+                            TotalProfit = TotalProfit + Convert.ToDouble(dr[3]);
+                        }
+                    }
+
+                    ALLTotalProfit = ALLTotalProfit + TotalProfit;
 
                     dataNewline = dtsales.NewRow();
-                    dataNewline[0] = "Total"; dataNewline[1] = " "; dataNewline[2] = ""; dataNewline[3] = ALLTotalProfit.ToString(); dataNewline[4] = " "; dataNewline[5] = " ";
-                    dataNewline[6] = " "; dataNewline[7] = " "; dataNewline[8] = " "; dataNewline[9] = " "; dataNewline[10] = ""; dataNewline[11] = "";
+                    dataNewline[0] = "S.TTL"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = TotalProfit.ToString(); dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = ""; dataNewline[11] = "";
                     dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = ""; dataNewline[17] = "";
-                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = " "; dataNewline[21] = " "; dataNewline[22] = ""; dataNewline[23] = "";
-                    dataNewline[24] = " "; dataNewline[25] = " ";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
+                    dtsales.Rows.Add(dataNewline);
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+                    #endregion
+
+
+                    #region
+                    dataNewline = dtsales.NewRow();
+                    dataNewline[0] = "Total"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = ALLTotalProfit.ToString(); dataNewline[4] = ""; dataNewline[5] = "";
+                    dataNewline[6] = ""; dataNewline[7] = ""; dataNewline[8] = ""; dataNewline[9] = ""; dataNewline[10] = ""; dataNewline[11] = "";
+                    dataNewline[12] = ""; dataNewline[13] = ""; dataNewline[14] = ""; dataNewline[15] = ""; dataNewline[16] = ""; dataNewline[17] = "";
+                    dataNewline[18] = ""; dataNewline[19] = ""; dataNewline[20] = ""; dataNewline[21] = ""; dataNewline[22] = ""; dataNewline[23] = "";
+                    dataNewline[24] = ""; dataNewline[25] = "";
                     dtsales.Rows.Add(dataNewline);
 
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = " "; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
-                    dtsales.Rows.Add(dataEmpty);
-                    dtsales.Rows.Add(dataEmpty);
-
-                    dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = "Reviewed by :  "; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = " "; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
-                    dtsales.Rows.Add(dataEmpty);
-                    dtsales.Rows.Add(dataEmpty);
-                    dtsales.Rows.Add(dataEmpty);
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = "Prepared by:  "; dataEmpty[1] = " "; dataEmpty[2] = " "; dataEmpty[3] = " "; dataEmpty[4] = " "; dataEmpty[5] = " ";
-                    dataEmpty[6] = " "; dataEmpty[7] = " "; dataEmpty[8] = " "; dataEmpty[9] = " "; dataEmpty[10] = " "; dataEmpty[11] = " ";
-                    dataEmpty[12] = " "; dataEmpty[13] = " "; dataEmpty[14] = " "; dataEmpty[15] = " "; dataEmpty[16] = " "; dataEmpty[17] = " ";
-                    dataEmpty[18] = " "; dataEmpty[19] = " "; dataEmpty[20] = " "; dataEmpty[21] = " "; dataEmpty[22] = " "; dataEmpty[23] = " ";
-                    dataEmpty[24] = " "; dataEmpty[25] = " ";
+                    dataEmpty[0] = "Reviewed by :  "; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
                     dtsales.Rows.Add(dataEmpty);
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+
+                    dataEmpty = dtsales.NewRow();
+                    dataEmpty[0] = "Prepared by:  "; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
+                    dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
+                    dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
+                    dataEmpty[24] = ""; dataEmpty[25] = "";
+                    dtsales.Rows.Add(dataEmpty);
+                    #endregion
+
+                    DataTable dtnew = new DataTable();
+                    dtnew = dtsales.Copy();
+                    dtnew.TableName = dtTable.TableName.ToString();
+                    ds.Tables.Add(dtnew);
 
                 }
                 else
                 {
-                    
-                    ds.Tables.Add(dtTable);
+                    DataTable dtnew = new DataTable();
+                    dtnew = dsData.Tables[ta].Copy();
+                    dtnew.TableName ="Other's Sales List";
+                    ds.Tables.Add(dtnew);
                 }
             }
+
+            ExportDataToExcel2(ds, "Sales Commission Report" + DateTime.Now.ToString("yyyyMMddHHmmss") + DateTime.Now.Millisecond.ToString());
 
             return Finish;
         }
@@ -1005,9 +1296,401 @@ namespace SalesCommissionReport
             return TempFromno;
         }
 
+        public static int GetMonthByWeek(int IntWeek)
+        {
+
+            int IntMonth = 1;
+
+            if(IntWeek>0 && IntWeek<5) //1-4
+            {
+                IntMonth = 1;
+            }
+            else if (IntWeek > 5 && IntWeek < 11) //6-10
+            {
+                IntMonth = 2;
+            }
+            else if (IntWeek > 10 && IntWeek < 15) //11-14
+            {
+                IntMonth = 3;
+            }
+            else if (IntWeek > 14 && IntWeek < 20) //15-19
+            {
+                IntMonth = 4;
+            }
+            else if (IntWeek > 19 && IntWeek < 24) //20-23
+            {
+                IntMonth = 5;
+            }
+            else if (IntWeek > 23 && IntWeek < 28) //24-27
+            {
+                IntMonth = 6;
+            }
+            else if (IntWeek > 27 && IntWeek < 33) //28-32
+            {
+                IntMonth = 7;
+            }
+            else if (IntWeek > 32 && IntWeek < 37) //33-36
+            {
+                IntMonth = 8;
+            }
+            else if (IntWeek > 36 && IntWeek < 42) //37-40
+            {
+                IntMonth = 9;
+            }
+            else if (IntWeek > 40 && IntWeek < 46) //41-45
+            {
+                IntMonth = 10;
+            }
+            else if (IntWeek > 45 && IntWeek < 50) //46-49
+            {
+                IntMonth = 11;
+            }
+            else if (IntWeek > 49 && IntWeek < 54) //50-53
+            {
+                IntMonth = 12;
+            }
+
+            return IntMonth;
+
+
+        }
+
         private void panel2_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        public void ExportDataToExcel2(DataSet SetTable, string FileName)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            //设置文件标题
+            saveFileDialog.Title = "导出Excel文件";
+            //设置文件类型
+            saveFileDialog.Filter = "Excel 工作簿(*.xlsx)|*.xlsx|Excel 97-2003 工作簿(*.xls)|*.xls";
+            //设置默认文件类型显示顺序  
+            saveFileDialog.FilterIndex = 1;
+            //是否自动在文件名中添加扩展名
+            saveFileDialog.AddExtension = true;
+            //是否记忆上次打开的目录
+            saveFileDialog.RestoreDirectory = true;
+            //设置默认文件名
+            saveFileDialog.FileName = FileName;
+
+            //按下确定选择的按钮  
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                //获得文件路径 
+                string localFilePath = saveFileDialog.FileName.ToString();
+
+                //NPOI
+                IWorkbook workbook;
+                IDataFormat format;
+                string FileExt = Path.GetExtension(localFilePath).ToLower();
+                if (FileExt == ".xlsx")
+                {
+                    workbook = new XSSFWorkbook();
+
+                }
+                else if (FileExt == ".xls")
+                {
+                    workbook = new HSSFWorkbook();
+                }
+                else
+                {
+                    workbook = null;
+                }
+                if (workbook == null)
+                {
+                    return;
+                }
+
+                //秒钟
+                Stopwatch timer = new Stopwatch();
+                timer.Start();
+
+                try
+                {
+                    int rowscount = SetTable.Tables.Count;
+
+                    ICellStyle style_header = workbook.CreateCellStyle();
+                    IFont font = workbook.CreateFont();
+                    font.FontHeightInPoints = 11;
+                    font.FontName = "Times New Roman";
+                    font.Color = NPOI.HSSF.Util.HSSFColor.Blue.Index;
+                    style_header.SetFont(font);//HEAD 样式 
+                    style_header.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+                    style_header.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_header.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_header.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_header.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_header.TopBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_header.BottomBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_header.LeftBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_header.RightBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+
+
+                    ICellStyle style_row = workbook.CreateCellStyle();
+                    IFont font1 = workbook.CreateFont();
+                    font1.FontHeightInPoints = 11;
+                    font1.FontName = "Times New Roman";
+                    style_row.SetFont(font1);//row 样式 
+                    style_row.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+                    style_row.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row.TopBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row.BottomBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row.LeftBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row.RightBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+
+
+                    ICellStyle style_row_yellow = workbook.CreateCellStyle();
+                    font1 = workbook.CreateFont();
+                    font1.FontHeightInPoints = 11;
+                    font1.FontName = "Times New Roman";
+                    style_row_yellow.SetFont(font1);//row 样式 
+                    style_row_yellow.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+                    style_row_yellow.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_yellow.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_yellow.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_yellow.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_yellow.TopBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_yellow.BottomBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_yellow.LeftBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_yellow.RightBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_yellow.FillForegroundColor = 0;
+                    style_row_yellow.FillPattern = FillPattern.SolidForeground;
+                    ((XSSFColor)style_row_yellow.FillForegroundColorColor).SetRgb(new byte[] { 255, 255, 0 });
+
+
+                    ICellStyle style_row_Bold = workbook.CreateCellStyle();
+                    IFont fontB = workbook.CreateFont();
+                    fontB.FontHeightInPoints = 11;
+                    fontB.FontName = "Times New Roman";
+                    fontB.IsBold = true;
+                    fontB.IsItalic = true;
+                    style_row_Bold.SetFont(fontB);//row 样式 
+                    style_row_Bold.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+                    style_row_Bold.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Bold.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Bold.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Bold.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Bold.TopBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_Bold.BottomBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_Bold.LeftBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_Bold.RightBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+
+                    ICellStyle style_row_Type = workbook.CreateCellStyle();
+                    IFont font_type = workbook.CreateFont();
+                    font_type.FontHeightInPoints = 11;
+                    font_type.FontName = "Times New Roman";
+                    font_type.IsItalic = true;
+                    font_type.IsBold = true;
+                    style_row_Type.SetFont(font_type);//row 样式 
+                    style_row_Type.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Left;
+                    style_row_Type.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Type.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Type.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Type.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_row_Type.TopBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_Type.BottomBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_Type.LeftBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+                    style_row_Type.RightBorderColor = NPOI.HSSF.Util.HSSFColor.Black.Index;
+
+                    ICellStyle style_Money = workbook.CreateCellStyle();
+                    style_Money.SetFont(font1);//row 样式 
+                    style_Money.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+                    style_Money.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_Money.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_Money.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_Money.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+                    format = workbook.CreateDataFormat();
+                    style_Money.DataFormat = format.GetFormat("$#,##0");
+
+
+                    ICellStyle style_Date = workbook.CreateCellStyle();
+                    style_Date.SetFont(font1);//row 样式 
+                    style_Date.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+                    style_Date.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_Date.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_Date.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+                    style_Date.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+                    format = workbook.CreateDataFormat();
+                    style_Date.DataFormat = format.GetFormat("yyyy/m/d");
+
+                    for (int k = 0; k < rowscount; k++)//k是第几个Sheet
+                    {
+                        DataTable TableName = SetTable.Tables[k];
+
+                        ISheet sheet = workbook.CreateSheet(SetTable.Tables[k].TableName.ToString());
+
+                        //读取标题  
+                        if (sheet.SheetName.Contains("Other's"))
+                        {
+                            IRow rowHeader = sheet.CreateRow(0);
+
+                            for (int i = 0; i < TableName.Columns.Count; i++)
+                            {
+                                ICell cell = rowHeader.CreateCell(i);
+                                cell.SetCellValue(string.Format(TableName.Columns[i].ColumnName));
+                                cell.CellStyle = style_header;
+
+                                sheet.AutoSizeColumn(i);
+                            }
+
+                            for (int i = 0; i < TableName.Rows.Count ; i++)
+                            {
+                                IRow rowData = sheet.CreateRow(i+1);
+                                //j列数名称
+                                for (int j = 0; j < TableName.Columns.Count; j++)
+                                {
+                                    ICell cell = rowData.CreateCell(j);
+
+                                    try
+                                    {
+                                        string strValue = TableName.Rows[i][j].ToString();
+                                        cell.SetCellValue(string.Format(strValue));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message, "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //i第几行
+                            for (int i = 0; i < TableName.Rows.Count; i++)
+                            {
+                                IRow rowData = sheet.CreateRow(i);
+                                //j列数名称
+                                for (int j = 0; j < TableName.Columns.Count; j++)
+                                {
+                                    ICell cell = rowData.CreateCell(j);
+
+                                    try
+                                    {
+                                        string strValue = TableName.Rows[i][j].ToString();
+
+                                        if (!strValue.Contains("Column") && strValue.Trim() != "")
+                                        {
+
+                                            if (strValue.Contains("Empty"))
+                                            {
+                                                cell.SetCellValue("");
+                                            }
+                                            else
+                                            {
+                                                cell.SetCellValue(string.Format(strValue));
+                                            }
+
+                                            if (strValue.Contains("SALE LEAD") || strValue.Contains("LOST ACCOUNT") || strValue.Contains("CREDIT OVER") || strValue.Contains("LATE PAYMENT"))
+                                            {
+                                                sheet.AddMergedRegion(new CellRangeAddress(i, i, 0, 3));
+                                            }
+                                            else if (strValue.Contains("Reviewed by") || strValue.Contains("Prepared by"))
+                                            {
+                                                sheet.AddMergedRegion(new CellRangeAddress(i, i, 0, 2));
+                                            }
+                                        }
+
+                                        if ((i == 7 || i == 8) && j < 4)
+                                        {
+                                            cell.CellStyle = style_row_yellow;
+                                        }
+                                        else
+                                        {
+                                            if (strValue.Contains("SALE LEAD") || strValue.Contains("LOST ACCOUNT") || strValue.Contains("CREDIT OVER") || strValue.Contains("LATE PAYMENT"))
+                                            {
+                                                cell.CellStyle = style_row_Type;
+                                            }
+                                            else
+                                            {
+                                                cell.CellStyle = style_row;
+                                            }
+                                        }
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message, "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    }
+
+                                    if (j == 5 || j == 6 || j == 7) //Consignee  Shipper	Principal
+                                    {
+                                        sheet.SetColumnWidth(j, 50 * 256);
+                                    }
+                                    else if (j == 2 || j == 3 || j == 8 || j == 9)
+                                    {
+                                        sheet.SetColumnWidth(j, 20 * 256);
+                                    } else if (j == 4)
+                                    {
+                                        sheet.SetColumnWidth(j, 5 * 256);
+                                    }
+
+                                }
+
+                                if (i == 0)
+                                {
+                                    sheet.AddMergedRegion(new CellRangeAddress(i, i, 0, 3));
+                                }
+                                else if (i == 3)
+                                {
+                                    sheet.AddMergedRegion(new CellRangeAddress(i, i, 0, 3));
+                                    sheet.AddMergedRegion(new CellRangeAddress(i, i, 10, 12));
+                                    sheet.AddMergedRegion(new CellRangeAddress(i, i, 17, 23));
+                                }
+
+
+                                Application.DoEvents();
+                            }
+
+                        }
+                        Application.DoEvents();
+
+                        //转为字节数组  
+                        MemoryStream stream = new MemoryStream();
+                        workbook.Write(stream);
+                        var buf = stream.ToArray();
+
+                        //保存为Excel文件  
+                        using (FileStream fs = new FileStream(localFilePath, FileMode.Create, FileAccess.Write))
+                        {
+                            fs.Write(buf, 0, buf.Length);
+                            fs.Flush();
+                            fs.Close();
+                        }
+                    }
+
+                    //状态栏更改
+                    lblStatus.Text = "生成Excel成功，共耗时" + timer.ElapsedMilliseconds + "毫秒。";
+                    Application.DoEvents();
+
+                    //成功提示
+                    if (MessageBox.Show("导出成功，是否立即打开？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(localFilePath);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                finally
+                {
+
+                    //关闭秒钟
+                    timer.Reset();
+                    timer.Stop();
+
+                    //赋初始值
+                    lblStatus.Visible = false;
+
+                }
+            }
         }
     }
 }

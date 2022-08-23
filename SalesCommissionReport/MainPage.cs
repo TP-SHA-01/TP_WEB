@@ -26,6 +26,7 @@ namespace SalesCommissionReport
     {
         public MainPage()
         {
+            this.StartPosition = FormStartPosition.CenterScreen;
             InitializeComponent();
         }
 

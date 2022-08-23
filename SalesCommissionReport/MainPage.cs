@@ -264,13 +264,13 @@ namespace SalesCommissionReport
                                     // Cost,RMB,%,Exch diff,is lower,>RMB20,000,>RMB50,000,>RMB120,000,,,(X)-RMB9000,30%             //11
 
                                     //1. LATE PAYMENT FROM CLIENT -10 % (ETD, 需要提供ETD Report 来判断，只要存在于AR Report 中的数据，就认为是此类型.)
-                                    //2. LOST ACCOUNT -10 % - （Commission List Type 里面 = LOSS ACCOUNT）
+                                    //2. LOSS ACCOUNT -10 % - （Commission List Type 里面 = LOSS ACCOUNT）
                                     //3. CREDIT OVER 30 DAYS - 10 % - （Remark 里面判断大于30天的，不包含30天。）
                                     //根据Remarks里面的关键字来判断:30 days,45 days,60 days,90 days
                                     //4. SALE LEAD -OVER ONE YEAR(fm 2nd yr to 5th yr) -7 % （52 < Week <= 5 * 52周的数据）
                                     //5. 正常的30 %（不属于下列任何情况,第一年，Week =< 52周）
 
-                                    //TransType:LATE PAYMENT/LOST ACCOUNT/CREDIT OVER/SALE LEAD/NORMAL/OTHER(不属于以上5种情况，都归属于OTHER) 
+                                    //TransType:LATE PAYMENT/LOSS ACCOUNT/CREDIT OVER/SALE LEAD/NORMAL/OTHER(不属于以上5种情况，都归属于OTHER) 
                                     //TP
                                     //NON - TP
                                     //IMPORT
@@ -308,7 +308,7 @@ namespace SalesCommissionReport
                                             DataRow dataRow = dataTable.NewRow();
 
                                             #region Ren Open
-                                            string str_TransType = "OTHER"; //LATE PAYMENT/LOST ACCOUNT/CREDIT OVER/SALE LEAD/NORMAL/OTHER
+                                            string str_TransType = "OTHER"; //LATE PAYMENT/LOSS ACCOUNT/CREDIT OVER/SALE LEAD/NORMAL/OTHER
                                             string str_NO = "";
                                             string str_Week = "";
                                             string str_bAndl = "";
@@ -714,7 +714,7 @@ namespace SalesCommissionReport
             {
                 DataTable dtTable = dsData.Tables[ta];
 
-                if(dtTable.TableName!="OTHER")
+                if(!dtTable.TableName.Contains("OTHER"))
                 {
 
                     //string strColumn = @"Month,Week,b/l,Profit(RMB),Empty1,Consignee,Shipper,Principal,NoofCtns,LotNo,Income,Cost,Profit/(loss)RMB,%,Exchdiff,Empty2,Whicheverislower,
@@ -966,7 +966,7 @@ namespace SalesCommissionReport
                     #endregion
 
 
-                    #region LOST ACCOUNT
+                    #region LOSS ACCOUNT
                     dataEmpty = dtsales.NewRow();
                     dataEmpty[0] = ""; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
                     dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
@@ -984,7 +984,7 @@ namespace SalesCommissionReport
                     dtsales.Rows.Add(dataEmpty);
 
                     dataEmpty = dtsales.NewRow();
-                    dataEmpty[0] = "LOST ACCOUNT - 10%"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
+                    dataEmpty[0] = "LOSS ACCOUNT - 10%"; dataEmpty[1] = ""; dataEmpty[2] = ""; dataEmpty[3] = ""; dataEmpty[4] = ""; dataEmpty[5] = "";
                     dataEmpty[6] = ""; dataEmpty[7] = ""; dataEmpty[8] = ""; dataEmpty[9] = ""; dataEmpty[10] = ""; dataEmpty[11] = "";
                     dataEmpty[12] = ""; dataEmpty[13] = ""; dataEmpty[14] = ""; dataEmpty[15] = ""; dataEmpty[16] = ""; dataEmpty[17] = "";
                     dataEmpty[18] = ""; dataEmpty[19] = ""; dataEmpty[20] = ""; dataEmpty[21] = ""; dataEmpty[22] = ""; dataEmpty[23] = "";
@@ -999,7 +999,7 @@ namespace SalesCommissionReport
                     {
                         DataRow dr = dtTable.Rows[n];
 
-                        if (dr["Type"].ToString() == "LOST ACCOUNT")
+                        if (dr["Type"].ToString() == "LOSS ACCOUNT")
                         {
                             dataNewline = dtsales.NewRow();
                             for (int o = 0; o < 10; o++)
@@ -1149,7 +1149,6 @@ namespace SalesCommissionReport
                     dtsales.Rows.Add(dataEmpty);
                     #endregion
 
-
                     #region
                     dataNewline = dtsales.NewRow();
                     dataNewline[0] = "Total"; dataNewline[1] = ""; dataNewline[2] = ""; dataNewline[3] = ALLTotalProfit.ToString(); dataNewline[4] = ""; dataNewline[5] = "";
@@ -1235,7 +1234,7 @@ namespace SalesCommissionReport
                 {
                     DataTable dtnew = new DataTable();
                     dtnew = dsData.Tables[ta].Copy();
-                    dtnew.TableName ="Other's Sales List";
+                    dtnew.TableName = "OTHER's Sales";
                     ds.Tables.Add(dtnew);
                 }
             }
@@ -1525,7 +1524,7 @@ namespace SalesCommissionReport
                         ISheet sheet = workbook.CreateSheet(SetTable.Tables[k].TableName.ToString());
 
                         //读取标题  
-                        if (sheet.SheetName.Contains("Other's"))
+                        if (sheet.SheetName.Contains("OTHER"))//OTHER's Sales
                         {
                             IRow rowHeader = sheet.CreateRow(0);
 
@@ -1585,7 +1584,7 @@ namespace SalesCommissionReport
                                                 cell.SetCellValue(string.Format(strValue));
                                             }
 
-                                            if (strValue.Contains("SALE LEAD") || strValue.Contains("LOST ACCOUNT") || strValue.Contains("CREDIT OVER") || strValue.Contains("LATE PAYMENT"))
+                                            if (strValue.Contains("SALE LEAD") || strValue.Contains("LOSS ACCOUNT") || strValue.Contains("CREDIT OVER") || strValue.Contains("LATE PAYMENT"))
                                             {
                                                 sheet.AddMergedRegion(new CellRangeAddress(i, i, 0, 3));
                                             }
@@ -1601,7 +1600,7 @@ namespace SalesCommissionReport
                                         }
                                         else
                                         {
-                                            if (strValue.Contains("SALE LEAD") || strValue.Contains("LOST ACCOUNT") || strValue.Contains("CREDIT OVER") || strValue.Contains("LATE PAYMENT"))
+                                            if (strValue.Contains("SALE LEAD") || strValue.Contains("LOSS ACCOUNT") || strValue.Contains("CREDIT OVER") || strValue.Contains("LATE PAYMENT"))
                                             {
                                                 cell.CellStyle = style_row_Type;
                                             }

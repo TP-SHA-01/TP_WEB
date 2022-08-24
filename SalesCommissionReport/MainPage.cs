@@ -1505,7 +1505,7 @@ namespace SalesCommissionReport
                     style_Money.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
                     style_Money.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
                     format = workbook.CreateDataFormat();
-                    style_Money.DataFormat = format.GetFormat("$#,##0");
+                    style_Money.DataFormat = format.GetFormat("#,##");
 
 
                     ICellStyle style_Date = workbook.CreateCellStyle();
@@ -1549,7 +1549,14 @@ namespace SalesCommissionReport
                                     try
                                     {
                                         string strValue = TableName.Rows[i][j].ToString();
-                                        cell.SetCellValue(string.Format(strValue));
+                                        if (IsNumberic(strValue))
+                                        {
+                                            cell.SetCellValue(double.Parse(strValue));
+                                        }
+                                        else
+                                        {
+                                            cell.SetCellValue(string.Format(strValue));
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
@@ -1582,7 +1589,14 @@ namespace SalesCommissionReport
                                             }
                                             else
                                             {
-                                                cell.SetCellValue(string.Format(strValue));
+                                                if (IsNumberic(strValue))
+                                                {
+                                                    cell.SetCellValue(double.Parse(strValue));
+                                                }
+                                                else
+                                                {
+                                                    cell.SetCellValue(string.Format(strValue));
+                                                }
                                             }
 
                                             if (strValue.Contains("SALE LEAD") || strValue.Contains("LOSS ACCOUNT") || strValue.Contains("CREDIT OVER") || strValue.Contains("LATE PAYMENT"))
@@ -1689,6 +1703,19 @@ namespace SalesCommissionReport
                     lblStatus.Visible = false;
 
                 }
+            }
+        }
+
+        public bool IsNumberic(string strNum)
+        {
+            try
+            {
+                System.Decimal i = System.Convert.ToDecimal(strNum);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                return false;
             }
         }
     }
